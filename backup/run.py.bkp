@@ -1,0 +1,25 @@
+from pyspark import SparkConf,SparkContext
+from properties import *
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import HiveContext
+from data_query import *
+from rdd_func import *
+
+conf = SparkConf().setAppName(appname).setMaster("yarn-client")
+sc = SparkContext(conf=conf)
+sqlContext = HiveContext(sparkContext=sc)
+
+holidays_data = sc.textFile("/tmp/pyspark_data/holidays")
+header = holidays_data.first()
+holidays_rdd = holidays_data.filter(lambda x: x != header).map(lambda x: x.split(","))
+holiday_list = sqlContext.createDataFrame(holidays_rdd, ['ds', 'holiday', 'lower_window', 'upper_window']).collect()
+
+# sc.broadcast(holidays)
+test_data = getData(sqlContext=sqlContext)
+test_data_rdd = test_data.map(lambda x: makeDataframe(x, holiday_list))
+
+print test_data_rdd.take(1)
+
+
+
+

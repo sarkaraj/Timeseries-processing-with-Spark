@@ -1,4 +1,5 @@
 from data_transformation import *
+from weekly_model_current import ensm_mod
 
 
 def convertListToPdDF(holidays):
@@ -39,19 +40,21 @@ def convertListToPdDF(holidays):
 
     return holidays
 
-def makeDataframe(row_object):
+
+def makeDataframe(row_object, holiday_list):
     import sys
     sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
     sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
 
     import pandas as pd
-    from fbprophet import Prophet
-    from pyculiarity import detect_ts
 
     customernumber = row_object.customernumber
     matnr = row_object.matnr
-    pdt_freq_annual = row_object.pdt_freq_annual
+    # pdt_freq_annual = row_object.pdt_freq_annual
 
+    holidays = convertListToPdDF(holiday_list)
+
+    # Unpacking the dataset
     data_array = [row.split("\t") for row in row_object.data]
     data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p'])
     data_pd_df['customernumber'] = customernumber
@@ -61,17 +64,25 @@ def makeDataframe(row_object):
 
     data_pd_df = data_pd_df.sort(['date'], ascending=True)
 
-    if (pdt_freq_annual >= 12 and pdt_freq_annual < 52):
-        data_pd_df = get_monthly_aggregate(data_pd_df)
-        # model = some_func_monthly(data_pd_df)
-        # return (customernumber, matnr, model, <array of images>)
-    elif (pdt_freq_annual > 52):
-        data_pd_df = get_weekly_aggregate(data_pd_df)
-    else:
-        # data_pd_df = pd.DataFrame()
-        pass
+    data_pd_df = get_weekly_aggregate(data_pd_df)
+    # ensm_mod(prod, cus_no, mat_no, holidays, min_train_days=731, test_points=2)
+    output = ensm_mod(prod=data_pd_df, cus_no=customernumber, mat_no=matnr, holidays=holidays)
 
-    return data_pd_df
+    # # Segregating Dataset based in annual product frequency
+    # if(pdt_freq_annual >= 12 and pdt_freq_annual < 52):
+    #     return pd.Dataframe()
+    #     # data_pd_df = get_monthly_aggregate(data_pd_df)
+    #     # model = some_func_monthly(data_pd_df)
+    #     # return (customernumber, matnr, model, <array of images>)
+    #     # pass
+    # elif(pdt_freq_annual > 52):
+    #     data_pd_df = get_weekly_aggregate(data_pd_df)
+    #     # ensm_mod prod,cus_no,mat_no, holidays
+    #     return ensm_mod(prod=data_pd_df, cus_no=customernumber, mat_no=matnr, holidays=holidays)
+    #     # pass
 
-
-test_data_rdd = test_data.map(lambda x: makeDataframe(x))
+    # else:
+    #     # data_pd_df = pd.DataFrame()
+    #     return pd.Dataframe()
+    #     # pass
+    return output
