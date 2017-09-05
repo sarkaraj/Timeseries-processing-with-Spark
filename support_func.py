@@ -1,4 +1,4 @@
-from data_transformation import *
+from data_transformation import get_weekly_aggregate
 from weekly_model_current import ensm_mod
 
 
