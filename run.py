@@ -32,6 +32,8 @@ test_data_rdd = test_data.map(lambda x: model_fit(x, holiday_list))
 print "Output - take(1)"
 print test_data_rdd.take(1)
 
+test_data_rdd.saveAsTextFile('/tmp/pyspark_data/spark_test_1')
+
 
 
 

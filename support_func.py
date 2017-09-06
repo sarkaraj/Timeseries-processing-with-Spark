@@ -62,7 +62,7 @@ def model_fit(row_object, holiday_list):
     data_pd_df['quantity'] = data_pd_df['quantity'].map(float)
     data_pd_df['q_indep_p'] = data_pd_df['q_indep_p'].map(float)
 
-    data_pd_df = data_pd_df.sort(['date'], ascending=True)
+    # data_pd_df = data_pd_df.sort_values('date', ascending=True)
 
     data_pd_df = get_weekly_aggregate(data_pd_df)
     # ensm_mod(prod, cus_no, mat_no, holidays, min_train_days=731, test_points=2)
@@ -85,4 +85,4 @@ def model_fit(row_object, holiday_list):
     #     # data_pd_df = pd.DataFrame()
     #     return pd.Dataframe()
     #     # pass
-    return output
+    return tuple(customernumber, matnr, output)
