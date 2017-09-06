@@ -85,4 +85,8 @@ def model_fit(row_object, holiday_list):
     #     # data_pd_df = pd.DataFrame()
     #     return pd.Dataframe()
     #     # pass
-    return tuple(customernumber, matnr, output)
+
+    # # Changed output to a dicionary of structure {index -> {column -> value}}
+    # return (customernumber, matnr, output)
+
+    return (customernumber, matnr, output.to_dict(orient='index'))
