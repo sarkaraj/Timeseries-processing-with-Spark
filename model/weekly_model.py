@@ -1,6 +1,6 @@
-from ma_outlier import *
-from error_calculator import *
-from save_images import *
+from .ma_outlier import *
+from .error_calculator import *
+from .save_images import *
 
 def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test_points = 2, **kwargs):
     """
