@@ -1,1 +1,0 @@
-data_query - Line 23:  current_date() --> needs to be updated for the time being to a date in July 2017
