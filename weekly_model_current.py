@@ -22,14 +22,14 @@ def twitter_outlier_detection(data):
     data.ds = data.ds.apply(str).apply(parser.parse)
     data.y = data.y.interpolate(method='cubic', limit=10, limit_direction='both')
 
-    return (data)
+    return data
 
 
 def ensm_mod(prod, cus_no, mat_no, holidays, min_train_days=731, test_points=2):
     import pandas as pd
     import numpy as np
     # import pyflux as pf
-    from pyculiarity import detect_ts
+    # from pyculiarity import detect_ts
     import itertools
     import warnings
     import statsmodels.api as sm
@@ -51,9 +51,10 @@ def ensm_mod(prod, cus_no, mat_no, holidays, min_train_days=731, test_points=2):
         prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
     test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
     rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+
     output_result = pd.DataFrame()
 
-    while (len(rem_data.ds) >= test_points):
+    while len(rem_data.ds) >= test_points:
 
         # ARIMA Model Data Transform
         train_arima = train.set_index('ds', drop=True)

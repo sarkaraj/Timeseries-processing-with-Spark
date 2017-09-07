@@ -1,5 +1,5 @@
-from data_transformation import get_weekly_aggregate
-from weekly_model_current import ensm_mod
+from model.weekly_model import weekly_ensm_model
+from transform_data.data_transformation import get_weekly_aggregate
 
 
 def convertListToPdDF(holidays):
@@ -66,7 +66,7 @@ def model_fit(row_object, holiday_list):
 
     data_pd_df = get_weekly_aggregate(data_pd_df)
     # ensm_mod(prod, cus_no, mat_no, holidays, min_train_days=731, test_points=2)
-    output = ensm_mod(prod=data_pd_df, cus_no=customernumber, mat_no=matnr, holidays=holidays)
+    output = weekly_ensm_model(prod=data_pd_df, cus_no=customernumber, mat_no=matnr, holidays=holidays)
 
     # # Segregating Dataset based in annual product frequency
     # if(pdt_freq_annual >= 12 and pdt_freq_annual < 52):
@@ -85,8 +85,8 @@ def model_fit(row_object, holiday_list):
     #     # data_pd_df = pd.DataFrame()
     #     return pd.Dataframe()
     #     # pass
-
     # # Changed output to a dicionary of structure {index -> {column -> value}}
     # return (customernumber, matnr, output)
 
     return (customernumber, matnr, output.to_dict(orient='index'))
+

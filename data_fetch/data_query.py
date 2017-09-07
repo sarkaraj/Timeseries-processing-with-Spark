@@ -1,5 +1,5 @@
-import sys
-sys.path.insert(0, "properties.zip")
+# import sys
+# sys.path.insert(0, "properties.zip")
 
 import properties as p
 
@@ -37,7 +37,8 @@ def getData(sqlContext, test_query=p.query, _latest_product_criteria_days=p._lat
                 .drop(col('row_count')) \
                 .drop(col('time_gap_years')) \
                 .drop(col('time_gap_days')) \
-                .drop(col('current_date'))
+                .drop(col('current_date')) \
+                .limit(4)
 
         # .filter((col('pdt_freq_annual') >= 12) & (col('pdt_freq_annual') <= 60))\
         # .drop(col('pdt_freq_annual'))\
