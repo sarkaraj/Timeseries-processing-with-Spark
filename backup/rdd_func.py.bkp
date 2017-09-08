@@ -2,7 +2,7 @@ from data_transformation import *
 from weekly_model_current import ensm_mod
 
 
-def convertListToPdDF(holidays):
+def convert_list_to_pd_df(holidays):
     import pandas as pd
     import numpy as np
     from dateutil import parser
@@ -52,7 +52,7 @@ def makeDataframe(row_object, holiday_list):
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
 
-    holidays = convertListToPdDF(holiday_list)
+    holidays = convert_list_to_pd_df(holiday_list)
 
     # Unpacking the dataset
     data_array = [row.split("\t") for row in row_object.data]

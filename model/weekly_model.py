@@ -1,6 +1,6 @@
-from .ma_outlier import *
-from .error_calculator import *
-from .save_images import *
+from ma_outlier import *
+from error_calculator import *
+from save_images import *
 
 def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test_points = 2, **kwargs):
     """
@@ -190,4 +190,4 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
         # Error plots(comment)
         weekly_ensm_model_error_plots(output_result=output_result,dir_name=dir_name,cus_no=cus_no, mat_no= mat_no)
 
-    return (output_error)
+    return output_error

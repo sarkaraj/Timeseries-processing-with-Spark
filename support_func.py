@@ -1,50 +1,12 @@
 from model.weekly_model import weekly_ensm_model
-from transform_data.data_transformation import get_weekly_aggregate
-
-
-def convertListToPdDF(holidays):
-    import pandas as pd
-    import numpy as np
-    from dateutil import parser
-
-    ds = []
-    holiday = []
-    lower_window = []
-    upper_window = []
-
-    for elem in holidays:
-        ds.append(elem.ds)
-        holiday.append(elem.holiday)
-        lower_window.append(elem.lower_window)
-        upper_window.append(elem.upper_window)
-
-    ds = np.array(ds)
-    holiday = np.array(holiday)
-    lower_window = np.array(lower_window)
-    upper_window = np.array(upper_window)
-
-    ds = pd.Series(ds)
-    holiday = pd.Series(holiday)
-    lower_window = pd.Series(lower_window)
-    upper_window = pd.Series(upper_window)
-
-    holidays = pd.concat([ds, holiday, lower_window, upper_window], axis=1)
-    holidays.columns = ['ds', 'holiday', 'lower_window', 'upper_window']
-    # print holidays
-
-    holidays.ds = holidays.ds.apply(parser.parse)
-    holidays.lower_window = -7
-    holidays.upper_window = 7
-
-    # print holidays
-
-    return holidays
+from transform_data.data_transform import get_weekly_aggregate
+from transform_data.pandas_support_func import *
 
 
 def model_fit(row_object, holiday_list):
-    import sys
-    sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
-    sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
+    # import sys
+    # sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
+    # sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
 
     import pandas as pd
 
@@ -52,7 +14,7 @@ def model_fit(row_object, holiday_list):
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
 
-    holidays = convertListToPdDF(holiday_list)
+    holidays = convert_list_to_pd_df(holiday_list)
 
     # Unpacking the dataset
     data_array = [row.split("\t") for row in row_object.data]
@@ -88,5 +50,7 @@ def model_fit(row_object, holiday_list):
     # # Changed output to a dicionary of structure {index -> {column -> value}}
     # return (customernumber, matnr, output)
 
-    return (customernumber, matnr, output.to_dict(orient='index'))
+    # output_list = extract_from_dict(output.to_dict(orient='index'))
+
+    return output
 
