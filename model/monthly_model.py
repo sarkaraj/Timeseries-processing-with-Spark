@@ -93,7 +93,7 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                                        mape_calculator(output_result.y_Prophet, output_result.y),
                                        np.nanmedian(output_result.rolling_3month_percent_error),
-                                       np.nanmax(np.absolute(output_result.rolling_3month_percent_error)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
                                        output_result['Error_Cumsum'].iloc[-1],
                                        output_result['cumsum_quantity'].iloc[-1],
                                        (np.amax(output_result.ds) - np.amin(output_result.ds)).days]],
