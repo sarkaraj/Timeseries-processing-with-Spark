@@ -1,6 +1,6 @@
 from transform_data.data_transform import *
-from ma_outlier import *
-from weekly_model import *
+from model.ma_outlier import *
+from model.weekly_model import *
 
 # loading libs
 import pandas as pd
@@ -57,7 +57,7 @@ prod = prod.drop(prod.index[[0,len(prod.y)-1]]).reset_index(drop = True)
 # run weekly model
 
 output = weekly_ensm_model(prod= prod, cus_no= cus_no, mat_no= mat_no,
-                           holidays=holidays, test_points= 2, dir_name= image_dir)
+                           holidays=holidays, test_points= 6)
 
-print (output.head())
+print (output)
 
