@@ -55,3 +55,5 @@ for cus_no in data_weekly.customernumber.unique():
             final_data_df = pd.concat([final_data_df, prod_output], axis=0)
 
 final_data_df.to_csv(image_dir+"error.csv",sep = ',', header = True)
+
+print (final_data_df.head())
