@@ -1,6 +1,6 @@
-from ma_outlier import *
-from error_calculator import *
-from save_images import *
+from model.ma_outlier import *
+from model.error_calculator import *
+from model.save_images import *
 
 def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test_points = 2, **kwargs):
     """
@@ -40,8 +40,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True
-                                  ,dir_name= dir_name,mat_no= mat_no, cus_no= cus_no) # comment if no image required
-
+                                  ,dir_name= dir_name,mat_no= mat_no, cus_no= cus_no)
     else:
         prod = ma_replace_outlier(data=prod,n_pass=3,aggressive=True)
 
@@ -149,17 +148,17 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
     output_result = weekly_ensm_model_error_calc(output_result)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, np.nanmedian(output_result.rolling_6week_percent_error),
-                                       np.nanmax(np.absolute(output_result.rolling_6week_percent_error)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error))),
                                        np.nanmedian(output_result.rolling_6week_percent_error_prophet),
-                                       np.nanmax(np.absolute(output_result.rolling_6week_percent_error_prophet)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
                                        np.nanmedian(output_result.rolling_6week_percent_error_arima),
-                                       np.nanmax(np.absolute(output_result.rolling_6week_percent_error_arima)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
                                        np.nanmedian(output_result.rolling_12week_percent_error),
-                                       np.nanmax(np.absolute(output_result.rolling_12week_percent_error)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_12week_percent_error))),
                                        np.nanmedian(output_result.rolling_12week_percent_error_prophet),
-                                       np.nanmax(np.absolute(output_result.rolling_12week_percent_error_prophet)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
                                        np.nanmedian(output_result.rolling_12week_percent_error_arima),
-                                       np.nanmax(np.absolute(output_result.rolling_12week_percent_error_arima)),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
                                        output_result['Error_Cumsum'].iloc[-1],output_result['cumsum_quantity'].iloc[-1],
                                        (np.amax(output_result.ds) - np.amin(output_result.ds)).days]],
                                 columns=['cus_no', 'mat_no', '6wre_med','6wre_max', '6wre_med_prophet',
@@ -167,6 +166,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
                                          '12wre_med','12wre_max', '12wre_med_prophet','12wre_max_prophet',
                                          '12wre_med_arima', '12wre_max_arima',
                                          'cum_error', 'cum_quantity', 'period_days'])
+
 
     if('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
