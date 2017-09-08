@@ -50,7 +50,7 @@ def model_fit(row_object, holiday_list):
     # # Changed output to a dicionary of structure {index -> {column -> value}}
     # return (customernumber, matnr, output)
 
-    # output_list = extract_from_dict(output.to_dict(orient='index'))
+    output_list = extract_from_dict(output.to_dict(orient='index'))
 
-    return output
+    return tuple(output_list)
 

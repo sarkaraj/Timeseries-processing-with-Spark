@@ -2,6 +2,7 @@ from model.ma_outlier import *
 from model.error_calculator import *
 from model.save_images import *
 
+
 def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test_points = 2, **kwargs):
     """
         Prod: weekly aggregated data frame containing
@@ -57,6 +58,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
         prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
     test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
     rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+
     output_result = pd.DataFrame()
 
     # incremental test

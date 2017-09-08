@@ -37,15 +37,24 @@ print test_data.count()
 print "Model_Fit method called"
 test_data_rdd = test_data.map(lambda x: model_fit(x, holiday_list))
 
-# print "test_data_df create"
-# test_data_df = sqlContext.createDataFrame(test_data_rdd, ["customernumber", "matnr", "error_data"])
-
-# print "test_data_df show"
-# test_data_df.show()
+test_data_rdd.cache()
 
 print "Output - take(1)"
 print test_data_rdd.take(1)
 
+
+# print "test_data_df create"
+# test_data_df = sqlContext.createDataFrame(test_data_rdd, ['cus_no', 'mat_no', '6wre_med','6wre_max', '6wre_med_prophet',
+#                                          '6wre_max_prophet','6wre_med_arima','6wre_max_arima',
+#                                          '12wre_med','12wre_max', '12wre_med_prophet','12wre_max_prophet',
+#                                          '12wre_med_arima', '12wre_max_arima',
+#                                          'cum_error', 'cum_quantity', 'period_days'])
+#
+# print "test_data_df show"
+# test_data_df.show()
+
+
+# print "Attempting to save as textfile"
 # test_data_rdd.saveAsTextFile('/tmp/pyspark_data/spark_test_1')
 
 

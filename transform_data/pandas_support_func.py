@@ -3,7 +3,7 @@ def extract_from_dict(row_elem, **kwargs):
     if(kwargs.get('multi_indexes')==True):
         return [[row_elem.get(index).get(key) for key in row_elem.get(index).keys()] for index in row_elem.keys()]
 
-    return [row_elem.get(row_elem.keys()[0]).get(key) for key in row_elem.get(row_elem.keys()[0]).keys()]
+    return [{key: row_elem.get(row_elem.keys()[0]).get(key)} for key in row_elem.get(row_elem.keys()[0]).keys()]
 
 
 def convert_list_to_pd_df(holidays):
@@ -43,39 +43,3 @@ def convert_list_to_pd_df(holidays):
     # print holidays
 
     return holidays
-
-import pandas as pd
-from pandas import Timestamp
-import numpy as np
-
-df2 = pd.DataFrame({ 'A' : 1.,
-                         'B' : pd.Timestamp('20130102'),
-                         'C' : pd.Series(1,index=list(range(4)),dtype='float32'),
-                        'D' : np.array([3] * 4,dtype='int32'),
-                         'E' : pd.Categorical(["test","train","test","train"]),
-                         'F' : 'foo' })
-
-print df2.to_dict(orient='index')
-list_elem = extract_from_dict(df2.to_dict(orient='index'))
-
-print pd.DataFrame.from_dict(data={0: {'A': 1.0, 'C': 1.0, 'B': Timestamp('2013-01-02 00:00:00'), 'E': 'test', 'D': 3, 'F': 'foo'}}, orient='index')
-
-
-
-# for elem in list_elem:
-#     print type(elem)
-
-x = pd.Series([1, 2, 3, 4, -1, -2, -3, -4])
-print "printing X"
-print x
-b = np.absolute(x)
-print "printing b"
-print b
-print type(b)
-#
-c = np.nanmax(b)
-print "print c"
-print c
-print type(c)
-
-print np.nanmax(np.absolute(np.array(pd.Series([1, 2, 3, 4, -1, -2, -3, -4]))))

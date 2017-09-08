@@ -29,6 +29,6 @@ d.matnr=f.matnr and d.units=f.meinh
 """
 
 _latest_product_criteria_days=92
-_product_criteria_days=731
+_product_criteria_days=820
 _product_criteria_years=2.0
 _product_criteria_annual_frequency=60
