@@ -18,7 +18,7 @@ file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\ten_25_stores\\"
 
 #holidays
-holidays = pd.read_table(file_dir+'holidays.csv',delimiter=',',header = 0)
+holidays = pd.read_table(file_dir+'holidays.py',delimiter=',',header = 0)
 holidays.ds = holidays.ds.apply(parser.parse)
 holidays.lower_window = -7
 holidays.upper_window = 7

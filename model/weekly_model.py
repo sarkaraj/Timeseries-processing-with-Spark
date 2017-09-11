@@ -1,9 +1,11 @@
 from model.ma_outlier import *
 from model.error_calculator import *
 from model.save_images import *
+from transform_data.holidays import get_holidays_dataframe_pd
 
 
-def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test_points = 2, **kwargs):
+def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, holidays=get_holidays_dataframe_pd(),
+                      **kwargs):
     """
         Prod: weekly aggregated data frame containing
             columns: customernumber, matnr, dt_week, quantity, p_ind_quantity
@@ -37,14 +39,13 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
                           title="raw_weekly_aggregated_quantity",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-    #Remove outlier
+    # Remove outlier
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True
-                                  ,dir_name= dir_name,mat_no= mat_no, cus_no= cus_no)
+                                  , dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
     else:
-        prod = ma_replace_outlier(data=prod,n_pass=3,aggressive=True)
-
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
 
     # save plot (comment)
     if ('dir_name' in kwargs.keys()):
@@ -53,7 +54,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
                           title="weekly_aggregated_quantity_outlier_replaced",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-    #test and train data creation
+    # test and train data creation
     train = prod[
         prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
     test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
@@ -90,7 +91,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
                                                     enforce_stationarity=False, enforce_invertibility=False,
                                                     measurement_error=False)
 
-                    results = mod.fit(disp= False)
+                    results = mod.fit(disp=False)
                     if results.aic < min_aic:
                         min_aic = results.aic
                         opt_param = param
@@ -104,7 +105,8 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
 
         # fitting Model
         mod = sm.tsa.statespace.SARIMAX(train_arima, order=opt_param, seasonal_order=opt_param_seasonal,
-                                        enforce_stationarity=False, enforce_invertibility=False, measurement_error=False)
+                                        enforce_stationarity=False, enforce_invertibility=False,
+                                        measurement_error=False)
         result = mod.fit(disp=False)
 
         # forecast Train
@@ -119,7 +121,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
         # creating test and train ensembled result
         result_test = test
         result_test['y_ARIMA'] = np.array(pred_test.predicted_mean)[1:]
-        result_test.loc[(result_test['y_ARIMA'] < 0) , 'y_ARIMA'] = 0
+        result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
 
         # prophet
         m = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=True, changepoint_prior_scale=5)
@@ -152,44 +154,47 @@ def weekly_ensm_model(prod, cus_no, mat_no, holidays, min_train_days = 731, test
     output_error = pd.DataFrame(data=[[cus_no, mat_no, np.nanmedian(output_result.rolling_6week_percent_error),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error))),
                                        np.nanmedian(output_result.rolling_6week_percent_error_prophet),
-                                       np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
+                                       np.nanmax(
+                                           np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
                                        np.nanmedian(output_result.rolling_6week_percent_error_arima),
-                                       np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
+                                       np.nanmax(
+                                           np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
                                        np.nanmedian(output_result.rolling_12week_percent_error),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_12week_percent_error))),
                                        np.nanmedian(output_result.rolling_12week_percent_error_prophet),
-                                       np.nanmax(np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
+                                       np.nanmax(
+                                           np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
                                        np.nanmedian(output_result.rolling_12week_percent_error_arima),
-                                       np.nanmax(np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
-                                       output_result['Error_Cumsum'].iloc[-1],output_result['cumsum_quantity'].iloc[-1],
+                                       np.nanmax(
+                                           np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
+                                       output_result['Error_Cumsum'].iloc[-1],
+                                       output_result['cumsum_quantity'].iloc[-1],
                                        (np.amax(output_result.ds) - np.amin(output_result.ds)).days]],
-                                columns=['cus_no', 'mat_no', '6wre_med','6wre_max', '6wre_med_prophet',
-                                         '6wre_max_prophet','6wre_med_arima','6wre_max_arima',
-                                         '12wre_med','12wre_max', '12wre_med_prophet','12wre_max_prophet',
+                                columns=['cus_no', 'mat_no', '6wre_med', '6wre_max', '6wre_med_prophet',
+                                         '6wre_max_prophet', '6wre_med_arima', '6wre_max_arima',
+                                         '12wre_med', '12wre_max', '12wre_med_prophet', '12wre_max_prophet',
                                          '12wre_med_arima', '12wre_max_arima',
                                          'cum_error', 'cum_quantity', 'period_days'])
 
-
-    if('dir_name' in kwargs.keys()):
+    if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
         # model fit(comment)
         train = train[:-test_points]
-        three_dim_save_plot(x1 = train.ds, y1 = train.y, y1_label= 'Train_observed',
-                            x2 = train.ds, y2 = np.array(pred_train.predicted_mean), y2_label= 'ARIMA_fit',
-                            x3 = train.ds, y3 = pf_train_pred.yhat, y3_label='Prophet_fit',
-                            xlable = "Date", ylable = "Quantity", title = "model_fit",
-                            dir_name = dir_name , cus_no = cus_no, mat_no = mat_no)
+        three_dim_save_plot(x1=train.ds, y1=train.y, y1_label='Train_observed',
+                            x2=train.ds, y2=np.array(pred_train.predicted_mean), y2_label='ARIMA_fit',
+                            x3=train.ds, y3=pf_train_pred.yhat, y3_label='Prophet_fit',
+                            xlable="Date", ylable="Quantity", title="model_fit",
+                            dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
         # model pred(comment)
-        four_dim_save_plot(x1 = output_result.ds, y1 = output_result.y, y1_label= 'Test_observed',
-                           x2 = output_result.ds, y2 = output_result.y_ARIMA, y2_label= 'ARIMA_pred',
-                           x3 = output_result.ds, y3 = output_result.y_Prophet, y3_label='Prophet_pred',
-                           x4 = output_result.ds, y4 = output_result.y_Ensembled, y4_label='Ensembled_pred',
+        four_dim_save_plot(x1=output_result.ds, y1=output_result.y, y1_label='Test_observed',
+                           x2=output_result.ds, y2=output_result.y_ARIMA, y2_label='ARIMA_pred',
+                           x3=output_result.ds, y3=output_result.y_Prophet, y3_label='Prophet_pred',
+                           x4=output_result.ds, y4=output_result.y_Ensembled, y4_label='Ensembled_pred',
                            xlable="Date", ylable="Quantity", title="model_pred",
                            dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-
         # Error plots(comment)
-        weekly_ensm_model_error_plots(output_result=output_result,dir_name=dir_name,cus_no=cus_no, mat_no= mat_no)
+        weekly_ensm_model_error_plots(output_result=output_result, dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
     return output_error
