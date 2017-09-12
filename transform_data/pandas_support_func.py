@@ -18,42 +18,13 @@ def extract_from_dict(row_elem, **kwargs):
     return row
 
 
+def get_pd_df(data_array, customernumber, matnr, **kwargs):
 
-#
-# def convert_list_to_pd_df(holidays):
-#     import pandas as pd
-#     import numpy as np
-#     from dateutil import parser
-#
-#     ds = []
-#     holiday = []
-#     lower_window = []
-#     upper_window = []
-#
-#     for elem in holidays:
-#         ds.append(elem.ds)
-#         holiday.append(elem.holiday)
-#         lower_window.append(elem.lower_window)
-#         upper_window.append(elem.upper_window)
-#
-#     ds = np.array(ds)
-#     holiday = np.array(holiday)
-#     lower_window = np.array(lower_window)
-#     upper_window = np.array(upper_window)
-#
-#     ds = pd.Series(ds)
-#     holiday = pd.Series(holiday)
-#     lower_window = pd.Series(lower_window)
-#     upper_window = pd.Series(upper_window)
-#
-#     holidays = pd.concat([ds, holiday, lower_window, upper_window], axis=1)
-#     holidays.columns = ['ds', 'holiday', 'lower_window', 'upper_window']
-#     # print holidays
-#
-#     holidays.ds = holidays.ds.apply(parser.parse)
-#     holidays.lower_window = -7
-#     holidays.upper_window = 7
-#
-#     # print holidays
-#
-#     return holidays
+    import pandas as pd
+
+    data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p']).convert_objects(
+        convert_numeric=True)
+    data_pd_df['customernumber'] = customernumber
+    data_pd_df['matnr'] = matnr
+
+    return data_pd_df
