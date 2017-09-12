@@ -13,7 +13,8 @@ def extract_from_dict(row_elem, **kwargs):
         twelve_wre_max=_output_dict.get('12wre_max'), twelve_wre_med_prophet = _output_dict.get('12wre_med_prophet'),
         twelve_wre_max_prophet=_output_dict.get('12wre_max_prophet'), twelve_wre_med_arima=_output_dict.get('12wre_med_arima'),
         twelve_wre_max_arima=_output_dict.get('12wre_max_arima'), cum_error=_output_dict.get('cum_error'),
-        cum_quantity=_output_dict.get('cum_quantity'), period_days=_output_dict.get('period_days'))
+        cum_quantity=_output_dict.get('cum_quantity'), period_days=_output_dict.get('period_days'),
+              rmse=_output_dict.get('rmse'), mape=_output_dict.get('mape'))
     return row
 
 
