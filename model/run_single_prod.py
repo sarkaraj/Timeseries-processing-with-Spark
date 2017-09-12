@@ -1,6 +1,6 @@
 from transform_data.data_transform import *
 from model.ma_outlier import *
-from model.weekly_model import *
+from model.weekly_model_ver_1 import *
 
 # loading libs
 import pandas as pd
