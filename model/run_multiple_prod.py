@@ -1,4 +1,4 @@
-from model.weekly_model_ver_1 import *
+from model.weekly_model import *
 from model.monthly_model import *
 from transform_data.data_transform import *
 

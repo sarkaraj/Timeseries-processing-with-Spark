@@ -1,4 +1,4 @@
-from model.weekly_model_ver_1 import weekly_ensm_model
+from model.weekly_model import weekly_ensm_model
 from transform_data.data_transform import get_weekly_aggregate
 from transform_data.pandas_support_func import *
 
