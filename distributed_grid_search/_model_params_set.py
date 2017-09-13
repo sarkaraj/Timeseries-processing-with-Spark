@@ -2,6 +2,7 @@ import distributed_grid_search.properties as p
 import distributed_grid_search._sarimax as smax
 import itertools
 from transform_data.pandas_support_func import *
+from transform_data.data_transform import get_weekly_aggregate
 
 def generate_all_param_combo_sarimax():
     param_p = xrange(p.p_max + 1)
@@ -31,4 +32,7 @@ def generate_models(row_object):
     data_array = [row.split("\t") for row in row_object.data]
     data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
 
-    return [(customernumber, matnr, data_pd_df, param) for param in generate_all_param_combo_sarimax()]
+    # Obtaining weeekly aggregate
+    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated) for pdq, seasonal_pqd in generate_all_param_combo_sarimax()]

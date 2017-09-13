@@ -110,7 +110,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
                                         enforce_stationarity=True, enforce_invertibility=True,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)
-        result = mod.fit(disp=False)
+        results = mod.fit(disp=False)
 
         # forecast Train
         pred_train = results.get_prediction(start=pd.to_datetime(np.amin(np.array(train_arima.index))), dynamic=False)
@@ -124,7 +124,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
         # creating test and train ensembled result
         result_test = test
         result_test['y_ARIMA'] = np.array(pred_test.predicted_mean)[1:]
-        result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
+        result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0  # Change negative predictions to 0
 
         # prophet
         m = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=True, changepoint_prior_scale=5)
