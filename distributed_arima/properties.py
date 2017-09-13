@@ -1,2 +1,0 @@
-min_train_days=731
-test_points=2
