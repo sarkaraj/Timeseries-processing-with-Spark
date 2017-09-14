@@ -34,7 +34,7 @@ sys.path.insert(0, "jobs.zip")
 print "Querying of Hive Table - Obtaining Product Data"
 test_data = getData(sqlContext=sqlContext)
 
-test_data.cache()
+# test_data.cache()
 
 # print "test_data number of rows"
 # print test_data.count()
@@ -42,18 +42,20 @@ test_data.cache()
 print "Preparing data for parallelizing model grid search"
 test_data_parallel = test_data.flatMap(lambda x: generate_models(x))
 
-print test_data_parallel.take(1)
+# print test_data_parallel.take(1)
 
 # cus_no, mat_no, pdq, seasonal_pdq, prod
 print "Running all models:"
 arima_results_rdd = test_data_parallel.map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4]))
 
-# arima_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, param))
+# arima_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
 
 print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
 opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
                                                        dist_grid_search_merge_combiner)
 # opt_arima_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, param)))
+
+opt_arima_results_rdd.cache()
 
 print "printing first 5 row of opt_arima_results_rdd "
 opt_arima_results_rdd.take(5)

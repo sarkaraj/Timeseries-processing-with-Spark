@@ -44,19 +44,25 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
     output_result = pd.DataFrame()
 
+    value_error_counter = 0
+
     while (len(rem_data.ds) >= test_points):
         # ARIMA Model Data Transform
         train_arima = train.set_index('ds', drop=True)
         test_arima = test.set_index('ds', drop=True)
 
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
+        try:
+            mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
+                                            enforce_stationarity=True, enforce_invertibility=True,
+                                            measurement_error=False, time_varying_regression=False,
+                                            mle_regression=True)
 
-        mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
-                                        enforce_stationarity=True, enforce_invertibility=True,
-                                        measurement_error=False, time_varying_regression=False,
-                                        mle_regression=True)
+            results = mod.fit(disp=False)
+        except ValueError:
+            value_error_counter = value_error_counter + 1
+            continue
 
-        results = mod.fit(disp=False)
 
         # # forecast Train
         # pred_train = results.get_prediction(start=pd.to_datetime(np.amin(np.array(train_arima.index))), dynamic=False)
@@ -96,7 +102,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
     output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
     _criteria = output_error_dict.get('12wre_max')
-    _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, param))
+    _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
 
     return _result
 
