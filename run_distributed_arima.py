@@ -11,7 +11,7 @@ conf = SparkConf().setAppName("test_cona_distributed_arima").setMaster("yarn-cli
 sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sparkContext=sc)
 
-print "Running spark jobs for C001-convenience stores -- applied record limit as 4 "
+print "Running spark jobs Debugging mode "
 
 import time
 
@@ -48,17 +48,21 @@ test_data_parallel = test_data.flatMap(lambda x: generate_models(x))
 print "Running all models:"
 arima_results_rdd = test_data_parallel.map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4]))
 
+arima_results_rdd.cache()
+
+print arima_results_rdd.take(2)
+print arima_results_rdd.count()
 # arima_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
 
-print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
-opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
-                                                       dist_grid_search_merge_combiner)
-# opt_arima_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, param)))
-
-opt_arima_results_rdd.cache()
-
-print "printing first 5 row of opt_arima_results_rdd "
-opt_arima_results_rdd.take(5)
+# print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
+# opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
+#                                                        dist_grid_search_merge_combiner)
+# # opt_arima_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, param)))
+#
+# opt_arima_results_rdd.cache()
+#
+# print "printing first 5 row of opt_arima_results_rdd "
+# opt_arima_results_rdd.take(5)
 
 
 print("Time taken for running spark program:\t\t--- %s seconds ---" % (time.time() - start_time))

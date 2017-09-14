@@ -59,7 +59,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                             mle_regression=True)
 
             results = mod.fit(disp=False)
-        except ValueError:
+        except:
             value_error_counter = value_error_counter + 1
             continue
 

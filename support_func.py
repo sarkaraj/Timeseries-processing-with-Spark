@@ -25,10 +25,27 @@ def model_fit(row_object):
 
 def dist_grid_search_create_combiner(_value):
     """
-    Receives tuple of structure --> (_criteria, output_error_dict, output_result_dict, param)
-    :return: (_criteria, (_criteria, output_error_dict, output_result_dict, param))
+    Receives tuple of structure --> (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter)
+    :return: (_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
     """
     return _value[0], _value
+
+
+def dist_grid_search_merge_value(_comb_a, _value):
+    """
+    Merge value function for distributed arima
+    :param _comb_a: (_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
+    :param _value: (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter)
+    :return: (_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
+    """
+    if(_comb_a[0] > _value[0]):
+        _comb_a[0] = _value[0]
+        _comb_a[1] = _value
+        return _comb_a
+    elif(_comb_a[0] < _value[0]):
+        return _comb_a
+    else:
+        return _comb_a
 
 
 def dist_grid_search_merge_combiner(_comb_a, _comb_b):
@@ -45,19 +62,3 @@ def dist_grid_search_merge_combiner(_comb_a, _comb_b):
     else:
         return _comb_a
 
-
-def dist_grid_search_merge_value(_comb_a, _value):
-    """
-    Merge value function for distributed arima
-    :param _comb_a: (_criteria, (_criteria, output_error_dict, output_result_dict, param))
-    :param _value: (_criteria, output_error_dict, output_result_dict, param)
-    :return: (_criteria, (_criteria, output_error_dict, output_result_dict, param))
-    """
-    if(_comb_a[0] > _value[0]):
-        _comb_a[0] = _value[0]
-        _comb_a[1] = _value
-        return _comb_a
-    elif(_comb_a[0] < _value[0]):
-        return _comb_a
-    else:
-        return _comb_a
