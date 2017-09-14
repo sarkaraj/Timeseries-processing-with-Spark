@@ -64,7 +64,8 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     # incremental test
     while (len(rem_data.ds) >= test_points):
         # prophet model
-        m = Prophet(weekly_seasonality=False, yearly_seasonality=True, changepoint_prior_scale=2,
+        m = Prophet(weekly_seasonality=False, yearly_seasonality=True,
+                    changepoint_prior_scale=2,
                     seasonality_prior_scale=0.1)
         m.fit(train);
 

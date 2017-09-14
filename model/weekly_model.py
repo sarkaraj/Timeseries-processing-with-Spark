@@ -82,13 +82,14 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
 
         # grid search
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
+        value_error_count = 0
         min_aic = 9999999
         opt_param = (0, 0, 0)
-        opt_param_seasonal = (0, 0, 0, 52)
+        opt_param_seasonal = (0 , 0, 0, 52)
         for param in pdq:
             for param_seasonal in seasonal_pdq:
                 try:
-                    mod = sm.tsa.statespace.SARIMAX(train_arima, order=param, seasonal_order=param_seasonal,
+                    mod = sm.tsa.statespace.SARIMAX(train_arima, order= param, seasonal_order= param_seasonal,
                                                     enforce_stationarity=True, enforce_invertibility=True,
                                                     measurement_error=False, time_varying_regression=False,
                                                     mle_regression=True)
@@ -101,16 +102,17 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
 
                         # print('ARIMA{}x{}52 - AIC:{}'.format(param, param_seasonal, results.aic))
                 except:
+                    value_error_count = value_error_count +1
                     continue
 
         print('Optimal ARIMA{}x{}52 - AIC:{}'.format(opt_param, opt_param_seasonal, min_aic))
-
+        print('value error{}'.format(value_error_count))
         # fitting Model
-        mod = sm.tsa.statespace.SARIMAX(train_arima, order=opt_param, seasonal_order=opt_param_seasonal,
+        mod = sm.tsa.statespace.SARIMAX(train_arima, order= opt_param, seasonal_order= opt_param_seasonal,
                                         enforce_stationarity=True, enforce_invertibility=True,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)
-        result = mod.fit(disp=False)
+        results = mod.fit(disp=False)
 
         # forecast Train
         pred_train = results.get_prediction(start=pd.to_datetime(np.amin(np.array(train_arima.index))), dynamic=False)
