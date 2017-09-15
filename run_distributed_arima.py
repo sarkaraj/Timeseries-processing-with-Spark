@@ -3,13 +3,15 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext
 from distributed_grid_search._model_params_set import generate_models
 
-from support_func import model_fit
+from support_func import dist_grid_search_create_combiner, dist_grid_search_merge_value, dist_grid_search_merge_combiner
 
 from distributed_grid_search._sarimax import sarimax
 
-conf = SparkConf().setAppName("test_cona").setMaster("yarn-client")
+conf = SparkConf().setAppName("test_cona_distributed_arima").setMaster("yarn-client")
 sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sparkContext=sc)
+
+print "Running spark jobs Debugging mode "
 
 import time
 
@@ -32,18 +34,41 @@ sys.path.insert(0, "jobs.zip")
 print "Querying of Hive Table - Obtaining Product Data"
 test_data = getData(sqlContext=sqlContext)
 
-print "test_data number of rows"
-print test_data.count()
+# test_data.cache()
+
+# print "test_data number of rows"
+# print test_data.count()
 
 print "Preparing data for parallelizing model grid search"
 test_data_parallel = test_data.flatMap(lambda x: generate_models(x))
 
+# print test_data_parallel.take(1)
+
+# cus_no, mat_no, pdq, seasonal_pdq, prod
 print "Running all models:"
-arima_results_rdd = test_data_parallel.map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3]))
+arima_results_rdd = test_data_parallel.map(
+    lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4])).filter(
+    lambda x: x != "MODEL_NOT_VALID")
 
-# TODO: Yet to be decided what exactly arima_results_rdd is receiving
+arima_results_rdd.cache()
 
-print "Selecting the best arima models for all customer-product combinations"
-# TODO: use combineByKey() here since then per node load get decreased during reduction phase. Logic will be dependent on some model selection criteria
+# print arima_results_rdd.take(2)
+print "arima_results_rdd.count :: "
+print arima_results_rdd.count()
+# arima_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+
+print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
+opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
+                                                       dist_grid_search_merge_combiner)
+# opt_arima_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, param)))
+
+# opt_arima_results_rdd.cache()
+
+print "printing first 5 row of opt_arima_results_rdd "
+print opt_arima_results_rdd.take(2)
+
+print "Total output records"
+print opt_arima_results_rdd.count()
 
 
+print("Time taken for running spark program:\t\t--- %s seconds ---" % (time.time() - start_time))
