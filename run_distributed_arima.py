@@ -46,7 +46,9 @@ test_data_parallel = test_data.flatMap(lambda x: generate_models(x))
 
 # cus_no, mat_no, pdq, seasonal_pdq, prod
 print "Running all models:"
-arima_results_rdd = test_data_parallel.map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4]))
+arima_results_rdd = test_data_parallel.map(
+    lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4])).filter(
+    lambda x: x != "MODEL_NOT_VALID")
 
 arima_results_rdd.cache()
 
