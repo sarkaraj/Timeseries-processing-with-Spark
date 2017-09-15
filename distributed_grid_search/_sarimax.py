@@ -8,6 +8,7 @@ import transform_data.pandas_support_func as pd_func
 def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     import pandas as pd
     import numpy as np
+    # import numpy.linalg.linalg.LinAlgError
     import warnings
     import statsmodels.api as sm
     from dateutil import parser
@@ -45,7 +46,6 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
         output_result = pd.DataFrame()
 
-        value_error_counter = 0
 
         while (len(rem_data.ds) >= test_points):
             # ARIMA Model Data Transform
@@ -100,10 +100,14 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get('12wre_max')
-        _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
+        _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
         return _result
 
-    except:
+    except ValueError:
+        return "MODEL_NOT_VALID"
+    except ZeroDivisionError:
+        return "MODEL_NOT_VALID"
+    except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
 

@@ -36,7 +36,8 @@ def extract_elems_from_dict(row_elem, **kwargs):
     if (kwargs.get('multi_indexes') == True):
         return [[row_elem.get(index).get(key) for key in row_elem.get(index).keys()] for index in row_elem.keys()]
 
-    _output_dict = dict((key, convert_val_to_str(value)) for key, value in row_elem.get(row_elem.keys()[0]).iteritems())
+    # _output_dict = dict((key, convert_val_to_str(value)) for key, value in row_elem.get(row_elem.keys()[0]).iteritems())
+    _output_dict = row_elem.get(0)
 
     return _output_dict
 

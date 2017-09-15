@@ -17,7 +17,7 @@ def generate_all_param_combo_sarimax():
 
     seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
 
-    all_combo = list(itertools.product(pdq, seasonal_pdq))[1:]
+    all_combo = list(itertools.product(pdq, seasonal_pdq))
 
     return all_combo
 
