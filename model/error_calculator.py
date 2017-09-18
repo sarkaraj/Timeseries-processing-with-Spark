@@ -64,6 +64,11 @@ def monthly_prophet_model_error_calculator(data):
     data['rolling_3month_percent_error'] = data['rolling_3month_error'] / data[
         'rolling_3month_y'] * 100
 
+    data['rolling_4month_error'] = pd.rolling_sum(data['Error'], window=4, min_periods=4)
+    data['rolling_4month_y'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+    data['rolling_4month_percent_error'] = data['rolling_4month_error'] / data[
+        'rolling_4month_y'] * 100
+
     return (data)
 
 def rmse_calculator(y_forecasted,y_truth):

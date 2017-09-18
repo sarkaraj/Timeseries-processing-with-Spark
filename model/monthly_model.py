@@ -95,10 +95,12 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                                        mape_calculator(output_result.y_Prophet, output_result.y),
                                        np.nanmedian(output_result.rolling_3month_percent_error),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
+                                       np.nanmedian(output_result.rolling_4month_percent_error),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_4month_percent_error))),
                                        output_result['Error_Cumsum'].iloc[-1],
                                        output_result['cumsum_quantity'].iloc[-1],
                                        ((np.amax(output_result.ds) - np.amin(output_result.ds)).days+30)]],
-                                columns=['cus_no', 'mat_no', 'rmse', 'mape','3mre_med', '3mre_max',
+                                columns=['cus_no', 'mat_no', 'rmse', 'mape','3mre_med', '3mre_max','4mre_med', '4mre_max',
                                          'cum_error', 'cum_quantity', 'period_days'])
 
     if ('dir_name' in kwargs.keys()):
@@ -113,13 +115,16 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
         # plot cumulative error
-        one_dim_save_plot(x= output_result.ds, y= output_result.Error_Cumsum,
-                          xlable="Date", ylable="% Cumulative Error", title="cumulative_error",
-                          dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+        try:
+            one_dim_save_plot(x= output_result.ds, y= output_result.Error_Cumsum,
+                              xlable="Date", ylable="% Cumulative Error", title="cumulative_error",
+                              dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-        # plot cumulative error
-        one_dim_save_plot(x=output_result.ds, y=output_result.rolling_3month_percent_error,
-                          xlable="Date", ylable="% 3 Month Rolling Error", title="3month_rolling_error",
-                          dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+            # plot cumulative error
+            one_dim_save_plot(x=output_result.ds, y=output_result.rolling_3month_percent_error,
+                              xlable="Date", ylable="% 3 Month Rolling Error", title="3month_rolling_error",
+                              dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+        except ValueError:
+            print("No points to plot")
 
     return (output_error)
