@@ -95,8 +95,8 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                            output_result['Error_Cumsum_arima'].iloc[-1],
                                            output_result['cumsum_quantity'].iloc[-1],
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', '6wre_med', '6wre_max',
-                                             '12wre_med', '12wre_max', 'cum_error', 'cum_quantity', 'period_days'])
+                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
+                                             'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get('12wre_max')
