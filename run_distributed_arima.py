@@ -11,7 +11,7 @@ conf = SparkConf().setAppName("test_cona_distributed_arima").setMaster("yarn-cli
 sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sparkContext=sc)
 
-print "Running spark jobs Debugging mode "
+print "Running spark jobs distributed arima "
 
 import time
 
@@ -52,19 +52,19 @@ arima_results_rdd = test_data_parallel.map(
 
 arima_results_rdd.cache()
 
-# print arima_results_rdd.take(2)
-print "arima_results_rdd.count :: "
+# print prophet_results_rdd.take(2)
+print "prophet_results_rdd.count :: "
 print arima_results_rdd.count()
-# arima_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+# prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
 print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
 opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
                                                        dist_grid_search_merge_combiner)
-# opt_arima_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq)))
+# opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq)))
 
-# opt_arima_results_rdd.cache()
+# opt_prophet_results_rdd.cache()
 
-print "printing first 5 row of opt_arima_results_rdd "
+print "printing first 2 row of opt_prophet_results_rdd "
 print opt_arima_results_rdd.take(2)
 
 print "Total output records"
