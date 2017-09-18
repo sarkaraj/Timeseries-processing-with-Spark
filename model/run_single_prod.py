@@ -16,7 +16,7 @@ rcParams['figure.figsize'] = 15, 6
 file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\generate_all_param_combo_prophet"
 
 # holidays
 holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)

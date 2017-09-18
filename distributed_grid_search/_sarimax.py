@@ -23,6 +23,11 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     else:
         test_points = p_model.test_points
 
+    if (kwargs.has_key('pred_points')):
+        pred_points = kwargs.get('pred_points')
+    else:
+        pred_points = p_model.pred_points
+
     try:
         pdq = pdq
         seasonal_pdq = seasonal_pdq
@@ -80,6 +85,18 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             output_result = pd.concat([output_result, result_test], axis=0)
 
+        # model_prediction
+        prod_arima = prod.set_index('ds', drop=True)
+        mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
+                                        enforce_stationarity=True, enforce_invertibility=True,
+                                        measurement_error=False, time_varying_regression=False,
+                                        mle_regression=True)
+
+        results_arima = mod.fit(disp=False)
+        pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
+                                           end=pred_points, dynamic=True)
+        _output_pred = np.array(pred_arima.predicted_mean)[1:]
+
 
         output_result = weekly_arima_error_calc(output_result)
         output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
@@ -95,12 +112,12 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                            output_result['Error_Cumsum_arima'].iloc[-1],
                                            output_result['cumsum_quantity'].iloc[-1],
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', '6wre_med', '6wre_max',
-                                             '12wre_med', '12wre_max', 'cum_error', 'cum_quantity', 'period_days'])
+                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
+                                             'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get('12wre_max')
-        _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+        _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _output_pred, pdq, seasonal_pdq))
 
         return _result
 

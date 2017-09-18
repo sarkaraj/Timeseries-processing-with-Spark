@@ -67,6 +67,8 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
         m = Prophet(weekly_seasonality=False, yearly_seasonality=True, changepoint_prior_scale=2,
                     seasonality_prior_scale=0.1)
         m.fit(train);
+        # TODO : Parameterize seasonality_prior_scale and changepoint_prior_scale - distribute this.
+        # TODO : changepoint_prior_scale --> (1 to 10) + seasonality_prior_scale --> (0.1 to 1).
 
         # creating pred train and test data frame
         past = m.make_future_dataframe(periods=0, freq='M')

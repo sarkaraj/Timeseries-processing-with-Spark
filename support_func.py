@@ -39,9 +39,10 @@ def dist_grid_search_merge_value(_comb_a, _value):
     :return: (_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
     """
     if(_comb_a[0] > _value[0]):
-        _comb_a[0] = _value[0]
-        _comb_a[1] = _value
-        return _comb_a
+        # _comb_a[0] = _value[0]
+        # _comb_a[1] = _value
+        # return _comb_a
+        return _value[0], _value
     elif(_comb_a[0] < _value[0]):
         return _comb_a
     else:
