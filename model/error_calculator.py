@@ -85,7 +85,7 @@ def mape_calculator(y_forecasted,y_truth):
 
     return (round(mape, 2))
 
-def weekly_moving_moving_average_error_calc(data, weekly_window):
+def weekly_moving_average_error_calc(data, weekly_window):
 
     import numpy as np
     import pandas as pd
@@ -93,9 +93,9 @@ def weekly_moving_moving_average_error_calc(data, weekly_window):
     data['rolling_mean'] = pd.rolling_mean(data['y'].shift(), window=weekly_window, min_periods=1)
 
     if len(data.y) > 52:
-        data_pred = data.tail(52)
+        data_pred = data.tail(52).reset_index(drop=True)
     else:
-        data_pred = data
+        data_pred = data.reset_index(drop=True)
 
     data_pred['cumsum_quantity'] = data_pred.y.cumsum()
 
@@ -118,7 +118,7 @@ def weekly_moving_moving_average_error_calc(data, weekly_window):
 
     return(data_pred, rmse, mape)
 
-def monthly_moving_moving_average_error_calc(data, monthly_window):
+def monthly_moving_average_error_calc(data, monthly_window):
 
     import numpy as np
     import pandas as pd
@@ -126,9 +126,9 @@ def monthly_moving_moving_average_error_calc(data, monthly_window):
     data['rolling_mean'] = pd.rolling_mean(data['y'].shift(), window=monthly_window, min_periods=1)
 
     if len(data.y) > 12:
-        data_pred = data.tail(12)
+        data_pred = data.tail(12).reset_index(drop=True)
     else:
-        data_pred = data
+        data_pred = data.reset_index(drop=True)
 
     data_pred['cumsum_quantity'] = data_pred.y.cumsum()
 

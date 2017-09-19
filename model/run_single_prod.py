@@ -63,6 +63,6 @@ prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
 # weekly_pydlm_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
 
-pred = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = True,
+(output_error, pred) = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = False,
                          weekly_window= 6, monthly_window = 3)
-print (pred)
+print (output_error.head())
