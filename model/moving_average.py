@@ -2,20 +2,14 @@ from model.ma_outlier import *
 from model.error_calculator import *
 from model.save_images import *
 
-def moving_average_model(prod, cus_no, mat_no,weekly_data = True,
+def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                          weekly_window= 6, monthly_window = 3, **kwargs):
 
     # If weekly data is false, monthly data is assumed
 
     import pandas as pd
     import numpy as np
-    import itertools
-    import warnings
-    import statsmodels.api as sm
-    from fbprophet import Prophet
-    from pydlm import dlm, trend, seasonality, dynamic, autoReg, longSeason
     from dateutil import parser
-    import datetime as dt
 
     # data transform
     prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -49,11 +43,35 @@ def moving_average_model(prod, cus_no, mat_no,weekly_data = True,
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
     if weekly_data == True:
-        prod['rolling_mean'] = pd.rolling_mean(prod.y, window= weekly_window, min_periods= 1)
+        prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= weekly_window, min_periods= 1)
         pred = prod['rolling_mean'].iloc[-1]
-    if weekly_data == False:
-        prod['rolling_mean'] = pd.rolling_mean(prod.y, window= monthly_window, min_periods= 1)
-        pred = prod['rolling_mean'].iloc[-1]
+        (output_result, rmse, mape) = weekly_moving_moving_average_error_calc(data= prod, weekly_window= weekly_window)
 
-    return pred
+        output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
+                                           np.nanmedian(output_result.rolling_6weeks_percent_error),
+                                           np.nanmax(np.absolute(np.array(output_result.rolling_6weeks_percent_error))),
+                                           np.nanmedian(output_result.rolling_12weeks_percent_error),
+                                           np.nanmax(np.absolute(np.array(output_result.rolling_12weeks_percent_error))),
+                                           output_result['Error_Cumsum'].iloc[-1],
+                                           output_result['cumsum_quantity'].iloc[-1],
+                                           ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
+                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
+                                             'wre_med_12','wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
+    if weekly_data == False:
+        prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= monthly_window, min_periods= 1)
+        pred = prod['rolling_mean'].iloc[-1]
+        (output_error, rmse, mape) = monthly_moving_moving_average_error_calc(data=prod, monthly_window=monthly_window)
+
+        output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
+                                           np.nanmedian(output_result.rolling_3month_percent_error),
+                                           np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
+                                           np.nanmedian(output_result.rolling_4month_percent_error),
+                                           np.nanmax(np.absolute(np.array(output_result.rolling_4month_percent_error))),
+                                           output_result['Error_Cumsum'].iloc[-1],
+                                           output_result['cumsum_quantity'].iloc[-1],
+                                           ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
+                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
+                                             'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
+
+    return (output_error, pred)
 
