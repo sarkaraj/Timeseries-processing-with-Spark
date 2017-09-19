@@ -12,7 +12,7 @@ conf = SparkConf().setAppName("test_cona_distributed_prophet").setMaster("yarn-c
 sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sparkContext=sc)
 
-print "Running spark jobs distributed prophet "
+print "Running spark jobs distributed PROPHET "
 
 import time
 
@@ -46,7 +46,7 @@ test_data_parallel = test_data.flatMap(lambda x: generate_models_prophet(x))
 # print test_data_parallel.take(1)
 
 # (customernumber, matnr, data_pd_df_week_aggregated, elem)
-print "Running all models:"
+print "Running all models (PROPHET):"
 prophet_results_rdd = test_data_parallel.map(
     lambda x: run_prophet(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3])).filter(
     lambda x: x != "MODEL_NOT_VALID")
@@ -57,17 +57,21 @@ prophet_results_rdd.cache()
 print "prophet_results_rdd.count :: "
 print prophet_results_rdd.count()
 
-# prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+# prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
 
-print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
+print "Selecting the best prophet models for all customer-product combinations -- running combineByKey"
 opt_prophet_results_rdd = prophet_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
                                                            dist_grid_search_merge_combiner)
-# opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq)))
+# opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, _prediction, param)))
 
 opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 
+# print "printing opt_prophet_results_mapped"
+# print opt_prophet_results_mapped.take(2)
 opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
 
+opt_prophet_results_df.printSchema()
+#
 opt_prophet_results_df.show()
 
 # print "printing first 2 row of opt_prophet_results_rdd "
