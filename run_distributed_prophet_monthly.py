@@ -57,6 +57,8 @@ prophet_results_rdd.cache()
 print "prophet_results_rdd.count :: "
 print prophet_results_rdd.count()
 
+print prophet_results_rdd.take(2)
+
 # prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
 print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
@@ -64,11 +66,15 @@ opt_prophet_results_rdd = prophet_results_rdd.combineByKey(dist_grid_search_crea
                                                            dist_grid_search_merge_combiner)
 # opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq)))
 
-opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
+print opt_prophet_results_rdd.take(2)
 
-opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
+# opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
+#
+# opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
+#
+# opt_prophet_results_df.show()
 
-opt_prophet_results_df.show()
+
 
 # print "printing first 2 row of opt_prophet_results_rdd "
 # print opt_prophet_results_rdd.take(2)
