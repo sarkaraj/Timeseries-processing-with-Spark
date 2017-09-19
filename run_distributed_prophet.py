@@ -2,6 +2,7 @@ from data_fetch.data_query import getData
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext
 from distributed_grid_search._model_params_set import generate_models_prophet
+from transform_data.rdd_to_df import map_for_output_prophet, prophet_output_schema
 
 from support_func import dist_grid_search_create_combiner, dist_grid_search_merge_value, dist_grid_search_merge_combiner
 
@@ -63,13 +64,17 @@ opt_prophet_results_rdd = prophet_results_rdd.combineByKey(dist_grid_search_crea
                                                            dist_grid_search_merge_combiner)
 # opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq)))
 
-# opt_prophet_results_rdd.cache()
+opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 
-print "printing first 2 row of opt_prophet_results_rdd "
-print opt_prophet_results_rdd.take(2)
+opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
 
-print "Total output records"
-print opt_prophet_results_rdd.count()
+opt_prophet_results_df.show()
+
+# print "printing first 2 row of opt_prophet_results_rdd "
+# print opt_prophet_results_rdd.take(2)
+
+# print "Total output records"
+# print opt_prophet_results_rdd.count()
 
 
 print("Time taken for running spark program:\t\t--- %s seconds ---" % (time.time() - start_time))

@@ -111,7 +111,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                          'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-            _criteria = output_error_dict.get('12wre_max')
+            _criteria = output_error_dict.get('wre_max_12')
             _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
 
             return _result
