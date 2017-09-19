@@ -93,7 +93,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
             output_result = weekly_prophet_error_calc(output_result)
-            output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
+            # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
             output_error = pd.DataFrame(
                 data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
@@ -112,7 +112,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
             _criteria = output_error_dict.get('wre_max_12')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
 
             return _result
 
@@ -177,7 +177,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
             output_result = weekly_prophet_error_calc(output_result)
-            output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
+            # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
             output_error = pd.DataFrame(
                 data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
@@ -196,7 +196,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
             _criteria = output_error_dict.get('wre_max_12')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
 
             return _result
 

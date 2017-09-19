@@ -86,21 +86,20 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
             output_result = pd.concat([output_result, result_test], axis=0)
 
         # TODO pred_arima needs to be fixed. With that line we get no results.
-        # # model_prediction
-        # prod_arima = prod.set_index('ds', drop=True)
-        # mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
-        #                                 enforce_stationarity=True, enforce_invertibility=True,
-        #                                 measurement_error=False, time_varying_regression=False,
-        #                                 mle_regression=True)
-        #
-        # results_arima = mod.fit(disp=False)
-        # pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
-        #                                    end=pred_points, dynamic=True)
-        # _output_pred = np.array(pred_arima.predicted_mean)[1:]
+        # model_prediction
+        prod_arima = prod.set_index('ds', drop=True)
+        mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
+                                        enforce_stationarity=True, enforce_invertibility=True,
+                                        measurement_error=False, time_varying_regression=False,
+                                        mle_regression=True)
 
+        results_arima = mod.fit(disp=False)
+        pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
+                                           end=len(prod_arima.y) + pred_points - 1, dynamic=True)
+        _output_pred = np.array(pred_arima.predicted_mean).tolist()[1:]
 
         output_result = weekly_arima_error_calc(output_result)
-        output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
+        # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_ARIMA, output_result.y),
                                            mape_calculator(output_result.y_ARIMA, output_result.y),
@@ -118,8 +117,8 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get('wre_max_12')
-        # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _output_pred, pdq, seasonal_pdq))
-        _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+        _result = ((cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq)))
+        # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
         return _result
 

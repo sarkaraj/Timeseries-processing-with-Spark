@@ -20,12 +20,6 @@ start_time = time.time()
 print "Setting LOG LEVEL as ERROR"
 sc.setLogLevel("ERROR")
 
-# print "Adding Extra paths for several site-packages"
-# import sys
-# sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
-# sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
-# sys.path.insert(0, cona_modules.zip)
-
 print "Addind jobs.zip to system path"
 import sys
 
@@ -55,20 +49,21 @@ arima_results_rdd.cache()
 # print prophet_results_rdd.take(2)
 print "prophet_results_rdd.count :: "
 print arima_results_rdd.count()
-# prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+
+# prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq)))
 
 print "Selecting the best arima models for all customer-product combinations -- running combineByKey"
 opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner, dist_grid_search_merge_value,
                                                        dist_grid_search_merge_combiner)
-# opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq)))
 
+# opt_prophet_results_rdd --> ((cus_no, mat_no),(_criteria, (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq))))
 # opt_prophet_results_rdd.cache()
 
-print "printing first 2 row of opt_prophet_results_rdd "
+print "printing first 2 row of opt_arima_results_rdd "
 print opt_arima_results_rdd.take(2)
 
-print "Total output records"
-print opt_arima_results_rdd.count()
+# print "Total output records"
+# print opt_arima_results_rdd.count()
 
 
 print("Time taken for running spark program:\t\t--- %s seconds ---" % (time.time() - start_time))
