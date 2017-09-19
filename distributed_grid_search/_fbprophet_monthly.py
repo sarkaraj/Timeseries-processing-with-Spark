@@ -1,15 +1,14 @@
 from model.ma_outlier import *
 from model.error_calculator import *
 import distributed_grid_search.properties as p_model
-from model.error_calculator_distributed_grid_search import weekly_prophet_error_calc
+from model.error_calculator_distributed_grid_search import monthly_prophet_model_error_calc
 import transform_data.pandas_support_func as pd_func
-from transform_data.holidays import get_holidays_dataframe_pd
+from transform_data.data_transform import *
 
 
-def run_prophet(cus_no, mat_no, prod, param, **kwargs):
+def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     import pandas as pd
     import numpy as np
-    # import warnings
     from dateutil import parser
     from fbprophet import Prophet
 
@@ -33,10 +32,6 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             yearly_seasonality = True
             seasonality_prior_scale = param.get('seasonality_prior_scale')
             changepoint_prior_scale = param.get('changepoint_prior_scale')
-            if (param.get('holidays') == True):
-                holidays = get_holidays_dataframe_pd()
-            else:
-                holidays = None
 
             # data transform
             prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -50,6 +45,9 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             # Remove outlier
             prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
 
+            # Aggregated monthly data
+            prod = get_monthly_aggregate_per_product(prod)
+
             # test and train data creation
             train = prod[
                 prod.ds <= (
@@ -60,7 +58,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
 
             while (len(rem_data.ds) >= test_points):
                 # prophet
-                m = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=yearly_seasonality,
+                m = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
                             changepoint_prior_scale=changepoint_prior_scale,
                             seasonality_prior_scale=seasonality_prior_scale)
                 m.fit(train);
@@ -85,44 +83,40 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                 output_result = pd.concat([output_result, result_test], axis=0)
 
             # Forecast
-            m_ = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=yearly_seasonality,
+            m_ = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
                          changepoint_prior_scale=changepoint_prior_scale,
                          seasonality_prior_scale=seasonality_prior_scale)
             m_.fit(prod);
-            pred_ds = m_.make_future_dataframe(periods=pred_points, freq='W').tail(pred_points)
+            pred_ds = m_.make_future_dataframe(periods=pred_points, freq='M').tail(pred_points)
             _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
-            output_result = weekly_prophet_error_calc(output_result)
-            # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
+            output_result = monthly_prophet_model_error_calc(output_result)
+            output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
             output_error = pd.DataFrame(
                 data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                        mape_calculator(output_result.y_Prophet, output_result.y),
-                       np.nanmedian(output_result.rolling_6week_percent_error_prophet),
+                       np.nanmedian(output_result.rolling_3month_percent_error_prophet),
                        np.nanmax(
-                           np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
-                       np.nanmedian(output_result.rolling_12week_percent_error_prophet),
+                           np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
+                       np.nanmedian(output_result.rolling_4month_percent_error_prophet),
                        np.nanmax(
-                           np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
+                           np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
                        output_result['Error_Cumsum_prophet'].iloc[-1],
                        output_result['cumsum_quantity'].iloc[-1],
-                       ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
-                         'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
+                       ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
+                columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
+                         'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-            _criteria = output_error_dict.get('wre_max_12')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
+            _criteria = output_error_dict.get('mre_max_3')
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
 
             return _result
 
         elif (param.get('yearly_seasonality') == False):
             yearly_seasonality = False
             changepoint_prior_scale = param.get('changepoint_prior_scale')
-            if (param.get('holidays') == True):
-                holidays = get_holidays_dataframe_pd()
-            else:
-                holidays = None
 
             # data transform
             prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -136,6 +130,9 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             # Remove outlier
             prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
 
+            # Aggregated monthly data
+            prod = get_monthly_aggregate_per_product(prod)
+
             # test and train data creation
             train = prod[
                 prod.ds <= (
@@ -146,7 +143,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
 
             while (len(rem_data.ds) >= test_points):
                 # prophet
-                m = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=yearly_seasonality,
+                m = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
                             changepoint_prior_scale=changepoint_prior_scale)
                 m.fit(train);
 
@@ -170,33 +167,33 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                 output_result = pd.concat([output_result, result_test], axis=0)
 
             # Forecast
-            m_ = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=yearly_seasonality,
+            m_ = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
                          changepoint_prior_scale=changepoint_prior_scale)
             m_.fit(prod);
-            pred_ds = m_.make_future_dataframe(periods=pred_points, freq='W').tail(pred_points)
+            pred_ds = m_.make_future_dataframe(periods=pred_points, freq='M').tail(pred_points)
             _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
-            output_result = weekly_prophet_error_calc(output_result)
-            # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
+            output_result = monthly_prophet_model_error_calc(output_result)
+            output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
             output_error = pd.DataFrame(
                 data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                        mape_calculator(output_result.y_Prophet, output_result.y),
-                       np.nanmedian(output_result.rolling_6week_percent_error_prophet),
+                       np.nanmedian(output_result.rolling_3month_percent_error_prophet),
                        np.nanmax(
-                           np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
-                       np.nanmedian(output_result.rolling_12week_percent_error_prophet),
+                           np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
+                       np.nanmedian(output_result.rolling_4month_percent_error_prophet),
                        np.nanmax(
-                           np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
+                           np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
                        output_result['Error_Cumsum_prophet'].iloc[-1],
                        output_result['cumsum_quantity'].iloc[-1],
-                       ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
-                         'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
+                       ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
+                columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
+                         'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-            _criteria = output_error_dict.get('wre_max_12')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
+            _criteria = output_error_dict.get('mre_max_3')
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
 
             return _result
 
