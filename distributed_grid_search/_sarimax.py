@@ -85,7 +85,6 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             output_result = pd.concat([output_result, result_test], axis=0)
 
-        # TODO pred_arima needs to be fixed. With that line we get no results.
         # model_prediction
         prod_arima = prod.set_index('ds', drop=True)
         mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
@@ -117,7 +116,9 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get('wre_max_12')
-        _result = ((cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq)))
+        pdt_category = kwargs.get('pdt_cat')
+        _result = (
+        (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
         # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
         return _result

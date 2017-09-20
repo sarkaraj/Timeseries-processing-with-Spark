@@ -2,7 +2,7 @@ import distributed_grid_search.properties as p
 import distributed_grid_search._sarimax as smax
 import itertools
 from transform_data.pandas_support_func import *
-from transform_data.data_transform import get_weekly_aggregate
+from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
 
 def generate_all_param_combo_sarimax():
     param_p = xrange(p.p_max + 1)
@@ -22,7 +22,8 @@ def generate_all_param_combo_sarimax():
     return all_combo
 
 
-def generate_models_sarimax(row_object):
+def generate_models_sarimax(x):
+    row_object, category_obj = x
     customernumber = row_object.customernumber
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
@@ -35,7 +36,8 @@ def generate_models_sarimax(row_object):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated) for pdq, seasonal_pqd in generate_all_param_combo_sarimax()]
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj) for pdq, seasonal_pqd
+            in generate_all_param_combo_sarimax()]
 
 
 def generate_all_param_combo_prophet():
@@ -127,8 +129,8 @@ def generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior
     return yearly_seasonality_all_combo
 
 
-
-def generate_models_prophet(row_object):
+def generate_models_prophet(x):
+    row_object, category_obj = x
     customernumber = row_object.customernumber
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
@@ -141,9 +143,12 @@ def generate_models_prophet(row_object):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    return [(customernumber, matnr, data_pd_df_week_aggregated, elem) for elem in generate_all_param_combo_prophet()]
+    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
+            generate_all_param_combo_prophet()]
 
-def generate_models_prophet_monthly(row_object):
+
+def generate_models_prophet_monthly(x):
+    row_object, category_obj = x
     customernumber = row_object.customernumber
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
@@ -156,7 +161,7 @@ def generate_models_prophet_monthly(row_object):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    return [(customernumber, matnr, data_pd_df_week_aggregated, elem) for elem in
+    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
             generate_all_param_combo_prophet_monthly()]
 
 
