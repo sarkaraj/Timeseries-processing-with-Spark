@@ -29,6 +29,8 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     prod = prod.reset_index(drop=True)
     prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
+    prod = get_monthly_aggregate_per_product(prod)
+
     # save plot (comment)
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
@@ -39,10 +41,10 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     # Remove outlier
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True, window_size= 6, sigma= 2.5
                                   ,dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
     else:
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True)
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True, window_size= 6, sigma= 2.5)
 
     # save plot (comment)
     if ('dir_name' in kwargs.keys()):
@@ -51,7 +53,7 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                           title="weekly_aggregated_quantity_outlier_replaced",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-    prod = get_monthly_aggregate_per_product(prod)
+    # prod = get_monthly_aggregate_per_product(prod)
 
     # test and train data creation
     train = prod[
