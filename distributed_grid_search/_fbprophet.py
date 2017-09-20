@@ -9,7 +9,6 @@ from transform_data.holidays import get_holidays_dataframe_pd
 def run_prophet(cus_no, mat_no, prod, param, **kwargs):
     import pandas as pd
     import numpy as np
-    # import warnings
     from dateutil import parser
     from fbprophet import Prophet
 
@@ -112,7 +111,8 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
             _criteria = output_error_dict.get('wre_max_12')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
+            _pdt_cat = kwargs.get('pdt_cat')
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
 
             return _result
 
@@ -196,7 +196,8 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
             _criteria = output_error_dict.get('wre_max_12')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param))
+            _pdt_cat = kwargs.get('pdt_cat')
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
 
             return _result
 

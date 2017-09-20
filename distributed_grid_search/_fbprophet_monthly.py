@@ -91,7 +91,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
             _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
             output_result = monthly_prophet_model_error_calc(output_result)
-            output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
+            # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
             output_error = pd.DataFrame(
                 data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
@@ -110,7 +110,9 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
             _criteria = output_error_dict.get('mre_max_3')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
+            _pdt_cat = kwargs.get('pdt_cat')
+            # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
 
             return _result
 
@@ -174,7 +176,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
             _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
             output_result = monthly_prophet_model_error_calc(output_result)
-            output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
+            # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
             output_error = pd.DataFrame(
                 data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
@@ -193,13 +195,17 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
 
             output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
             _criteria = output_error_dict.get('mre_max_3')
-            _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
+            _pdt_cat = kwargs.get('pdt_cat')
+            # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
+            _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
 
             return _result
 
     except ValueError:
         return "MODEL_NOT_VALID"
     except ZeroDivisionError:
+        return "MODEL_NOT_VALID"
+    except RuntimeError:
         return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"

@@ -9,8 +9,9 @@ def map_for_output_prophet(line):
     _pred_prophet = line[1][1][2]
     _opt_param = line[1][1][3]
     _opt_param_prophet = {key:str(_opt_param.get(key)) for key in _opt_param.keys()}
+    _pdt_cat = line[1][1][4]
 
-    _result = customernumber, mat_no, _req_error_prophet_param, _pred_prophet, _opt_param_prophet
+    _result = customernumber, mat_no, _req_error_prophet_param, _pred_prophet, _opt_param_prophet, _pdt_cat
     return _result
 
 
@@ -30,8 +31,9 @@ def prophet_output_schema():
     _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=False)
     _pred_prophet = StructField("pred_prophet", MapType(StringType(), ArrayType(FloatType(), containsNull=True)), nullable=False)
     _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=False)
+    _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
 
-    schema = StructType([customernumber, mat_no, _error_prophet, _pred_prophet, _opt_param_prophet])
+    schema = StructType([customernumber, mat_no, _error_prophet, _pred_prophet, _opt_param_prophet, _pdt_category])
 
     return schema
 
@@ -54,8 +56,9 @@ def arima_output_schema():
     _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=False)
     _pred_arima = StructField("pred_arima", MapType(StringType(), ArrayType(FloatType(), containsNull=True)), nullable=False)
     _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=False)
+    _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
 
-    schema = StructType([customernumber, mat_no, _error_arima, _pred_arima, _opt_param_arima])
+    schema = StructType([customernumber, mat_no, _error_arima, _pred_arima, _opt_param_arima, _pdt_category])
 
     return schema
 
@@ -71,8 +74,9 @@ def map_for_output_arima(line):
 
     pdq = line[1][1][3]
     seasonal_pdq = line[1][1][4]
+    _pdt_cat = line[1][1][5]
     _opt_param_arima = {'pdq':pdq, 'seasonal_pdq':seasonal_pdq}
 
-    _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima
+    _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
 
     return _result

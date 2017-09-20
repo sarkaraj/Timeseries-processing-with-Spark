@@ -1,6 +1,7 @@
 from model.weekly_model_ver_1 import weekly_ensm_model
 from transform_data.data_transform import get_weekly_aggregate
 from transform_data.pandas_support_func import *
+import properties as p
 
 def model_fit(row_object):
 
@@ -63,3 +64,35 @@ def dist_grid_search_merge_combiner(_comb_a, _comb_b):
     else:
         return _comb_a
 
+
+def assign_category(row_object):
+    if (row_object.pdt_freq_annual >= 60 and row_object.pdt_freq_annual < float('inf')):
+        if (
+                            row_object.time_gap_days >= p.cat_1.time_gap_days_lower and row_object.time_gap_days < p.cat_1.time_gap_days_upper and row_object.time_gap_years >= p.cat_1.time_gap_years):
+            return row_object, p.cat_1
+        elif (
+                            row_object.time_gap_days >= p.cat_2.time_gap_days_lower and row_object.time_gap_days < p.cat_2.time_gap_days_upper and row_object.time_gap_years >= p.cat_2.time_gap_years):
+            return row_object, p.cat_2
+        elif (
+                            row_object.time_gap_days >= p.cat_3.time_gap_days_lower and row_object.time_gap_days < p.cat_3.time_gap_days_upper and row_object.time_gap_years >= p.cat_3.time_gap_years):
+            return row_object, p.cat_3
+        else:
+            # TODO Change return to row_object, p.cat_7
+            return "NOT_CONSIDERED"
+            # return row_object, p.cat_7
+    elif (row_object.pdt_freq_annual >= 20 and row_object.pdt_freq_annual < 60):
+        if (
+                            row_object.time_gap_days >= p.cat_4.time_gap_days_lower and row_object.time_gap_days < p.cat_4.time_gap_days_upper and row_object.time_gap_years >= p.cat_4.time_gap_years):
+            return row_object, p.cat_4
+        elif (
+                            row_object.time_gap_days >= p.cat_5.time_gap_days_lower and row_object.time_gap_days < p.cat_5.time_gap_days_upper and row_object.time_gap_years >= p.cat_5.time_gap_years):
+            return row_object, p.cat_5
+        elif (
+                            row_object.time_gap_days >= p.cat_6.time_gap_days_lower and row_object.time_gap_days < p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
+            return row_object, p.cat_6
+        else:
+            # TODO Change return to row_object, p.cat_8
+            return "NOT_CONSIDERED"
+            # return row_object, p.cat_8
+    else:
+        return "NOT_CONSIDERED"
