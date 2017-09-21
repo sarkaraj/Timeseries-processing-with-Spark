@@ -77,9 +77,7 @@ def assign_category(row_object):
                             row_object.time_gap_days > p.cat_3.time_gap_days_lower and row_object.time_gap_days <= p.cat_3.time_gap_days_upper and row_object.time_gap_years >= p.cat_3.time_gap_years):
             return row_object, p.cat_3
         else:
-            # TODO Change return to row_object, p.cat_7
-            return "NOT_CONSIDERED"
-            # return row_object, p.cat_7
+            return row_object, p.cat_7
     elif (row_object.pdt_freq_annual >= 20 and row_object.pdt_freq_annual < 60):
         if (
                             row_object.time_gap_days > p.cat_4.time_gap_days_lower and row_object.time_gap_days < p.cat_4.time_gap_days_upper and row_object.time_gap_years >= p.cat_4.time_gap_years):
@@ -91,8 +89,6 @@ def assign_category(row_object):
                             row_object.time_gap_days > p.cat_6.time_gap_days_lower and row_object.time_gap_days <= p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
             return row_object, p.cat_6
         else:
-            # TODO Change return to row_object, p.cat_8
-            return "NOT_CONSIDERED"
-            # return row_object, p.cat_8
+            return row_object, p.cat_8
     else:
         return "NOT_CONSIDERED"

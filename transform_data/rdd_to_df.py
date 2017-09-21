@@ -82,17 +82,36 @@ def map_for_output_arima(line):
     return _result
 
 
-def output_MA_monthly_schema():
-    return None
+def MA_output_schema():
+    customernumber = StructField("customernumber", StringType(), nullable=False)
+    mat_no = StructField("mat_no", StringType(), nullable=False)
+    _error_ma = StructField("error_MA", MapType(StringType(), FloatType()), nullable=False)
+    _pred_ma = StructField("pred_MA", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
+                           nullable=False)
+    _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
+
+    schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _pdt_category])
+
+    return schema
 
 
 def map_for_output_MA_monthly(line):
-    return None
+    customernumber = line[0]
+    mat_no = line[1]
+    _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
+    _pred_ma = {'yhat': list(line[3])}
+    _pdt_cat = line[4]
 
-
-def output_MA_weekly_schema():
-    return None
+    _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat
+    return _result
 
 
 def map_for_output_MA_weekly(line):
-    return None
+    customernumber = line[0]
+    mat_no = line[1]
+    _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
+    _pred_ma = {'yhat': list(line[3])}
+    _pdt_cat = line[4]
+
+    _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat
+    return _result

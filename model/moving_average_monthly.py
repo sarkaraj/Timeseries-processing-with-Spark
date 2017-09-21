@@ -4,15 +4,21 @@ from model.save_images import *
 from transform_data.data_transform import *
 import transform_data.pandas_support_func as pd_func
 
-def moving_average_model_monthly(prod, cus_no, mat_no, monthly_window = 3, **kwargs):
+
+def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     # If weekly data is false, monthly data is assumed
 
     import pandas as pd
     import numpy as np
     from dateutil import parser
 
+    if ('monthly_window' in kwargs.keys()):
+        monthly_window = kwargs.get('monthly_window')
+    else:
+        monthly_window = 3
+
     # data transform
-    prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+    prod = prod.rename(columns={'date': 'ds', 'quantity': 'y'})
     prod = prod[['ds', 'y']]
     prod.ds = prod.ds.apply(str).apply(parser.parse)
     prod.y = prod.y.apply(float)
@@ -59,7 +65,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, monthly_window = 3, **kwa
                                          'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
     output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-    _pred_result = {'yhat': pred}
+    # _pred_result = {'yhat': list(pred)}
     _pdt_cat = kwargs.get('pdt_cat')
 
-    return cus_no, mat_no, output_error_dict, _pred_result, _pdt_cat
+    return cus_no, mat_no, output_error_dict, pred, _pdt_cat
