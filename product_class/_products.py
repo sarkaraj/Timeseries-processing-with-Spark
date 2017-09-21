@@ -18,7 +18,7 @@ class product_cat_2(object):
     def __init__(self):
         self.pdt_freq_annual_lower = 60
         self.pdt_freq_annual_upper = float("inf")
-        self.time_gap_days_lower = (365 + 279)
+        self.time_gap_days_lower = (365 + 310)
         self.time_gap_days_upper = (731 + 123)
         self.time_gap_years = 1.5
         self.min_train_days = int(365 * 1.5)
@@ -34,7 +34,7 @@ class product_cat_3(object):
         self.pdt_freq_annual_lower = 60
         self.pdt_freq_annual_upper = float("inf")
         self.time_gap_days_lower = (365 + 123)
-        self.time_gap_days_upper = (365 + 279)
+        self.time_gap_days_upper = (365 + 310)
         self.time_gap_years = 1.0
         self.min_train_days = 365
         self.category = 'III'
@@ -63,7 +63,7 @@ class product_cat_5(object):
     def __init__(self):
         self.pdt_freq_annual_lower = 20
         self.pdt_freq_annual_upper = 60
-        self.time_gap_days_lower = (365 + 279)
+        self.time_gap_days_lower = (365 + 310)
         self.time_gap_days_upper = (731 + 123)
         self.time_gap_years = 1.5
         self.min_train_days = int(365 * 1.5)
@@ -79,7 +79,7 @@ class product_cat_6(object):
         self.pdt_freq_annual_lower = 20
         self.pdt_freq_annual_upper = 60
         self.time_gap_days_lower = (365 + 123)
-        self.time_gap_days_upper = (365 + 279)
+        self.time_gap_days_upper = (365 + 310)
         self.time_gap_years = 1.0
         self.min_train_days = 365
         self.category = 'VI'

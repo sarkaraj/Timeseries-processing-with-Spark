@@ -80,3 +80,19 @@ def map_for_output_arima(line):
     _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
 
     return _result
+
+
+def output_MA_monthly_schema():
+    return None
+
+
+def map_for_output_MA_monthly(line):
+    return None
+
+
+def output_MA_weekly_schema():
+    return None
+
+
+def map_for_output_MA_weekly(line):
+    return None
