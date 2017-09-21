@@ -35,7 +35,19 @@ def moving_average(data, window_size):
     """
     import numpy as np
     window = np.ones(int(window_size)) / float(window_size)
-    return np.convolve(data, window, 'same')
+    if (window_size % 2 == 0):  # even
+        beg = int(window_size/2)
+        end = int(window_size/2) - 1
+        mean_beg = np.array([np.mean(data[:window_size])] * beg)
+        mean_end = np.array([np.mean(data[:window_size])] * end)
+    else: #odd
+        beg = int((window_size - 1) / 2)
+        end = int((window_size - 1) / 2)
+        mean_beg = np.array([np.mean(data[:window_size])] * beg)
+        mean_end = np.array([np.mean(data[:window_size])] * end)
+    data = np.concatenate([mean_beg, np.array(data), mean_end])
+
+    return np.convolve(data, window, 'valid')
 
 
 def explain_anomalies(y, window_size, sigma=1.0):
@@ -153,13 +165,15 @@ def get_anomaly_index(x, y, window_size, sigma_value=1,
     return (x_anomaly)
 
 
-def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
+def ma_replace_outlier(data, n_pass=2, aggressive=True, window_size = 12, sigma = 2, **kwargs):
     """ Used for Moving Average Based outlier removal
 
     Args:
         pass: number of passes to remove outlier, max = 3
         data: data.ds, data.y
         define cus_no, mat_no, dir_name for image saving. All three needs to be provided necessarily
+        for sigma >= 3 aggressive = true/false are same
+        max sigma = 3
 
     """
 
@@ -169,18 +183,18 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
     if aggressive == True:
         n = 1
         while (n <= n_pass):
-            events = explain_anomalies(y=data.y, window_size=12, sigma=2)
+            events = explain_anomalies(y=data.y, window_size=window_size, sigma=sigma)
             if set(['dir_name', 'cus_no', 'mat_no']) <= set(kwargs.keys()):
                 dir_name = kwargs.get('dir_name')
                 cus_no = kwargs.get('cus_no')
                 mat_no = kwargs.get('mat_no')
-                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=12, sigma_value=2,
+                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=window_size, sigma_value=sigma,
                                                   text_xlabel="Month", text_ylabel="Quantity",
                                                   applying_rolling_std=False
                                                   , dir_name=dir_name, step=n,
                                                   cus_no=cus_no, mat_no=mat_no)
             else:
-                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=12, sigma_value=2,
+                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=window_size, sigma_value=sigma,
                                                   text_xlabel="Month", text_ylabel="Quantity",
                                                   applying_rolling_std=False)
 
@@ -188,7 +202,7 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
             # plt.plot(data.ds, data.y)
             # plt.show()
 
-            data['ma'] = pd.Series(data.y).rolling(window=12, min_periods=1).mean()
+            data['ma'] = pd.Series(data.y).rolling(window=window_size, min_periods=1).mean()
             # print(data.iloc[outlier_index, :])
 
             data.loc[data['y'].isnull(), 'y'] = data['ma']
@@ -201,18 +215,18 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
     if aggressive == False:
         n = 1
         while (n <= n_pass - 1):
-            events = explain_anomalies(y=data.y, window_size=12, sigma=2)
+            events = explain_anomalies(y=data.y, window_size=window_size, sigma=sigma)
             if set(['dir_name', 'cus_no', 'mat_no']) <= set(kwargs.keys()):
                 dir_name = kwargs.get('dir_name')
                 cus_no = kwargs.get('cus_no')
                 mat_no = kwargs.get('mat_no')
-                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=12, sigma_value=2,
+                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=window_size, sigma_value=sigma,
                                                   text_xlabel="Month", text_ylabel="Quantity",
                                                   applying_rolling_std=False
                                                   , dir_name=dir_name, step=n,
                                                   cus_no=cus_no, mat_no=mat_no)
             else:
-                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=12, sigma_value=2,
+                outlier_index = get_anomaly_index(data.index, y=data.y, window_size=window_size, sigma_value=sigma,
                                                   text_xlabel="Month", text_ylabel="Quantity",
                                                   applying_rolling_std=False)
 
@@ -220,7 +234,7 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
             # plt.plot(data.ds, data.y)
             # plt.show()
 
-            data['ma'] = pd.Series(data.y).rolling(window=12, min_periods=1).mean()
+            data['ma'] = pd.Series(data.y).rolling(window=window_size, min_periods=1).mean()
             # print(data.iloc[outlier_index, :])
 
             data.loc[data['y'].isnull(), 'y'] = data['ma']
@@ -230,18 +244,18 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
             # plt.plot(data.ds, data.y)
             n = n + 1
 
-        events = explain_anomalies(y=data.y, window_size=12, sigma=3)
+        events = explain_anomalies(y=data.y, window_size=window_size, sigma=3)
         if set(['dir_name', 'cus_no', 'mat_no']) <= set(kwargs.keys()):
             dir_name = kwargs.get('dir_name')
             cus_no = kwargs.get('cus_no')
             mat_no = kwargs.get('mat_no')
-            outlier_index = get_anomaly_index(data.index, y=data.y, window_size=12, sigma_value=3,
+            outlier_index = get_anomaly_index(data.index, y=data.y, window_size=window_size, sigma_value=3,
                                               text_xlabel="Month", text_ylabel="Quantity",
                                               applying_rolling_std=False
                                               ,dir_name=dir_name, step=n,
                                               cus_no=cus_no, mat_no=mat_no)
         else:
-            outlier_index = get_anomaly_index(data.index, y=data.y, window_size=12, sigma_value=3,
+            outlier_index = get_anomaly_index(data.index, y=data.y, window_size=window_size, sigma_value=3,
                                               text_xlabel="Month", text_ylabel="Quantity",
                                               applying_rolling_std=False)
 
@@ -249,7 +263,7 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, **kwargs):
         # plt.plot(data.ds, data.y)
         # plt.show()
 
-        data['ma'] = pd.Series(data.y).rolling(window=12, min_periods=1).mean()
+        data['ma'] = pd.Series(data.y).rolling(window=window_size, min_periods=1).mean()
         # print(data.iloc[outlier_index, :])
 
         data.loc[data['y'].isnull(), 'y'] = data['ma']

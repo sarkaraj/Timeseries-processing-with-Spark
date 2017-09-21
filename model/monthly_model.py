@@ -29,6 +29,8 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     prod = prod.reset_index(drop=True)
     prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
+    prod = get_monthly_aggregate_per_product(prod)
+
     # save plot (comment)
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
@@ -39,10 +41,10 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     # Remove outlier
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True, window_size= 6, sigma= 2.5
                                   ,dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
     else:
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True)
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive= True, window_size= 6, sigma= 2.5)
 
     # save plot (comment)
     if ('dir_name' in kwargs.keys()):
@@ -51,7 +53,7 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                           title="weekly_aggregated_quantity_outlier_replaced",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-    prod = get_monthly_aggregate_per_product(prod)
+    # prod = get_monthly_aggregate_per_product(prod)
 
     # test and train data creation
     train = prod[
@@ -64,7 +66,8 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     # incremental test
     while (len(rem_data.ds) >= test_points):
         # prophet model
-        m = Prophet(weekly_seasonality=False, yearly_seasonality=True, changepoint_prior_scale=2,
+        m = Prophet(weekly_seasonality=False, yearly_seasonality=True,
+                    changepoint_prior_scale=2,
                     seasonality_prior_scale=0.1)
         m.fit(train);
         # TODO : Parameterize seasonality_prior_scale and changepoint_prior_scale - distribute this.
@@ -96,10 +99,12 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                                        mape_calculator(output_result.y_Prophet, output_result.y),
                                        np.nanmedian(output_result.rolling_3month_percent_error),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
+                                       np.nanmedian(output_result.rolling_4month_percent_error),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_4month_percent_error))),
                                        output_result['Error_Cumsum'].iloc[-1],
                                        output_result['cumsum_quantity'].iloc[-1],
                                        ((np.amax(output_result.ds) - np.amin(output_result.ds)).days+30)]],
-                                columns=['cus_no', 'mat_no', 'rmse', 'mape','3mre_med', '3mre_max',
+                                columns=['cus_no', 'mat_no', 'rmse', 'mape','3mre_med', '3mre_max','4mre_med', '4mre_max',
                                          'cum_error', 'cum_quantity', 'period_days'])
 
     if ('dir_name' in kwargs.keys()):
@@ -114,13 +119,16 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
         # plot cumulative error
-        one_dim_save_plot(x= output_result.ds, y= output_result.Error_Cumsum,
-                          xlable="Date", ylable="% Cumulative Error", title="cumulative_error",
-                          dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+        try:
+            one_dim_save_plot(x= output_result.ds, y= output_result.Error_Cumsum,
+                              xlable="Date", ylable="% Cumulative Error", title="cumulative_error",
+                              dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-        # plot cumulative error
-        one_dim_save_plot(x=output_result.ds, y=output_result.rolling_3month_percent_error,
-                          xlable="Date", ylable="% 3 Month Rolling Error", title="3month_rolling_error",
-                          dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+            # plot cumulative error
+            one_dim_save_plot(x=output_result.ds, y=output_result.rolling_3month_percent_error,
+                              xlable="Date", ylable="% 3 Month Rolling Error", title="3month_rolling_error",
+                              dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+        except ValueError:
+            print("No points to plot")
 
     return (output_error)

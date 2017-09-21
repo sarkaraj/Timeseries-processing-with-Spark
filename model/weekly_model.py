@@ -42,10 +42,10 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
     # Remove outlier
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True
-                                  , dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5
+                                  ,dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
     else:
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
 
     # save plot (comment)
     if ('dir_name' in kwargs.keys()):

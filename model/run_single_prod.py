@@ -1,6 +1,8 @@
 from transform_data.data_transform import *
 from model.ma_outlier import *
 from model.weekly_model import *
+from model.weekly_pydlm import *
+from model.moving_average import *
 
 # loading libs
 import pandas as pd
@@ -56,7 +58,11 @@ prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
 # run weekly model
 
-output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no,
-                           test_points=6)
+# output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no,
+#                            test_points=6)
 
-print (output)
+# weekly_pydlm_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
+
+(output_error, pred) = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = False,
+                         weekly_window= 6, monthly_window = 3)
+print (output_error.head())
