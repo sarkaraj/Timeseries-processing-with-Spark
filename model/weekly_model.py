@@ -209,4 +209,3 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
     #     weekly_ensm_model_error_plots(output_result=output_result, dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
     #
     # return output_error
-
