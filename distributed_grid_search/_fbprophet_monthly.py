@@ -129,11 +129,11 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
             prod = prod.reset_index(drop=True)
             prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
-            # Remove outlier
-            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
-
             # Aggregated monthly data
             prod = get_monthly_aggregate_per_product(prod)
+
+            # Remove outlier
+            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size= 6, sigma= 2.5)
 
             # test and train data creation
             train = prod[
