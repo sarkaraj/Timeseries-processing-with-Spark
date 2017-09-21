@@ -20,12 +20,12 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     if (kwargs.has_key('test_points')):
         test_points = kwargs.get('test_points')
     else:
-        test_points = p_model.test_points
+        test_points = p_model.test_points_monthly
 
     if (kwargs.has_key('pred_points')):
         pred_points = kwargs.get('pred_points')
     else:
-        pred_points = p_model.pred_points
+        pred_points = p_model.pred_points_monthly
 
     try:
         if (param.get('yearly_seasonality') == True):
