@@ -4,9 +4,11 @@ from pyspark.sql import HiveContext
 from run_distributed_arima import _run_dist_arima
 from run_distributed_prophet import _run_dist_prophet
 from run_distributed_prophet_monthly import _run_dist_prophet_monthly
+from run_moving_average import _run_moving_average
 from support_func import assign_category
 
-conf = SparkConf().setAppName("CONA_TS_MODEL_CREATION_JOB_ID_2").setMaster("yarn-client")
+conf = SparkConf().setAppName("CONA_TS_MODEL_CREATION_JOB_ID_4")
+    # .setMaster("yarn-client")
 sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sparkContext=sc)
 
@@ -21,12 +23,12 @@ sc.setLogLevel("ERROR")
 # import sys
 # sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
 # sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
-# sys.path.insert(0, cona_modules.zip)
+
 
 print "Add jobs.zip to system path"
 import sys
-
 sys.path.insert(0, "jobs.zip")
+
 
 print "Querying of Hive Table - Obtaining Product Data"
 test_data = get_data(sqlContext=sqlContext) \
@@ -39,6 +41,8 @@ test_data.cache()
 # TESTING PURPOSE ONLY -- TO BE REMOVED
 print("TOTAL NUMBER OF INPUT CUSTOMER-PRODUCT Combo (after applying filters) : %s " % test_data.count())
 # print test_data.count()
+
+#############################________________WEEKLY (ARIMA + PROPHET)__________#####################################
 
 # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
 print "Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ >= 60"
@@ -76,17 +80,18 @@ arima_prophet_join_df.coalesce(4).write.mode('overwrite').format('orc').option("
 
 print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
-###################################################################################################
+#############################________________MONTHLY (PROPHET)__________################################
+
 print "**************\n**************\n"
 
-start_time = time.time()
+# start_time = time.time()
 
 # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
 print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
 print "\t\t--Running distributed prophet"
-prophet_monthly_results, count_prophet_monthly = _run_dist_prophet_monthly(test_data=test_data, sqlContext=sqlContext)
+prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data, sqlContext=sqlContext)
 
-print("\nNumber of CUSTOMER-PRODUCT Combo for PROPHET MONTHLY:: %s\n" % count_prophet_monthly)
+# print("\nNumber of CUSTOMER-PRODUCT Combo for PROPHET MONTHLY:: %s\n" % count_prophet_monthly)
 # print "Showing PROPHET_MONTHLY Results-- \n"
 # prophet_monthly_results.show(2)
 
@@ -95,3 +100,30 @@ prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option
     "/tmp/pyspark_data/dist_model_monthly_first_run")
 
 print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+#
+# # ############################________________WEEKLY + MONTHLY (MA)__________##########################
+#
+# print "**************\n**************\n"
+#
+# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+# print "Running MA_MODELS on products with less than 1Yr 4Mn\n"
+# print "\t\t--Running moving average models"
+# ma_weekly_results_df, ma_monthly_results_df = _run_moving_average(test_data=test_data, sqlContext=sqlContext)
+#
+# # print("\nNumber of CUSTOMER-PRODUCT Combo for MA WEEKLYLY:: %s\n" % count_prophet_monthly)
+# print "Showing MA_WEEKLY Results-- \n"
+# ma_weekly_results_df.show(2)
+#
+# # print("\nNumber of CUSTOMER-PRODUCT Combo for MA MONTHLY:: %s\n" % count_prophet_monthly)
+# print "Showing MA_MONTHLY Results-- \n"
+# ma_monthly_results_df.show(2)
+#
+# print "Writing the MA WEEKLY data into HDFS\n"
+# ma_weekly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+#     "/tmp/pyspark_data/dist_model_ma_weekly")
+#
+# print "Writing the MA MONTHLY data into HDFS\n"
+# ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+#     "/tmp/pyspark_data/dist_model_ma_monthly")
+#
+# print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

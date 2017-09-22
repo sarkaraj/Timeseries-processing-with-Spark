@@ -5,7 +5,6 @@ from model.error_calculator_distributed_grid_search import monthly_prophet_model
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import *
 
-
 def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     import pandas as pd
     import numpy as np
@@ -206,6 +205,8 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     except ZeroDivisionError:
         return "MODEL_NOT_VALID"
     except RuntimeError:
+        return "MODEL_NOT_VALID"
+    except AttributeError:
         return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"

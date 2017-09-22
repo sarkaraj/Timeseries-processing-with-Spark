@@ -91,9 +91,9 @@ def generate_all_param_combo_prophet_monthly():
     import numpy as np
 
     yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': i} for i in np.arange(0.1, 0.7, 0.2)]
+    seasonality_prior_scale = [{'seasonality_prior_scale': i} for i in np.arange(0.1, 1.1, 0.2)]
 
-    changepoint_prior_scale = [{'changepoint_prior_scale': i} for i in np.arange(1, 6, 2)]
+    changepoint_prior_scale = [{'changepoint_prior_scale': i} for i in np.arange(1, 6, 1)]
 
     yearly_seasonality_all_combo = generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior_scale)
 

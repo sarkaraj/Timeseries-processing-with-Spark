@@ -9,6 +9,7 @@ from support_func import dist_grid_search_create_combiner, dist_grid_search_merg
 from distributed_grid_search._fbprophet_monthly import run_prophet_monthly
 
 
+
 # conf = SparkConf().setAppName("test_cona_distributed_prophet_monthly").setMaster("yarn-client")
 # sc = SparkContext(conf=conf)
 # sqlContext = HiveContext(sparkContext=sc)
@@ -108,4 +109,5 @@ def _run_dist_prophet_monthly(test_data, sqlContext):
 
     opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
 
-    return opt_prophet_results_df, opt_prophet_results_df.count()
+    # return opt_prophet_results_df, opt_prophet_results_df.count()
+    return opt_prophet_results_df
