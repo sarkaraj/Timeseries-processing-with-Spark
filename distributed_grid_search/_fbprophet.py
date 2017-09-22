@@ -44,7 +44,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             prod.y = prod.y.apply(float)
             prod = prod.sort_values('ds')
             prod = prod.reset_index(drop=True)
-            prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+            # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
             # Remove outlier
             prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
@@ -131,7 +131,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
             prod.y = prod.y.apply(float)
             prod = prod.sort_values('ds')
             prod = prod.reset_index(drop=True)
-            prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+            # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
             # Remove outlier
             prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
