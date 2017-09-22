@@ -39,7 +39,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
             prod.y = prod.y.apply(float)
             prod = prod.sort_values('ds')
             prod = prod.reset_index(drop=True)
-            prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+            # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
             # Aggregated monthly data
             prod = get_monthly_aggregate_per_product(prod)
@@ -126,7 +126,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
             prod.y = prod.y.apply(float)
             prod = prod.sort_values('ds')
             prod = prod.reset_index(drop=True)
-            prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+            # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
             # Aggregated monthly data
             prod = get_monthly_aggregate_per_product(prod)

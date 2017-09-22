@@ -2,6 +2,7 @@ from model.moving_average_weekly import moving_average_model_weekly
 from model.moving_average_monthly import moving_average_model_monthly
 from transform_data.pandas_support_func import get_pd_df
 from transform_data.rdd_to_df import MA_output_schema, map_for_output_MA_monthly, map_for_output_MA_weekly
+from transform_data.data_transform import get_weekly_aggregate
 
 
 def _moving_average_row_to_rdd_map(line):
@@ -16,7 +17,9 @@ def _moving_average_row_to_rdd_map(line):
     data_array = [row.split("\t") for row in row_object.data]
     data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
 
-    _result = customernumber, matnr, data_pd_df, category_obj
+    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+
+    _result = customernumber, matnr, data_pd_df_week_aggregated, category_obj
 
     return _result
 

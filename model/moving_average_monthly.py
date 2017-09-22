@@ -18,13 +18,13 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
         monthly_window = 3
 
     # data transform
-    prod = prod.rename(columns={'date': 'ds', 'quantity': 'y'})
+    prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
     prod = prod[['ds', 'y']]
     prod.ds = prod.ds.apply(str).apply(parser.parse)
     prod.y = prod.y.apply(float)
     prod = prod.sort_values('ds')
     prod = prod.reset_index(drop=True)
-    prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+    # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
     prod = get_monthly_aggregate_per_product(prod)
     # save plot
@@ -50,7 +50,8 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
                               dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
     prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= monthly_window, min_periods= 1)
-    pred = prod['rolling_mean'].iloc[-1]
+    # pred = prod['rolling_mean'].iloc[-1]
+    pred = prod['rolling_mean'].iget(-1)
     (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window=monthly_window)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,

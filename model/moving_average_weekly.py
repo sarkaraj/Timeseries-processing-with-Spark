@@ -19,13 +19,13 @@ def moving_average_model_weekly(prod, cus_no, mat_no, **kwargs):
         weekly_window = 6
 
     # data transform
-    prod = prod.rename(columns={'date': 'ds', 'quantity': 'y'})
+    prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
     prod = prod[['ds', 'y']]
     prod.ds = prod.ds.apply(str).apply(parser.parse)
     prod.y = prod.y.apply(float)
     prod = prod.sort_values('ds')
     prod = prod.reset_index(drop=True)
-    prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+    # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
     # save plot
     if ('dir_name' in kwargs.keys()):
