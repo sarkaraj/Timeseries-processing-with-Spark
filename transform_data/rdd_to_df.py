@@ -99,7 +99,9 @@ def map_for_output_MA_monthly(line):
     customernumber = line[0]
     mat_no = line[1]
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
-    _pred_ma = {'yhat': list(line[3])}
+    _pred_array = []
+    _pred_array.append(float(line[3]))
+    _pred_ma = {'yhat': _pred_array}
     _pdt_cat = line[4]
 
     _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat
@@ -110,7 +112,9 @@ def map_for_output_MA_weekly(line):
     customernumber = line[0]
     mat_no = line[1]
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
-    _pred_ma = {'yhat': list(line[3])}
+    _pred_array = []
+    _pred_array.append(float(line[3]))
+    _pred_ma = {'yhat': _pred_array}
     _pdt_cat = line[4]
 
     _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat

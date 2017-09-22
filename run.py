@@ -41,82 +41,82 @@ test_data.cache()
 # # TESTING PURPOSE ONLY -- TO BE REMOVED
 # print("TOTAL NUMBER OF INPUT CUSTOMER-PRODUCT Combo (after applying filters) : %s " % test_data.count())
 # # print test_data.count()
-#
-# #############################________________WEEKLY (ARIMA + PROPHET)__________#####################################
-#
-# # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
-# print "Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ >= 60"
-# print "\t--Running distributed arima"
-# arima_results, count_arima = _run_dist_arima(test_data=test_data, sqlContext=sqlContext)
-#
-# print "\t--Running distributed prophet"
-# prophet_results, count_prophet = _run_dist_prophet(test_data=test_data, sqlContext=sqlContext)
-#
-# # print "Showing ARIMA Results-- \n"
-# # arima_results.show(2)
-# # print "Showing PROPHET Results-- \n"
-# # prophet_results.show(2)
-#
+
+#############################________________WEEKLY (ARIMA + PROPHET)__________#####################################
+
+# Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
+print "Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ >= 60"
+print "\t--Running distributed arima"
+arima_results = _run_dist_arima(test_data=test_data, sqlContext=sqlContext)
+
+print "\t--Running distributed prophet"
+prophet_results = _run_dist_prophet(test_data=test_data, sqlContext=sqlContext)
+
+# print "Showing ARIMA Results-- \n"
+# arima_results.show(2)
+# print "Showing PROPHET Results-- \n"
+# prophet_results.show(2)
+
 # print("Number of CUSTOMER-PRODUCT Combo for ARIMA WEEKLY:: %s" % count_arima)
 # print("Number of CUSTOMER-PRODUCT Combo for PROPHET WEEKLY:: %s" % count_prophet)
+
+print "\t--Joining the ARIMA + PROPHET Results on same customernumber and matnr"
+cond = [arima_results.customernumber == prophet_results.customernumber, arima_results.mat_no == prophet_results.mat_no]
+arima_prophet_join_df = arima_results.join(prophet_results, cond).select(arima_results.customernumber,
+                                                                         arima_results.mat_no,
+                                                                         arima_results.error_arima,
+                                                                         arima_results.pred_arima,
+                                                                         arima_results.arima_params,
+                                                                         prophet_results.error_prophet,
+                                                                         prophet_results.pred_prophet,
+                                                                         prophet_results.prophet_params,
+                                                                         arima_results.pdt_cat)
+
+# arima_prophet_join_df.show(2)
+
+print "Writing the WEEKLY MODEL data into HDFS"
+arima_prophet_join_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+    "/tmp/pyspark_data/dist_model_first_run")
+
+print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
+#############################________________MONTHLY (PROPHET)__________################################
+
+print "**************\n**************\n"
+
+# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+print "\t\t--Running distributed prophet"
+prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data, sqlContext=sqlContext)
+
+# print("\nNumber of CUSTOMER-PRODUCT Combo for PROPHET MONTHLY:: %s\n" % count_prophet_monthly)
+# print "Showing PROPHET_MONTHLY Results-- \n"
+# prophet_monthly_results.show(2)
+
+print "Writing the MONTHLY MODEL data into HDFS"
+prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+    "/tmp/pyspark_data/dist_model_monthly_first_run")
+
+print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 #
-# print "\t--Joining the ARIMA + PROPHET Results on same customernumber and matnr"
-# cond = [arima_results.customernumber == prophet_results.customernumber, arima_results.mat_no == prophet_results.mat_no]
-# arima_prophet_join_df = arima_results.join(prophet_results, cond).select(arima_results.customernumber,
-#                                                                          arima_results.mat_no,
-#                                                                          arima_results.error_arima,
-#                                                                          arima_results.pred_arima,
-#                                                                          arima_results.arima_params,
-#                                                                          prophet_results.error_prophet,
-#                                                                          prophet_results.pred_prophet,
-#                                                                          prophet_results.prophet_params,
-#                                                                          arima_results.pdt_cat)
-#
-# # arima_prophet_join_df.show(2)
-#
-# print "Writing the WEEKLY MODEL data into HDFS"
-# arima_prophet_join_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-#     "/tmp/pyspark_data/dist_model_first_run")
-#
-# print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-#
-# #############################________________MONTHLY (PROPHET)__________################################
-#
-# print "**************\n**************\n"
-#
-# # start_time = time.time()
-#
-# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-# print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-# print "\t\t--Running distributed prophet"
-# prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data, sqlContext=sqlContext)
-#
-# # print("\nNumber of CUSTOMER-PRODUCT Combo for PROPHET MONTHLY:: %s\n" % count_prophet_monthly)
-# # print "Showing PROPHET_MONTHLY Results-- \n"
-# # prophet_monthly_results.show(2)
-#
-# print "Writing the MONTHLY MODEL data into HDFS"
-# prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-#     "/tmp/pyspark_data/dist_model_monthly_first_run")
-#
-# print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-# #
-# ############################________________WEEKLY + MONTHLY (MA)__________##########################
+############################________________WEEKLY + MONTHLY (MA)__________##########################
 
 print "**************\n**************\n"
 
 # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
 print "Running MA_MODELS on products with less than 1Yr 4Mn\n"
 print "\t\t--Running moving average models"
+# ma_weekly_results_df, ma_monthly_results_df = _run_moving_average(test_data=test_data, sqlContext=sqlContext)
+
 ma_weekly_results_df, ma_monthly_results_df = _run_moving_average(test_data=test_data, sqlContext=sqlContext)
 
 # print("\nNumber of CUSTOMER-PRODUCT Combo for MA WEEKLYLY:: %s\n" % count_prophet_monthly)
-print "Showing MA_WEEKLY Results-- \n"
-ma_weekly_results_df.show(2)
+# print "Showing MA_WEEKLY Results-- \n"
+# ma_weekly_results_df.show(2)
 
 # print("\nNumber of CUSTOMER-PRODUCT Combo for MA MONTHLY:: %s\n" % count_prophet_monthly)
-print "Showing MA_MONTHLY Results-- \n"
-ma_monthly_results_df.show(2)
+# print "Showing MA_MONTHLY Results-- \n"
+# ma_monthly_results_df.show(2)
 
 print "Writing the MA WEEKLY data into HDFS\n"
 ma_weekly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(

@@ -50,8 +50,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
                               dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
     prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= monthly_window, min_periods= 1)
-    # pred = prod['rolling_mean'].iloc[-1]
-    pred = prod['rolling_mean'].iget(-1)
+    pred = prod['rolling_mean'].iloc[-1]
     (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window=monthly_window)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,

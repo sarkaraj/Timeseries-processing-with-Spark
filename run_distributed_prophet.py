@@ -96,4 +96,5 @@ def _run_dist_prophet(test_data, sqlContext):
 
     opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
 
-    return opt_prophet_results_df, opt_prophet_results_df.count()
+    # return opt_prophet_results_df, opt_prophet_results_df.count()
+    return opt_prophet_results_df
