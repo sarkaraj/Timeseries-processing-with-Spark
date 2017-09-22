@@ -49,5 +49,5 @@ def _run_moving_average(test_data, sqlContext):
     opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema=MA_output_schema())
     opt_ma_monthly_results_df = sqlContext.createDataFrame(opt_ma_monthly_results_mapped, schema=MA_output_schema())
 
-    # return opt_prophet_results_df, opt_prophet_results_df.count()
     return opt_ma_weekly_results_df, opt_ma_monthly_results_df
+    # return opt_ma_weekly_results_mapped, opt_ma_monthly_results_mapped
