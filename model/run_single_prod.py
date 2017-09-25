@@ -1,7 +1,7 @@
 from transform_data.data_transform import *
 from model.ma_outlier import *
 from model.weekly_model import *
-from model.weekly_pydlm import *
+from model.monthly_pydlm import *
 from model.moving_average import *
 
 # loading libs

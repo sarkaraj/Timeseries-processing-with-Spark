@@ -77,6 +77,28 @@ def monthly_prophet_model_error_calculator(data):
 
     return (data)
 
+def monthly_pydlm_model_error_calculator(data):
+
+    import pandas as pd
+    import numpy as np
+
+    data['cumsum_quantity'] = data.y.cumsum()
+
+    data['Error'] = np.subtract(data.y_pydlm, data.y)
+    data['Error_Cumsum'] = data.Error.cumsum() / data.y.cumsum() * 100
+
+    data['rolling_3month_error'] = pd.rolling_sum(data['Error'], window=3, min_periods=3)
+    data['rolling_3month_y'] = pd.rolling_sum(data['y'], window=3, min_periods=3)
+    data['rolling_3month_percent_error'] = data['rolling_3month_error'] / data[
+        'rolling_3month_y'] * 100
+
+    data['rolling_4month_error'] = pd.rolling_sum(data['Error'], window=4, min_periods=4)
+    data['rolling_4month_y'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+    data['rolling_4month_percent_error'] = data['rolling_4month_error'] / data[
+        'rolling_4month_y'] * 100
+
+    return (data)
+
 def rmse_calculator(y_forecasted,y_truth):
 
     rmse = (((y_forecasted - y_truth) ** 2).mean())**0.5
