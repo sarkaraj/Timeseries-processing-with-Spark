@@ -2,6 +2,7 @@ from model.weekly_model import *
 from model.monthly_model import *
 from transform_data.data_transform import *
 from model.moving_average import *
+from model.monthly_pydlm import *
 
 import numpy as np
 import pandas as pd
@@ -17,7 +18,7 @@ rcParams['figure.figsize'] = 15, 6
 file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\weekly_ensm\\temp\\"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\all-25-between-30-60\\pydlm\\"
 
 # holidays
 holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
@@ -27,7 +28,7 @@ holidays.upper_window = 7
 # holidays.head(6)
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "25_C005_greater_than_60.tsv", sep="\t", header=None,
+raw_data = pd.read_csv(file_dir + "25_C005_between_30_60.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 data_weekly = get_weekly_aggregate(inputDF=raw_data)
 data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
@@ -46,12 +47,13 @@ for cus_no in data_weekly.customernumber.unique():
 
         days = (
         max(prod.dt_week.apply(str).apply(parser.parse)) - min(prod.dt_week.apply(str).apply(parser.parse))).days
-        if days > 830:
+        if days > 854:
             # weekly_model_image_saver(prod, cus_no, mat_no, dir_name, holidays, min_train_days=731, test_points=2)
-            prod_output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
+            # prod_output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
 
             # monthly_prophet_model(prod, cus_no, mat_no, dir_name, min_train_days=731, test_points=1)
             # prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
+            prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
             # (prod_output, pred) = moving_average_model(prod=prod, cus_no=cus_no, mat_no=mat_no, weekly_data=False,
             #                                             weekly_window=6, monthly_window=3)
 

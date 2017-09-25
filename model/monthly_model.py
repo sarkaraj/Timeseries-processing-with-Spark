@@ -67,17 +67,17 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     while (len(rem_data.ds) >= test_points):
         # prophet model
         m = Prophet(weekly_seasonality=False, yearly_seasonality=True,
-                    changepoint_prior_scale=2,
-                    seasonality_prior_scale=0.1)
-        m.fit(train);
+                    seasonality_prior_scale= 0.1,
+                    changepoint_prior_scale=1)
+        pr_fit = m.fit(train);
         # TODO : Parameterize seasonality_prior_scale and changepoint_prior_scale - distribute this.
         # TODO : changepoint_prior_scale --> (1 to 10) + seasonality_prior_scale --> (0.1 to 1).
 
         # creating pred train and test data frame
-        past = m.make_future_dataframe(periods=0, freq='M')
+        past = pr_fit.make_future_dataframe(periods=0, freq='M')
         future = pd.DataFrame(test['ds'])
-        pf_train_pred = m.predict(past)
-        pf_test_pred = m.predict(future)
+        pf_train_pred = pr_fit.predict(past)
+        pf_test_pred = pr_fit.predict(future)
         pf_train_pred = pf_train_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([past.index])
         pf_test_pred = pf_test_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([future.index])
 
@@ -130,5 +130,4 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                               dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
         except ValueError:
             print("No points to plot")
-
     return (output_error)
