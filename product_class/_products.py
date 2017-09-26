@@ -114,6 +114,19 @@ class product_cat_8(object):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
 
 
+# # CATEGORY 9
+class product_cat_9(object):
+    def __init__(self):
+        self.pdt_freq_annual_lower = 12
+        self.pdt_freq_annual_upper = 20
+        self.time_gap_days_lower = 0
+        self.time_gap_days_upper = float("inf")
+        self.category = 'IX'
+
+    def get_product_prop(self):
+        return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
+
+
 cat_1 = product_cat_1()
 cat_2 = product_cat_2()
 cat_3 = product_cat_3()
@@ -122,5 +135,6 @@ cat_5 = product_cat_5()
 cat_6 = product_cat_6()
 cat_7 = product_cat_7()
 cat_8 = product_cat_8()
+cat_9 = product_cat_9()
 
 # print cat_1.get_product_prop()
