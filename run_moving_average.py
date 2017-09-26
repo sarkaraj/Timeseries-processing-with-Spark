@@ -57,13 +57,6 @@ def _run_moving_average_monthly(test_data, sqlContext):
         .filter(lambda x: x[1].category in ['IX']) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line))
 
-    # test_data_parallel = test_data_input.flatMap(lambda x: generate_models_prophet_monthly(x))
-    #
-    # ma_weekly_results_rdd = test_data_input.filter(lambda x: x[3].category == 'VII') \
-    #     .map(
-    #     lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop()))
-    # # \.filter(lambda x: x != "MODEL_NOT_VALID")
-
     ma_monthly_results_rdd = test_data_input \
         .map(
         lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop()))
