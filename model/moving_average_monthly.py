@@ -1,6 +1,7 @@
 from model.ma_outlier import *
 from model.error_calculator import *
 from model.save_images import *
+import distributed_grid_search.properties as p_model
 from transform_data.data_transform import *
 import transform_data.pandas_support_func as pd_func
 
@@ -16,6 +17,11 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
         monthly_window = kwargs.get('monthly_window')
     else:
         monthly_window = 3
+
+    if ('pred_points' in kwargs.keys()):
+        pred_points = kwargs.get('pred_points')
+    else:
+        pred_points = p_model.pred_points_monthly
 
     # data transform
     prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -49,10 +55,16 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
                               title="monthly_aggregated_quantity_outlier_replaced",
                               dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-    prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= monthly_window, min_periods= 1)
-    # pred = prod['rolling_mean'].iloc[-1]
-    pred = prod['rolling_mean'].iget(-1)
-    (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window=monthly_window)
+    pred_df = pd.DataFrame()
+    pred_df['y'] = prod['y']
+    for i in range(pred_points):
+        pred_df['rolling_mean'] = pd.rolling_mean(pred_df['y'], window=monthly_window, min_periods=1)
+        pred_temp = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
+        pred_df = pred_df.drop('rolling_mean', axis=1)
+        pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
+
+    pred = np.array(pred_df['y'].iloc[-pred_points:])
+    (output_result, rmse, mape) = weekly_moving_average_error_calc(data=prod, weekly_window=monthly_window)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
                                        np.nanmedian(output_result.rolling_3month_percent_error),
