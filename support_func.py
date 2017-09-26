@@ -92,5 +92,7 @@ def assign_category(row_object):
             return row_object, p.cat_8
     elif (row_object.pdt_freq_annual >= 12 and row_object.pdt_freq_annual < 20):
         return row_object, p.cat_9
+    elif (row_object.pdt_freq_annual >= 0 and row_object.pdt_freq_annual < 12):
+        return row_object, p.cat_10
     else:
         return "NOT_CONSIDERED"

@@ -92,7 +92,7 @@ from distributed_grid_search._fbprophet_monthly import run_prophet_monthly
 
 def _run_dist_prophet_monthly(test_data, sqlContext):
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ['IV', 'V', 'VI'])
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
 
     test_data_parallel = test_data_input.flatMap(lambda x: generate_models_prophet_monthly(x))
 
