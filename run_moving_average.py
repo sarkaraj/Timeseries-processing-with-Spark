@@ -24,51 +24,36 @@ def _moving_average_row_to_rdd_map(line):
     return _result
 
 
-def _run_moving_average(test_data, sqlContext):
+def _run_moving_average_weekly(test_data, sqlContext):
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ['VII', 'VIII']) \
+        .filter(lambda x: x[1].category in ('VII')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line))
-
-    # test_data_parallel = test_data_input.flatMap(lambda x: generate_models_prophet_monthly(x))
 
     ma_weekly_results_rdd = test_data_input.filter(lambda x: x[3].category == 'VII') \
         .map(
-        lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop()))
-    # \.filter(lambda x: x != "MODEL_NOT_VALID")
-
-    ma_monthly_results_rdd = test_data_input.filter(lambda x: x[3].category == 'VIII') \
-        .map(
-        lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop()))
-    # .filter(lambda x: x != "MODEL_NOT_VALID")
-
-
+        lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
+                                              weekly_window=x[3].get_window()))
 
     opt_ma_weekly_results_mapped = ma_weekly_results_rdd.map(lambda line: map_for_output_MA_weekly(line))
-    opt_ma_monthly_results_mapped = ma_monthly_results_rdd.map(lambda line: map_for_output_MA_monthly(line))
 
     opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema=MA_output_schema())
-    opt_ma_monthly_results_df = sqlContext.createDataFrame(opt_ma_monthly_results_mapped, schema=MA_output_schema())
 
-    return opt_ma_weekly_results_df, opt_ma_monthly_results_df
+    return opt_ma_weekly_results_df
+
 
 
 def _run_moving_average_monthly(test_data, sqlContext):
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ['IX']) \
+        .filter(lambda x: x[1].category in ('VIII', 'IX', 'X')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line))
 
-    ma_monthly_results_rdd = test_data_input \
+    ma_monthly_results_rdd = test_data_input.filter(lambda x: x[3].category in ['VIII', 'IX', 'X']) \
         .map(
-        lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop()))
-    # .filter(lambda x: x != "MODEL_NOT_VALID")
+        lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
+                                               monthly_window=x[3].get_window()))
 
-
-
-    # opt_ma_weekly_results_mapped = ma_weekly_results_rdd.map(lambda line: map_for_output_MA_weekly(line))
     opt_ma_monthly_results_mapped = ma_monthly_results_rdd.map(lambda line: map_for_output_MA_monthly(line))
 
-    # opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema=MA_output_schema())
     opt_ma_monthly_results_df = sqlContext.createDataFrame(opt_ma_monthly_results_mapped, schema=MA_output_schema())
 
-    # return opt_ma_weekly_results_df, opt_ma_monthly_results_df
     return opt_ma_monthly_results_df
