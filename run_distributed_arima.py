@@ -98,4 +98,5 @@ def _run_dist_arima(test_data, sqlContext):
 
     opt_arima_results_df = sqlContext.createDataFrame(opt_arima_results_mapped, schema=arima_output_schema())
 
-    return opt_arima_results_df, opt_arima_results_df.count()
+    # return opt_arima_results_df, opt_arima_results_df.count()
+    return opt_arima_results_df
