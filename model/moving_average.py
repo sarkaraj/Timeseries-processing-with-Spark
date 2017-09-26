@@ -4,7 +4,7 @@ from model.save_images import *
 from transform_data.data_transform import *
 
 def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
-                         weekly_window= 6, monthly_window = 3, **kwargs):
+                         weekly_window= 6, monthly_window = 3, pred_points = 2, **kwargs):
 
     # If weekly data is false, monthly data is assumed
 
@@ -44,8 +44,16 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                                   title="weekly_aggregated_quantity_outlier_replaced",
                                   dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-        prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= weekly_window, min_periods= 1)
-        pred = prod['rolling_mean'].iloc[-1]
+        pred_df = pd.DataFrame()
+        pred_df['y'] = prod['y']
+        for i in range(pred_points):
+            pred_df['rolling_mean'] = pd.rolling_mean(pred_df['y'], window= weekly_window, min_periods= 1)
+            pred = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
+            pred_df = pred_df.drop('rolling_mean', axis= 1)
+            pred_df = pd.concat([pred_df,pred],axis= 0, ignore_index= True)
+
+
+        output_pred = np.array(pred_df['y'].iloc[-pred_points:])
         (output_result, rmse, mape) = weekly_moving_average_error_calc(data= prod, weekly_window= weekly_window)
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
@@ -58,7 +66,8 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
                                     columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
                                              'wre_med_12','wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
-    if weekly_data == False:
+        return (output_error, output_pred)
+    elif weekly_data == False:
         prod = get_monthly_aggregate_per_product(prod)
         # save plot
         if ('dir_name' in kwargs.keys()):
@@ -82,8 +91,15 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                                   title="monthly_aggregated_quantity_outlier_replaced",
                                   dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-        prod['rolling_mean'] = pd.rolling_mean(prod['y'], window= monthly_window, min_periods= 1)
-        pred = prod['rolling_mean'].iloc[-1]
+        pred_df = pd.DataFrame()
+        pred_df['y'] = prod['y']
+        for i in range(pred_points):
+            pred_df['rolling_mean'] = pd.rolling_mean(pred_df['y'], window=monthly_window, min_periods=1)
+            pred = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
+            pred_df = pred_df.drop('rolling_mean', axis=1)
+            pred_df = pd.concat([pred_df, pred], axis=0, ignore_index=True)
+
+        output_pred = np.array(pred_df['y'].iloc[-pred_points:])
         (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window=monthly_window)
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
@@ -97,5 +113,5 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                                     columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
                                              'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
-    return (output_error, pred)
+        return (output_error, output_pred)
 
