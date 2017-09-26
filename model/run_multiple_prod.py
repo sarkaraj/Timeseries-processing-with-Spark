@@ -3,6 +3,7 @@ from model.monthly_model import *
 from transform_data.data_transform import *
 from model.moving_average import *
 from model.monthly_pydlm import *
+from model.moving_average_monthly import *
 
 import numpy as np
 import pandas as pd
@@ -53,12 +54,13 @@ for cus_no in data_weekly.customernumber.unique():
 
             # monthly_prophet_model(prod, cus_no, mat_no, dir_name, min_train_days=731, test_points=1)
             # prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
-            # prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
-            (prod_output, pred) = moving_average_model(prod=prod, cus_no=cus_no, mat_no=mat_no, weekly_data=False,
-                                                        weekly_window=6, monthly_window=3, pred_points= 2)
+            prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
+            # (prod_output, pred) = moving_average_model(prod=prod, cus_no=cus_no, mat_no=mat_no, weekly_data=False,
+            #                                             weekly_window=6, monthly_window=3, pred_points= 2)
 
+            # prod_output = moving_average_model_monthly(prod = prod, cus_no= cus_no, mat_no=mat_no)
             final_data_df = pd.concat([final_data_df, prod_output], axis=0)
 
 final_data_df.to_csv(image_dir + "error.csv", sep=',', header=True)
 
-print (final_data_df)
+print (final_data_df.head())

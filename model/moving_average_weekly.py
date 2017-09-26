@@ -64,7 +64,7 @@ def moving_average_model_weekly(prod, cus_no, mat_no, **kwargs):
         pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
 
     pred = np.array(pred_df['y'].iloc[-pred_points:])
-    (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window=weekly_window)
+    (output_result, rmse, mape) = weekly_moving_average_error_calc(data=prod, weekly_window=weekly_window)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
                                        np.nanmedian(output_result.rolling_6week_percent_error),
@@ -82,3 +82,5 @@ def moving_average_model_weekly(prod, cus_no, mat_no, **kwargs):
     _pdt_cat = kwargs.get('pdt_cat')
 
     return cus_no, mat_no, output_error_dict, pred, _pdt_cat
+
+

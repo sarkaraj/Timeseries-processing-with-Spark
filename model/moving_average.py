@@ -48,12 +48,12 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
         pred_df['y'] = prod['y']
         for i in range(pred_points):
             pred_df['rolling_mean'] = pd.rolling_mean(pred_df['y'], window= weekly_window, min_periods= 1)
-            pred = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
+            pred_temp = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
             pred_df = pred_df.drop('rolling_mean', axis= 1)
-            pred_df = pd.concat([pred_df,pred],axis= 0, ignore_index= True)
+            pred_df = pd.concat([pred_df,pred_temp],axis= 0, ignore_index= True)
 
 
-        output_pred = np.array(pred_df['y'].iloc[-pred_points:])
+        pred = np.array(pred_df['y'].iloc[-pred_points:])
         (output_result, rmse, mape) = weekly_moving_average_error_calc(data= prod, weekly_window= weekly_window)
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
@@ -66,7 +66,7 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
                                     columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6',
                                              'wre_med_12','wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
-        return (output_error, output_pred)
+        return (output_error, pred)
     elif weekly_data == False:
         prod = get_monthly_aggregate_per_product(prod)
         # save plot
@@ -95,11 +95,11 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
         pred_df['y'] = prod['y']
         for i in range(pred_points):
             pred_df['rolling_mean'] = pd.rolling_mean(pred_df['y'], window=monthly_window, min_periods=1)
-            pred = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
+            pred_temp = pd.DataFrame([pred_df['rolling_mean'].iloc[-1]], columns=['y'])
             pred_df = pred_df.drop('rolling_mean', axis=1)
-            pred_df = pd.concat([pred_df, pred], axis=0, ignore_index=True)
+            pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
 
-        output_pred = np.array(pred_df['y'].iloc[-pred_points:])
+        pred = np.array(pred_df['y'].iloc[-pred_points:])
         (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window=monthly_window)
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
@@ -113,5 +113,5 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                                     columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
                                              'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
-        return (output_error, output_pred)
+        return (output_error, pred)
 
