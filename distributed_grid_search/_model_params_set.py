@@ -91,7 +91,7 @@ def generate_all_param_combo_prophet_monthly():
     import numpy as np
 
     yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': i} for i in np.arange(0.1, 1.1, 0.2)]
+    seasonality_prior_scale = [{'seasonality_prior_scale': i} for i in np.arange(0.1, 1.1, 0.1)]
 
     changepoint_prior_scale = [{'changepoint_prior_scale': i} for i in np.arange(1, 6, 1)]
 
@@ -164,8 +164,3 @@ def generate_models_prophet_monthly(x):
     return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
             generate_all_param_combo_prophet_monthly()]
 
-
-# print len(generate_all_param_combo_prophet())
-# print generate_all_param_combo_prophet()
-# make_single_dict()
-# print(generate_all_param_combo_prophet_monthly())

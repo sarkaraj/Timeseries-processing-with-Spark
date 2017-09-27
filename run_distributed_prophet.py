@@ -90,7 +90,8 @@ def _run_dist_prophet(test_data, sqlContext):
 
     opt_prophet_results_rdd = prophet_results_rdd.combineByKey(dist_grid_search_create_combiner,
                                                                dist_grid_search_merge_value,
-                                                               dist_grid_search_merge_combiner)
+                                                               dist_grid_search_merge_combiner,
+                                                               numPartitions=50)
 
     opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 
