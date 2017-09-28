@@ -11,17 +11,17 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     from dateutil import parser
     from fbprophet import Prophet
 
-    if (kwargs.has_key('min_train_days')):
+    if ('min_train_days' in kwargs.keys()):
         min_train_days = kwargs.get('min_train_days')
     else:
         min_train_days = p_model.min_train_days
 
-    if (kwargs.has_key('test_points')):
+    if ('test_points' in kwargs.keys()):
         test_points = kwargs.get('test_points')
     else:
         test_points = p_model.test_points_monthly
 
-    if (kwargs.has_key('pred_points')):
+    if ('pred_points' in kwargs.keys()):
         pred_points = kwargs.get('pred_points')
     else:
         pred_points = p_model.pred_points_monthly
@@ -210,3 +210,8 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
         return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
+
+
+
+
+
