@@ -116,6 +116,7 @@ print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
 # print "\t\t--Running distributed prophet"
 prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
 
+# print prophet_monthly_results
 
 print "Writing the MONTHLY MODEL data into HDFS"
 prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
