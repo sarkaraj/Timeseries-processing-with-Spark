@@ -26,12 +26,13 @@ def prophet_output_schema():
     :return: schema of Row(customernumber, mat_no, error_prophet, pred_prophet, prophet_params)
     """
 
-    customernumber = StructField("customernumber", StringType(), nullable=False)
-    mat_no = StructField("mat_no", StringType(), nullable=False)
-    _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=False)
-    _pred_prophet = StructField("pred_prophet", MapType(StringType(), ArrayType(FloatType(), containsNull=True)), nullable=False)
-    _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=False)
-    _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
+    customernumber = StructField("customernumber_prophet", StringType(), nullable=False)
+    mat_no = StructField("mat_no_prophet", StringType(), nullable=False)
+    _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=True)
+    _pred_prophet = StructField("pred_prophet", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
+                                nullable=True)
+    _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=True)
+    _pdt_category = StructField("pdt_cat_prophet", MapType(StringType(), StringType()), nullable=True)
 
     schema = StructType([customernumber, mat_no, _error_prophet, _pred_prophet, _opt_param_prophet, _pdt_category])
 
@@ -51,12 +52,13 @@ def arima_output_schema():
     :return: schema of Row(customernumber, mat_no, error_prophet, pred_prophet, prophet_params)
     """
 
-    customernumber = StructField("customernumber", StringType(), nullable=False)
-    mat_no = StructField("mat_no", StringType(), nullable=False)
-    _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=False)
-    _pred_arima = StructField("pred_arima", MapType(StringType(), ArrayType(FloatType(), containsNull=True)), nullable=False)
-    _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=False)
-    _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
+    customernumber = StructField("customernumber_arima", StringType(), nullable=False)
+    mat_no = StructField("mat_no_arima", StringType(), nullable=False)
+    _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=True)
+    _pred_arima = StructField("pred_arima", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
+                              nullable=True)
+    _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=True)
+    _pdt_category = StructField("pdt_cat_arima", MapType(StringType(), StringType()), nullable=True)
 
     schema = StructType([customernumber, mat_no, _error_arima, _pred_arima, _opt_param_arima, _pdt_category])
 

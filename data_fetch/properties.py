@@ -60,6 +60,3 @@ where d.bill_date <= '20170831'
 """
 
 _latest_product_criteria_days = 92
-# _product_criteria_days = 830
-# _product_criteria_years = 2.0
-# _product_criteria_annual_frequency = 60

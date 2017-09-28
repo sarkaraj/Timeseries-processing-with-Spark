@@ -92,7 +92,8 @@ def _run_dist_arima(test_data, sqlContext):
 
     opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner,
                                                            dist_grid_search_merge_value,
-                                                           dist_grid_search_merge_combiner)
+                                                           dist_grid_search_merge_combiner,
+                                                           numPartitions=50)
 
     opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima(line))
 
