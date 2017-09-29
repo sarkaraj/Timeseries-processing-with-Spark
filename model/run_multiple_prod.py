@@ -5,6 +5,8 @@ from model.moving_average import *
 from model.monthly_pydlm import *
 from model.moving_average_monthly import *
 from distributed_grid_search._fbprophet_monthly import *
+from distributed_grid_search._fbprophet import *
+from distributed_grid_search._model_params_set import *
 
 import numpy as np
 import pandas as pd
@@ -23,14 +25,14 @@ file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\all-25-between-30-60\\pydlm\\"
 
 # holidays
-holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
-holidays.ds = holidays.ds.apply(parser.parse)
-holidays.lower_window = -7
-holidays.upper_window = 7
+# holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
+# holidays.ds = holidays.ds.apply(parser.parse)
+# holidays.lower_window = -7
+# holidays.upper_window = 7
 # holidays.head(6)
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "cat_IV.tsv", sep="\t", header=None,
+raw_data = pd.read_csv(file_dir + "25_C005_greater_than_60.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 data_weekly = get_weekly_aggregate(inputDF=raw_data)
 data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
@@ -40,7 +42,7 @@ data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 # data_monthly.dt_week = data_monthly.dt_week.apply(str).apply(parser.parse)
 # print data_monthly.head()
 
-param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+# param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
 # loop to run for all product, all customer
 final_data_df = pd.DataFrame()
 for cus_no in data_weekly.customernumber.unique():
@@ -54,7 +56,7 @@ for cus_no in data_weekly.customernumber.unique():
         # prod_output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
 
         # monthly_prophet_model(prod, cus_no, mat_no, dir_name, min_train_days=731, test_points=1)
-        prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
+        # prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
         # prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
         # (prod_output, pred) = moving_average_model(prod=prod, cus_no=cus_no, mat_no=mat_no, weekly_data=False,
         #                                             weekly_window=6, monthly_window=3, pred_points= 2)
@@ -62,8 +64,11 @@ for cus_no in data_weekly.customernumber.unique():
         # prod_output = moving_average_model_monthly(prod = prod, cus_no= cus_no, mat_no=mat_no)
         # res = run_prophet_monthly(cus_no= cus_no, mat_no= mat_no, prod=prod, param= param, min_train_days= 731)
         # prod_output = res[1][1]
-        final_data_df = pd.concat([final_data_df, prod_output], axis=0)
+        # final_data_df = pd.concat([final_data_df, prod_output], axis=0)
+        for elem in generate_all_param_combo_prophet():
+            output = run_prophet(cus_no=cus_no, mat_no=mat_no, prod=prod, param=elem)
+            print(output[1][1])
 
 # final_data_df.to_csv(image_dir + "error.csv", sep=',', header=True)
 
-print (final_data_df.head())
+# print (final_data_df.head())

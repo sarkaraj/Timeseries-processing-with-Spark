@@ -52,10 +52,10 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                 prod.ds <= (
                 np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
             test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-            rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+            # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
             output_result = pd.DataFrame()
 
-            while (len(rem_data.ds) >= test_points):
+            while (len(test) > 0):
                 # prophet
                 m = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
                             changepoint_prior_scale=changepoint_prior_scale,
@@ -77,7 +77,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
 
                 train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
                 test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-                rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+                # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
 
                 output_result = pd.concat([output_result, result_test], axis=0)
 
@@ -139,10 +139,10 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                 prod.ds <= (
                     np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
             test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-            rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+            # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
             output_result = pd.DataFrame()
 
-            while (len(rem_data.ds) >= test_points):
+            while (len(test) > 0):
                 # prophet
                 m = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
                             changepoint_prior_scale=changepoint_prior_scale)
@@ -163,7 +163,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
 
                 train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
                 test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-                rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+                # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
 
                 output_result = pd.concat([output_result, result_test], axis=0)
 
@@ -200,14 +200,14 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
 
             return _result
 
-    except ValueError:
-        return "MODEL_NOT_VALID"
-    except ZeroDivisionError:
-        return "MODEL_NOT_VALID"
-    except RuntimeError:
-        return "MODEL_NOT_VALID"
-    except AttributeError:
-        return "MODEL_NOT_VALID"
+    # except ValueError:
+    #     return "MODEL_NOT_VALID"
+    # except ZeroDivisionError:
+    #     return "MODEL_NOT_VALID"
+    # except RuntimeError:
+    #     return "MODEL_NOT_VALID"
+    # except AttributeError:
+    #     return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
 
