@@ -59,12 +59,12 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     train = prod[
         prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
     test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-    rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+    # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
 
     output_result = pd.DataFrame()
 
     # incremental test
-    while (len(rem_data.ds) >= test_points):
+    while (len(test) > 0):
         # prophet model
         m = Prophet(weekly_seasonality=False, yearly_seasonality=True,
                     seasonality_prior_scale= 0.1,
@@ -89,7 +89,7 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
 
         train = prod[:(max(train.index)+1+test_points)]
         test = prod[(max(train.index)+1):(max(train.index)+1+test_points)]
-        rem_data = prod[(max(train.index)+test_points):]
+        # rem_data = prod[(max(train.index)+test_points):]
 
         output_result = pd.concat([output_result,result_test], axis=0)
 
@@ -107,6 +107,7 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                                 columns=['cus_no', 'mat_no', 'rmse', 'mape','3mre_med', '3mre_max','4mre_med', '4mre_max',
                                          'cum_error', 'cum_quantity', 'period_days'])
 
+    print(output_error)
     if ('dir_name' in kwargs.keys()):
         dir_name = kwargs.get('dir_name')
         # model fit
