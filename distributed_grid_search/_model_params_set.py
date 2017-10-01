@@ -61,9 +61,9 @@ def generate_all_param_combo_prophet():
     import numpy as np
 
     yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': i} for i in np.arange(0.1, 0.7, 0.2)]
+    seasonality_prior_scale = [{'seasonality_prior_scale': round(i, 2)} for i in np.arange(0.1, 0.7, 0.2)]
 
-    changepoint_prior_scale = [{'changepoint_prior_scale': i} for i in np.arange(1, 6, 2)]
+    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in np.arange(1, 6, 2)]
     holidays = [{'holidays' : True}, {'holidays' : False}]
 
     hol_chng_pt_all_combo = [make_single_dict(list(elem)) for elem in list(itertools.product(holidays, changepoint_prior_scale))]
@@ -91,9 +91,9 @@ def generate_all_param_combo_prophet_monthly():
     import numpy as np
 
     yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': i} for i in np.arange(0.1, 1.1, 0.2)]
+    seasonality_prior_scale = [{'seasonality_prior_scale': round(i, 2)} for i in np.arange(0.1, 1.1, 0.1)]
 
-    changepoint_prior_scale = [{'changepoint_prior_scale': i} for i in np.arange(1, 6, 1)]
+    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in np.arange(1, 6, 1)]
 
     yearly_seasonality_all_combo = generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior_scale)
 
@@ -161,11 +161,33 @@ def generate_models_prophet_monthly(x):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
-            generate_all_param_combo_prophet_monthly()]
+    param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+
+    return [(customernumber, matnr, data_pd_df_week_aggregated, param, category_obj)]
+
+    # return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
+    #         generate_all_param_combo_prophet_monthly()]
 
 
-# print len(generate_all_param_combo_prophet())
-# print generate_all_param_combo_prophet()
-# make_single_dict()
-# print(generate_all_param_combo_prophet_monthly())
+if __name__ == '__main__':
+    a = generate_all_param_combo_prophet_monthly()
+    print len(a)
+    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+    #
+    # print param
+    # print param.get('changepoint_prior_scale')
+    # print type(param.get('changepoint_prior_scale'))
+    # print param.get('yearly_seasonality')
+    # print type(param.get('yearly_seasonality'))
+    # print param.get('seasonality_prior_scale')
+    # print type(param.get('seasonality_prior_scale'))
+    #
+    # # print [(1, elem)for elem in generate_all_param_combo_prophet_monthly()]
+    # for i in a:
+    #     print i
+    #     print i.get('changepoint_prior_scale')
+    #     print type(i.get('changepoint_prior_scale'))
+    #     print i.get('yearly_seasonality')
+    #     print type(i.get('yearly_seasonality'))
+    #     print i.get('seasonality_prior_scale')
+    #     print type(i.get('seasonality_prior_scale'))

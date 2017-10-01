@@ -13,6 +13,8 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     import numpy as np
     from dateutil import parser
 
+    _pdt_cat = kwargs.get('pdt_cat')
+
     if ('monthly_window' in kwargs.keys()):
         monthly_window = kwargs.get('monthly_window')
     else:
@@ -40,7 +42,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
                           title="raw_monthly_aggregated_quantity",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
     # Remove outlier
-    if len(prod.y) >= 12:
+    if len(prod.y) >= 12 and _pdt_cat.get('category') not in ('IX', 'X'):
         if ('dir_name' in kwargs.keys()):
             dir_name = kwargs.get('dir_name')
             prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=6, sigma= 2.5
@@ -63,7 +65,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
         pred_df = pred_df.drop('rolling_mean', axis=1)
         pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
 
-    pred = np.array(pred_df['y'].iloc[-pred_points:])
+    pred = np.array(pred_df['y'].iloc[-pred_points:]).tolist()
     print(pred)
     (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window =monthly_window)
 
@@ -80,7 +82,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
 
     output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
     # _pred_result = {'yhat': list(pred)}
-    _pdt_cat = kwargs.get('pdt_cat')
+
 
     return cus_no, mat_no, output_error_dict, pred, _pdt_cat
 

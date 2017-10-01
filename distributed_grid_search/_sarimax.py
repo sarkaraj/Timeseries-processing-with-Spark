@@ -48,11 +48,10 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         train = prod[
             prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
         test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-        rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+        # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
         output_result = pd.DataFrame()
 
-
-        while (len(rem_data.ds) >= test_points):
+        while (len(test) > 0):
             # ARIMA Model Data Transform
             train_arima = train.set_index('ds', drop=True)
             test_arima = test.set_index('ds', drop=True)
@@ -81,7 +80,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
             test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-            rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+            # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
 
             output_result = pd.concat([output_result, result_test], axis=0)
 

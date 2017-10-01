@@ -90,5 +90,9 @@ def assign_category(row_object):
             return row_object, p.cat_6
         elif(row_object.time_gap_days > p.cat_8.time_gap_days_lower and row_object.time_gap_days <= p.cat_8.time_gap_days_upper):
             return row_object, p.cat_8
+    elif (row_object.pdt_freq_annual >= 12 and row_object.pdt_freq_annual < 20):
+        return row_object, p.cat_9
+    elif (row_object.pdt_freq_annual >= 0 and row_object.pdt_freq_annual < 12):
+        return row_object, p.cat_10
     else:
         return "NOT_CONSIDERED"

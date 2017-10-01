@@ -92,18 +92,27 @@ from distributed_grid_search._fbprophet_monthly import run_prophet_monthly
 
 def _run_dist_prophet_monthly(test_data, sqlContext):
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ['IV', 'V', 'VI'])
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
 
-    test_data_parallel = test_data_input.flatMap(lambda x: generate_models_prophet_monthly(x))
+    # return test_data_input.count() # # gets 587 records
+
+    test_data_parallel = test_data_input.flatMap(
+        lambda x: generate_models_prophet_monthly(x))  # # gets 587 * 55 = 32285 rows
+
+    # return test_data_parallel.count()
 
     prophet_results_rdd = test_data_parallel.map(
         lambda x: run_prophet_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3],
                                       min_train_days=x[4].min_train_days, pdt_cat=x[4].get_product_prop())).filter(
         lambda x: x != "MODEL_NOT_VALID")
+    # \
+    # .repartition(60)
 
     opt_prophet_results_rdd = prophet_results_rdd.combineByKey(dist_grid_search_create_combiner,
                                                                dist_grid_search_merge_value,
-                                                               dist_grid_search_merge_combiner)
+                                                               dist_grid_search_merge_combiner,
+                                                               numPartitions=30)
+    # return opt_prophet_results_rdd.count() # # Returns 587
 
     opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 

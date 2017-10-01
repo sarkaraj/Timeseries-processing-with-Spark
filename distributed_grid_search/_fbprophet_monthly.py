@@ -70,7 +70,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                 # pf_train_pred = pf_train_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([past.index])
                 pf_test_pred = pf_test_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([future.index])
 
-                # ceating test and train emsembled result
+                # creating test and train emsembled result
                 result_test = test
                 result_test['y_Prophet'] = np.array(pf_test_pred.yhat)
                 result_test.loc[(result_test['y_Prophet'] < 0), 'y_Prophet'] = 0
@@ -206,8 +206,8 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     #     return "MODEL_NOT_VALID"
     # except RuntimeError:
     #     return "MODEL_NOT_VALID"
-    # except AttributeError:
-    #     return "MODEL_NOT_VALID"
+    except AttributeError:
+        return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
 

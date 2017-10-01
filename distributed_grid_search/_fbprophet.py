@@ -205,7 +205,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
     #     return "MODEL_NOT_VALID"
     # except ZeroDivisionError:
     #     return "MODEL_NOT_VALID"
-    # except AttributeError:
-    #     return "MODEL_NOT_VALID"
+    except AttributeError:
+        return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
