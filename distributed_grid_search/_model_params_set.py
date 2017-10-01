@@ -161,30 +161,33 @@ def generate_models_prophet_monthly(x):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+    param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
 
-    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
-            generate_all_param_combo_prophet_monthly()]
+    return [(customernumber, matnr, data_pd_df_week_aggregated, param, category_obj)]
+
+    # return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
+    #         generate_all_param_combo_prophet_monthly()]
 
 
 if __name__ == '__main__':
     a = generate_all_param_combo_prophet_monthly()
-    param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
-
-    print param
-    print param.get('changepoint_prior_scale')
-    print type(param.get('changepoint_prior_scale'))
-    print param.get('yearly_seasonality')
-    print type(param.get('yearly_seasonality'))
-    print param.get('seasonality_prior_scale')
-    print type(param.get('seasonality_prior_scale'))
-
-    # print [(1, elem)for elem in generate_all_param_combo_prophet_monthly()]
-    for i in a:
-        print i
-        print i.get('changepoint_prior_scale')
-        print type(i.get('changepoint_prior_scale'))
-        print i.get('yearly_seasonality')
-        print type(i.get('yearly_seasonality'))
-        print i.get('seasonality_prior_scale')
-        print type(i.get('seasonality_prior_scale'))
+    print len(a)
+    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+    #
+    # print param
+    # print param.get('changepoint_prior_scale')
+    # print type(param.get('changepoint_prior_scale'))
+    # print param.get('yearly_seasonality')
+    # print type(param.get('yearly_seasonality'))
+    # print param.get('seasonality_prior_scale')
+    # print type(param.get('seasonality_prior_scale'))
+    #
+    # # print [(1, elem)for elem in generate_all_param_combo_prophet_monthly()]
+    # for i in a:
+    #     print i
+    #     print i.get('changepoint_prior_scale')
+    #     print type(i.get('changepoint_prior_scale'))
+    #     print i.get('yearly_seasonality')
+    #     print type(i.get('yearly_seasonality'))
+    #     print i.get('seasonality_prior_scale')
+    #     print type(i.get('seasonality_prior_scale'))

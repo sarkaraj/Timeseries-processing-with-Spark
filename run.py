@@ -8,7 +8,7 @@ from run_moving_average import _run_moving_average_weekly, _run_moving_average_m
 from support_func import assign_category
 from transform_data.spark_dataframe_func import final_select_dataset
 
-conf = SparkConf().setAppName("CONA_TS_MODEL_CREATION_JOB_ID_9")
+conf = SparkConf().setAppName("CONA_TS_MODEL_VALIDATION_JOB_ID_15")
     # .setMaster("yarn-client")
 sc = SparkContext(conf=conf)
 sqlContext = HiveContext(sparkContext=sc)
@@ -91,12 +91,12 @@ sys.path.insert(0, "jobs.zip")
 #
 #
 # print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-#
-#
-# ####################################################################################################################
-# ####################################################################################################################
-# ####################################################################################################################
-# ####################################################################################################################
+
+
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
 
 # start_time = time.time()
 
@@ -120,7 +120,7 @@ prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_
 
 print "Writing the MONTHLY MODEL data into HDFS"
 prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-    "/tmp/pyspark_data/dist_model_monthly_first_run")
+    "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
 
 # ############################________________MOVING AVERAGE__________##########################
 #
@@ -137,4 +137,4 @@ prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option
 # ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_ma_monthly")
 #
-# print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

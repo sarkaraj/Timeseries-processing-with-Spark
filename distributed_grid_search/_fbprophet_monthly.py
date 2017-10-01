@@ -206,7 +206,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     #     return "MODEL_NOT_VALID"
     # except RuntimeError:
     #     return "MODEL_NOT_VALID"
-    # except AttributeError:
-    #     return "MODEL_NOT_VALID"
+    except AttributeError:
+        return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
