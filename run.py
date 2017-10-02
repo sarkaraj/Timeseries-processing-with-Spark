@@ -136,5 +136,5 @@ prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option
 # print "Writing the MA MONTHLY data into HDFS\n"
 # ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_ma_monthly")
-#
+
 print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

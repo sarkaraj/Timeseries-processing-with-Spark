@@ -161,12 +161,12 @@ def generate_models_prophet_monthly(x):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+    #
+    # return [(customernumber, matnr, data_pd_df_week_aggregated, param, category_obj)]
 
-    return [(customernumber, matnr, data_pd_df_week_aggregated, param, category_obj)]
-
-    # return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
-    #         generate_all_param_combo_prophet_monthly()]
+    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
+            generate_all_param_combo_prophet_monthly()]
 
 
 if __name__ == '__main__':
