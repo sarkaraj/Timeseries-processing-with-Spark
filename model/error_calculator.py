@@ -163,13 +163,13 @@ def monthly_moving_average_error_calc(data, monthly_window):
     data_pred['Error'] = np.subtract(data_pred.rolling_mean, data_pred.y)
     data_pred['Error_Cumsum'] = data_pred.Error.cumsum() / data_pred.y.cumsum() * 100
 
-    data_pred['rolling_3month_error'] = pd.rolling_sum(data_pred['Error'], window=6, min_periods=6)
-    data_pred['rolling_3month_y'] = pd.rolling_sum(data_pred['y'], window=6, min_periods=6)
+    data_pred['rolling_3month_error'] = pd.rolling_sum(data_pred['Error'], window=3, min_periods=3)
+    data_pred['rolling_3month_y'] = pd.rolling_sum(data_pred['y'], window=3, min_periods=3)
     data_pred['rolling_3month_percent_error'] = data_pred['rolling_3month_error'] / data_pred[
         'rolling_3month_y'] * 100
 
-    data_pred['rolling_4month_error'] = pd.rolling_sum(data_pred['Error'], window=12, min_periods=12)
-    data_pred['rolling_4month_y'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
+    data_pred['rolling_4month_error'] = pd.rolling_sum(data_pred['Error'], window=4, min_periods=4)
+    data_pred['rolling_4month_y'] = pd.rolling_sum(data_pred['y'], window=4, min_periods=4)
     data_pred['rolling_4month_percent_error'] = data_pred['rolling_4month_error'] / data_pred[
         'rolling_4month_y'] * 100
 
