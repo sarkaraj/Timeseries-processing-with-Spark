@@ -29,8 +29,6 @@ def _run_dist_prophet_monthly(test_data, sqlContext):
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
 
-    # return test_data_input.count() # # gets 587 records
-
     test_data_parallel = test_data_input.flatMap(
         lambda x: generate_models_prophet_monthly(x))  # # gets 587 * 55 = 32285 rows
 
@@ -41,24 +39,15 @@ def _run_dist_prophet_monthly(test_data, sqlContext):
         .filter(lambda x: x != "MODEL_NOT_VALID") \
         .repartition(60)
 
-    opt_prophet_results_rdd = prophet_results_rdd.combineByKey(dist_grid_search_create_combiner,
-                                                               dist_grid_search_merge_value,
-                                                               dist_grid_search_merge_combiner,
-                                                               numPartitions=30)
-    # # return opt_prophet_results_rdd.count() # # Returns 587
+    opt_prophet_results_rdd = prophet_results_rdd \
+        .combineByKey(dist_grid_search_create_combiner,
+                      dist_grid_search_merge_value,
+                      dist_grid_search_merge_combiner,
+                      numPartitions=30)
 
     opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 
     opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
-
-    # prophet_results_rdd = test_data_parallel.map(
-    #     lambda x: _which_prophet_module())
-    #
-    # opt_prophet_results_df = sqlContext.createDataFrame(prophet_results_rdd, schema=_schema())
-
-
-
-
 
     return opt_prophet_results_df
 

@@ -70,12 +70,12 @@ from distributed_grid_search._sarimax import sarimax
 # print("Time taken for running spark program:\t\t--- %s seconds ---" % (time.time() - start_time))
 
 
-def _run_dist_arima(test_data, sqlContext):
+def _run_dist_arima(test_data, sqlContext, **kwargs):
     # from pyspark.sql.functions import *
     # from pyspark.sql.types import *
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ['I', 'II', 'III'])
+        .filter(lambda x: x[1].category in ('I', 'II', 'III'))
 
     test_data_parallel = test_data_input.flatMap(lambda x: generate_models_sarimax(x))
 
@@ -86,14 +86,15 @@ def _run_dist_arima(test_data, sqlContext):
     arima_results_rdd = test_data_parallel \
         .map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4],
                                min_train_days=x[5].min_train_days, pdt_cat=x[5].get_product_prop())) \
-        .filter(lambda x: x != "MODEL_NOT_VALID")
+        .filter(lambda x: x != "MODEL_NOT_VALID") \
+        .repartition(60)
 
     # prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_cat))
 
     opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner,
                                                            dist_grid_search_merge_value,
                                                            dist_grid_search_merge_combiner,
-                                                           numPartitions=50)
+                                                           numPartitions=20)
 
     opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima(line))
 

@@ -54,13 +54,6 @@ sys.path.insert(0, "jobs.zip")
 # print "\t--Running distributed prophet"
 # prophet_results = _run_dist_prophet(test_data=test_data_weekly_models, sqlContext=sqlContext)
 #
-# # print "Showing ARIMA Results-- \n"
-# # arima_results.show(2)
-# # print "Showing PROPHET Results-- \n"
-# # prophet_results.show(2)
-#
-# # print("Number of CUSTOMER-PRODUCT Combo for ARIMA WEEKLY:: %s" % count_arima)
-# # print("Number of CUSTOMER-PRODUCT Combo for PROPHET WEEKLY:: %s" % count_prophet)
 #
 # print "\t--Joining the ARIMA + PROPHET Results on same customernumber and matnr"
 # cond = [arima_results.customernumber_arima == prophet_results.customernumber_prophet, arima_results.mat_no_arima == prophet_results.mat_no_prophet]
@@ -91,7 +84,7 @@ sys.path.insert(0, "jobs.zip")
 #
 #
 # print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-
+#
 
 ####################################################################################################################
 ####################################################################################################################
@@ -122,19 +115,18 @@ print "Writing the MONTHLY MODEL data into HDFS"
 prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
 
-# ############################________________MOVING AVERAGE__________##########################
-#
-# print "**************\n**************\n"
-#
-# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-# print "Running MONTHLY_MA_MODELS on products\n"
-# # print "\t\t--Running moving average models"
-#
-# ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-#
-#
-# print "Writing the MA MONTHLY data into HDFS\n"
-# ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-#     "/tmp/pyspark_data/dist_model_ma_monthly")
+############################________________MOVING AVERAGE__________##########################
+
+print "**************\n**************\n"
+
+# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+print "Running MONTHLY_MA_MODELS on products\n"
+# print "\t\t--Running moving average models"
+
+ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+
+print "Writing the MA MONTHLY data into HDFS\n"
+ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+    "/tmp/pyspark_data/dist_model_ma_monthly")
 
 print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

@@ -96,3 +96,11 @@ def assign_category(row_object):
         return row_object, p.cat_10
     else:
         return "NOT_CONSIDERED"
+
+
+def get_current_date():
+    import datetime
+
+    _date = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
+
+    return _date

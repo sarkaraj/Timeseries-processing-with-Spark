@@ -29,10 +29,9 @@ def _run_moving_average_weekly(test_data, sqlContext):
         .filter(lambda x: x[1].category in ('VII')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line))
 
-    ma_weekly_results_rdd = test_data_input.filter(lambda x: x[3].category == 'VII') \
-        .map(
-        lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
-                                              weekly_window=x[3].get_window()))
+    ma_weekly_results_rdd = test_data_input \
+        .map(lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
+                                                   weekly_window=x[3].get_window()))
 
     opt_ma_weekly_results_mapped = ma_weekly_results_rdd.map(lambda line: map_for_output_MA_weekly(line))
 
@@ -41,13 +40,12 @@ def _run_moving_average_weekly(test_data, sqlContext):
     return opt_ma_weekly_results_df
 
 
-
 def _run_moving_average_monthly(test_data, sqlContext):
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('VIII', 'IX', 'X')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line))
 
-    ma_monthly_results_rdd = test_data_input.filter(lambda x: x[3].category in ['VIII', 'IX', 'X']) \
+    ma_monthly_results_rdd = test_data_input \
         .map(
         lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
                                                monthly_window=x[3].get_window()))
