@@ -68,23 +68,22 @@ sys.path.insert(0, "jobs.zip")
 # prophet_arima_join_df_final.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_first_run")
 #
-# #############################________________MOVING AVERAGE__________#####################################
-#
-# print "**************\n**************\n"
-#
-# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-# print "Running WEEKLY_MA_MODELS on products\n"
-# # print "\t\t--Running moving average models"
-#
-# ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext)
-#
-# print "Writing the MA WEEKLY data into HDFS\n"
-# ma_weekly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-#     "/tmp/pyspark_data/dist_model_ma_weekly")
-#
-#
-# print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-#
+#############################________________MOVING AVERAGE__________#####################################
+
+print "**************\n**************\n"
+
+# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+print "Running WEEKLY_MA_MODELS on products\n"
+# print "\t\t--Running moving average models"
+
+ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext)
+
+print "Writing the MA WEEKLY data into HDFS\n"
+ma_weekly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+    "/tmp/pyspark_data/dist_model_ma_weekly")
+
+print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
 
 ####################################################################################################################
 ####################################################################################################################

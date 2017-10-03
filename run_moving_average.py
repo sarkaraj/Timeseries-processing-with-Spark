@@ -25,8 +25,9 @@ def _moving_average_row_to_rdd_map(line):
 
 
 def _run_moving_average_weekly(test_data, sqlContext):
+
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('VII')) \
+        .filter(lambda x: x[1].category == 'VII') \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line))
 
     ma_weekly_results_rdd = test_data_input \
