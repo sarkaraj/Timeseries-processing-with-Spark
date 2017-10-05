@@ -175,6 +175,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='M').tail(pred_points)
         _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
 
+
         output_result = monthly_prophet_model_error_calc(output_result)
         # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
 
