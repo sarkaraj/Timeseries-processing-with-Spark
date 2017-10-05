@@ -4,6 +4,7 @@ import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import monthly_prophet_model_error_calc
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import *
+from properties import PROPH_M_MODEL_SELECTION_CRITERIA
 
 def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     import pandas as pd
@@ -108,7 +109,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                      'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-        _criteria = output_error_dict.get('mre_max_3')
+        _criteria = output_error_dict.get(PROPH_M_MODEL_SELECTION_CRITERIA)
         _pdt_cat = kwargs.get('pdt_cat')
         # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
         _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
@@ -193,7 +194,7 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                      'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-        _criteria = output_error_dict.get('mre_max_3')
+        _criteria = output_error_dict.get(PROPH_M_MODEL_SELECTION_CRITERIA)
         _pdt_cat = kwargs.get('pdt_cat')
         # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, _prediction, param))
         _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))

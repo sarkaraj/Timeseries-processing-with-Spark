@@ -3,6 +3,7 @@ import distributed_grid_search._sarimax as smax
 import itertools
 from transform_data.pandas_support_func import *
 from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
+from properties import *
 
 def generate_all_param_combo_sarimax():
     param_p = xrange(p.p_max + 1)
@@ -91,9 +92,15 @@ def generate_all_param_combo_prophet_monthly():
     import numpy as np
 
     yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': round(i, 2)} for i in np.arange(0.1, 0.4, 0.1)]
+    seasonality_prior_scale = [{'seasonality_prior_scale': round(i / 10.0, 2)} for i in
+                               np.arange(PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT,
+                                         PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT,
+                                         PROPH_M_SEASONALITY_PRIOR_SCALE_STEP_SIZE)]
 
-    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in np.arange(1, 4, 1)]
+    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in
+                               np.arange(PROPH_M_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT,
+                                         PROPH_M_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT,
+                                         PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE)]
 
     yearly_seasonality_all_combo = generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior_scale)
 
