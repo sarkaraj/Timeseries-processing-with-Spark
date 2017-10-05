@@ -33,6 +33,7 @@ PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 1
 # OPTIONS::: 'rmse', 'mape', 'mre_med_3', 'mre_max_3', 'mre_med_4', 'mre_max_4', 'cum_error'
 PROPH_M_MODEL_SELECTION_CRITERIA = 'mre_max_4'
 
+################MONTHLY################################MONTHLY################################MONTHLY################
 if __name__ == "__main__":
     import numpy as np
 
