@@ -64,25 +64,25 @@ prophet_monthly_results_final \
     .option("header", "false") \
     .save("/CONA_CSO/weekly_pdt_cat_456")
 
-############################________________MOVING AVERAGE__________##########################
-
-print "**************\n**************\n"
-
-# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-print "Running MONTHLY_MA_MODELS on products\n"
-# print "\t\t--Running moving average models"
-
-ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-
-ma_monthly_results_df_final = ma_monthly_results_df \
-    .withColumn('mdl_bld_dt', current_date())
-
-print "Writing the MA MONTHLY data into HDFS\n"
-ma_monthly_results_df_final \
-    .coalesce(4) \
-    .write.mode('append') \
-    .format('orc') \
-    .option("header", "false") \
-    .save("/CONA_CSO/weekly_pdt_cat_8910")
-
-print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+# ############################________________MOVING AVERAGE__________##########################
+#
+# print "**************\n**************\n"
+#
+# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+# print "Running MONTHLY_MA_MODELS on products\n"
+# # print "\t\t--Running moving average models"
+#
+# ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+#
+# ma_monthly_results_df_final = ma_monthly_results_df \
+#     .withColumn('mdl_bld_dt', current_date())
+#
+# print "Writing the MA MONTHLY data into HDFS\n"
+# ma_monthly_results_df_final \
+#     .coalesce(4) \
+#     .write.mode('append') \
+#     .format('orc') \
+#     .option("header", "false") \
+#     .save("/CONA_CSO/weekly_pdt_cat_8910")
+#
+# print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
