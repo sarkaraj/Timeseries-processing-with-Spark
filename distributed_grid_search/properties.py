@@ -18,7 +18,25 @@ Q_max=1
 D_max=1
 
 #################
+################WEEKLY################################WEEKLY################################WEEKLY################
+#  PROPHET MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT is PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT / 10.0
+#  AND PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT / 10.0 respectively
 
+PROPH_W_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT = 1  # # Point is INCLUSIVE
+PROPH_W_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT = 6  # # Point is EXCLUSIVE
+PROPH_W_SEASONALITY_PRIOR_SCALE_STEP_SIZE = 2
+
+PROPH_W_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT = 1  # # Point is INCLUSIVE
+PROPH_W_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT = 6  # # Point is EXCLUSIVE
+PROPH_W_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 1
+
+# OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_med_12', 'wre_max_12', 'cum_error'
+PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_max_12'
+
+################MONTHLY################################MONTHLY################################MONTHLY################
+
+
+################MONTHLY################################MONTHLY################################MONTHLY################
 #  PROPHET MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT is PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT / 10.0
 #  AND PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT / 10.0 respectively
 

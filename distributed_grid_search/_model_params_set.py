@@ -62,9 +62,15 @@ def generate_all_param_combo_prophet():
     import numpy as np
 
     yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': round(i, 2)} for i in np.arange(0.1, 0.7, 0.2)]
+    seasonality_prior_scale = [{'seasonality_prior_scale': round(i / 10.0, 2)} for i in
+                               np.arange(PROPH_W_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT,
+                                         PROPH_W_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT,
+                                         PROPH_W_SEASONALITY_PRIOR_SCALE_STEP_SIZE)]
 
-    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in np.arange(1, 6, 2)]
+    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in
+                               np.arange(PROPH_W_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT,
+                                         PROPH_W_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT,
+                                         PROPH_W_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE)]
     holidays = [{'holidays' : True}, {'holidays' : False}]
 
     hol_chng_pt_all_combo = [make_single_dict(list(elem)) for elem in list(itertools.product(holidays, changepoint_prior_scale))]

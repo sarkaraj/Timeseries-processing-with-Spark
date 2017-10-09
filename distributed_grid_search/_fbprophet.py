@@ -4,6 +4,7 @@ import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import weekly_prophet_error_calc
 import transform_data.pandas_support_func as pd_func
 from transform_data.holidays import get_holidays_dataframe_pd
+from properties import PROPH_W_MODEL_SELECTION_CRITERIA
 
 
 def run_prophet(cus_no, mat_no, prod, param, **kwargs):
@@ -110,7 +111,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                      'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-        _criteria = output_error_dict.get('wre_max_12')
+        _criteria = output_error_dict.get(PROPH_W_MODEL_SELECTION_CRITERIA)
         _pdt_cat = kwargs.get('pdt_cat')
         _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
 
@@ -195,7 +196,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                      'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-        _criteria = output_error_dict.get('wre_max_12')
+        _criteria = output_error_dict.get(PROPH_W_MODEL_SELECTION_CRITERIA)
         _pdt_cat = kwargs.get('pdt_cat')
         _result = ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
 

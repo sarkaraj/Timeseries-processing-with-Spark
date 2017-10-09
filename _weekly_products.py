@@ -6,7 +6,7 @@ from run_distributed_prophet import _run_dist_prophet
 from run_moving_average import _run_moving_average_weekly
 from support_func import assign_category, get_current_date
 from transform_data.spark_dataframe_func import final_select_dataset
-from properties import MODEL_BUILDING
+from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
 from pyspark.sql.functions import current_date
 
 ####################################################################################################################
@@ -79,7 +79,7 @@ prophet_arima_join_df_final \
     .write.mode('append') \
     .format('orc') \
     .option("header", "false") \
-    .save("/CONA_CSO/weekly_pdt_cat_123")
+    .save(weekly_pdt_cat_123_location)
 
 #############################________________MOVING AVERAGE__________#####################################
 
@@ -98,6 +98,6 @@ ma_weekly_results_df_final \
     .write.mode('append') \
     .format('orc') \
     .option("header", "false") \
-    .save("/CONA_CSO/weekly_pdt_cat_7")
+    .save(weekly_pdt_cat_7_location)
 
 print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

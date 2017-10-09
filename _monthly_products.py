@@ -4,7 +4,7 @@ from pyspark.sql import HiveContext
 from run_distributed_prophet_monthly import _run_dist_prophet_monthly
 from run_moving_average import _run_moving_average_monthly
 from support_func import assign_category, get_current_date
-from properties import MODEL_BUILDING
+from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
 from pyspark.sql.functions import current_date
 
 ###################################################################################################################
@@ -62,27 +62,27 @@ prophet_monthly_results_final \
     .write.mode('append') \
     .format('orc') \
     .option("header", "false") \
-    .save("/CONA_CSO/weekly_pdt_cat_456")
+    .save(monthly_pdt_cat_456_location)
 
-# ############################________________MOVING AVERAGE__________##########################
-#
-# print "**************\n**************\n"
-#
-# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-# print "Running MONTHLY_MA_MODELS on products\n"
-# # print "\t\t--Running moving average models"
-#
-# ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-#
-# ma_monthly_results_df_final = ma_monthly_results_df \
-#     .withColumn('mdl_bld_dt', current_date())
-#
-# print "Writing the MA MONTHLY data into HDFS\n"
-# ma_monthly_results_df_final \
-#     .coalesce(4) \
-#     .write.mode('append') \
-#     .format('orc') \
-#     .option("header", "false") \
-#     .save("/CONA_CSO/weekly_pdt_cat_8910")
-#
-# print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+############################________________MOVING AVERAGE__________##########################
+
+print "**************\n**************\n"
+
+# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+print "Running MONTHLY_MA_MODELS on products\n"
+# print "\t\t--Running moving average models"
+
+ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+
+ma_monthly_results_df_final = ma_monthly_results_df \
+    .withColumn('mdl_bld_dt', current_date())
+
+print "Writing the MA MONTHLY data into HDFS\n"
+ma_monthly_results_df_final \
+    .coalesce(4) \
+    .write.mode('append') \
+    .format('orc') \
+    .option("header", "false") \
+    .save(monthly_pdt_cat_8910_location)
+
+print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
