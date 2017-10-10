@@ -52,21 +52,50 @@ PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 1
 PROPH_M_MODEL_SELECTION_CRITERIA = 'mre_max_4'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
-if __name__ == "__main__":
-    import numpy as np
 
-    a = np.arange(PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT,
-                  PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT,
-                  PROPH_M_SEASONALITY_PRIOR_SCALE_STEP_SIZE)
+#################
+################WEEKLY################################WEEKLY################################WEEKLY################
+#  PYDLM MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT for wts is wt / 10.0
 
-    print a
+trend_degree_low_lim = 1  # # Point is INCLUSIVE
+trend_degree_up_lim = 3  # # Point is EXCLUSIVE
+trend_degree_step_size = 1
 
-    for i in a:
-        print round(i / 10.0, 2)
+trend_w_low_lim = 5  # # Point is INCLUSIVE
+trend_w_up_lim = 11  # # Point is EXCLUSIVE
+trend_w_step_size = 5
 
-    b = np.arange(PROPH_M_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT,
-                  PROPH_M_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT,
-                  PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE)
+seasonality_w_low_lim = 5  # # Point is INCLUSIVE
+seasonality_w_up_lim = 11  # # Point is EXCLUSIVE
+seasonality_w_step_size = 5
 
-    # for i in b:
-    #     print i
+ar_degree_low_lim = 1  # # Point is INCLUSIVE
+ar_degree_up_lim = 4  # # Point is EXCLUSIVE
+ar_degree_step_size = 1
+
+ar_w_low_lim = 5  # # Point is INCLUSIVE
+ar_w_up_lim = 11  # # Point is EXCLUSIVE
+ar_w_step_size = 5
+
+# OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_med_12', 'wre_max_12', 'cum_error'
+PYDLM_M_MODEL_SELECTION_CRITERIA = 'mre_max_4'
+
+################MONTHLY################################MONTHLY################################MONTHLY################
+# if __name__ == "__main__":
+#     import numpy as np
+#
+#     a = np.arange(PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT,
+#                   PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT,
+#                   PROPH_M_SEASONALITY_PRIOR_SCALE_STEP_SIZE)
+#
+#     print a
+#
+#     for i in a:
+#         print round(i / 10.0, 2)
+#
+#     b = np.arange(PROPH_M_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT,
+#                   PROPH_M_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT,
+#                   PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE)
+#
+#     # for i in b:
+#     #     print i

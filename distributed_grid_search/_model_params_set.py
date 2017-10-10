@@ -181,10 +181,62 @@ def generate_models_prophet_monthly(x):
     return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
             generate_all_param_combo_prophet_monthly()]
 
+def generate_all_param_combo_pydlm_monthly():
+    """
+    CONDITIONS::::
+
+    :return:
+    """
+    import numpy as np
+
+    trend_degree = [{'trend_degree': int(i)} for i in
+                    np.arange(p.trend_degree_low_lim,
+                              p.trend_degree_up_lim,
+                              p.trend_degree_step_size)]
+
+    trend_w = [{'trend_wt': round(i / 10.0, 2)} for i in
+                np.arange(p.trend_w_low_lim,
+                          p.trend_w_up_lim,
+                          p.trend_w_step_size)]
+
+    seasonality_w = [{'seasonality_wt': round(i / 10.0, 2)} for i in
+                np.arange(p.seasonality_w_low_lim,
+                          p.seasonality_w_up_lim,
+                          p.seasonality_w_step_size)]
+
+    ar_degree = [{'ar_degree': int(i)} for i in
+                    np.arange(p.ar_degree_low_lim,
+                              p.ar_degree_up_lim,
+                              p.ar_degree_step_size)]
+
+    ar_w = [{'ar_wt': round(i / 10.0, 2)} for i in
+                np.arange(p.ar_w_low_lim,
+                          p.ar_w_up_lim,
+                          p.ar_w_step_size)]
+
+    _result = [make_single_dict(i) for i in list(itertools.product(trend_degree, trend_w, seasonality_w,
+                                                                   ar_degree, ar_w))]
+    return _result
+
+def generate_models_pydlm_monthly(x):
+    row_object, category_obj = x
+    customernumber = row_object.customernumber
+    matnr = row_object.matnr
+    # pdt_freq_annual = row_object.pdt_freq_annual
+
+    # Unpacking the dataset
+    data_array = [row.split("\t") for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
+
+    # Obtaining weeekly aggregate
+    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+
+    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
+            generate_all_param_combo_pydlm_monthly()]
 
 if __name__ == '__main__':
-    a = generate_all_param_combo_prophet_monthly()
-    print len(a)
+    a = generate_all_param_combo_pydlm_monthly()
+    print (len(a))
     # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
     #
     # print param

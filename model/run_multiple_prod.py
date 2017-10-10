@@ -5,7 +5,7 @@ from model.moving_average import *
 from model.monthly_pydlm import *
 # from model.moving_average_monthly import *
 # from distributed_grid_search._fbprophet_monthly import *
-from distributed_grid_search._fbprophet import *
+# from distributed_grid_search._fbprophet import *
 # from distributed_grid_search._model_params_set import *
 
 import numpy as np
@@ -56,8 +56,8 @@ for cus_no in data_weekly.customernumber.unique():
         # prod_output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
 
         # monthly_prophet_model(prod, cus_no, mat_no, dir_name, min_train_days=731, test_points=1)
-        prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
-        # prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
+        # prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
+        prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
         # (prod_output, pred) = moving_average_model(prod=prod, cus_no=cus_no, mat_no=mat_no, weekly_data=False,
         #                                             weekly_window=6, monthly_window=3, pred_points= 2)
 
