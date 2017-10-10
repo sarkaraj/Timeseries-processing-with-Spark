@@ -29,8 +29,10 @@ def prophet_output_schema():
     customernumber = StructField("customernumber_prophet", StringType(), nullable=False)
     mat_no = StructField("mat_no_prophet", StringType(), nullable=False)
     _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=True)
-    _pred_prophet = StructField("pred_prophet", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
-                                nullable=True)
+
+    week_num_year = StructType([StructField("week_num", IntegerType()), StructField("week_num", IntegerType())])
+    _pred_prophet = StructField("pred_prophet", MapType(week_num_year, FloatType()), nullable=True)
+
     _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=True)
     _pdt_category = StructField("pdt_cat_prophet", MapType(StringType(), StringType()), nullable=True)
 
@@ -55,8 +57,10 @@ def arima_output_schema():
     customernumber = StructField("customernumber_arima", StringType(), nullable=False)
     mat_no = StructField("mat_no_arima", StringType(), nullable=False)
     _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=True)
-    _pred_arima = StructField("pred_arima", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
-                              nullable=True)
+
+    week_num_year = StructType([StructField("week_num", IntegerType()), StructField("week_num", IntegerType())])
+    _pred_arima = StructField("pred_arima", MapType(week_num_year, FloatType()), nullable=True)
+
     _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=True)
     _pdt_category = StructField("pdt_cat_arima", MapType(StringType(), StringType()), nullable=True)
 
@@ -72,7 +76,7 @@ def map_for_output_arima(line):
 
     _req_error_arima_param = {key: float(_error_arima.get(key)) for key in _error_arima.keys() if key not in ('mat_no', 'cus_no')}
 
-    _pred_arima = {'yhat':line[1][1][2]}
+    _pred_arima = line[1][1][2]
 
     pdq = line[1][1][3]
     seasonal_pdq = line[1][1][4]
