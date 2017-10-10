@@ -400,3 +400,14 @@ def get_monthly_aggregate_per_product(data):
     data_grp.ds = data_grp.ds.apply(str).apply(parser.parse)
     data_grp = data_grp.drop(['year_monthNum'], axis=1)
     return data_grp
+
+
+if __name__ == "__main__":
+    temp = {'2017-09-07': {0: 0.97956494694491469}, '2017-09-14': {0: 1.9972058961967596}}
+    temp_final = {(gregorian_to_iso(key.split("-"))[0], gregorian_to_iso(key.split("-"))[1]): temp.get(key).get(0) for
+                  key in temp.keys()}
+    print temp_final
+    b = '2017-09-14'
+    c = b.split("-")
+    print c
+    print gregorian_to_iso(c)

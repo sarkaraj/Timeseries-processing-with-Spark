@@ -5,6 +5,17 @@ from model.error_calculator_distributed_grid_search import weekly_prophet_error_
 import transform_data.pandas_support_func as pd_func
 from transform_data.holidays import get_holidays_dataframe_pd
 from properties import PROPH_W_MODEL_SELECTION_CRITERIA
+from transform_data.data_transform import gregorian_to_iso
+
+
+def _get_pred_dict_prophet_w(prediction):
+    prediction_df_temp = prediction.set_index('ds', drop=True)
+    prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
+    pred = prediction_df_temp.to_dict(orient='index')
+    _final = {
+    (gregorian_to_iso(key.split("-"))[1], gregorian_to_iso(key.split("-"))[0]): float(pred.get(key).get('yhat'))
+    for key in pred.keys()}
+    return _final
 
 
 def run_prophet(cus_no, mat_no, prod, param, **kwargs):
@@ -90,7 +101,10 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                      seasonality_prior_scale=seasonality_prior_scale)
         m_.fit(prod);
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='W').tail(pred_points)
-        _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
+
+        _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
+        _prediction = _get_pred_dict_prophet_w(_prediction_temp)  # # get a dict {(weekNum,year):pred_val}
+        # _prediction = m_.predict(pred_ds)[['ds', 'yhat']].to_dict(orient='list')
 
         output_result = weekly_prophet_error_calc(output_result)
         # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
@@ -175,7 +189,9 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                      changepoint_prior_scale=changepoint_prior_scale)
         m_.fit(prod);
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='W').tail(pred_points)
-        _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
+
+        _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
+        _prediction = _get_pred_dict_prophet_w(_prediction_temp)  # # get a dict {(weekNum,year):pred_val}
 
         output_result = weekly_prophet_error_calc(output_result)
         # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')

@@ -3,6 +3,17 @@ from model.error_calculator import *
 import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import weekly_arima_error_calc
 import transform_data.pandas_support_func as pd_func
+from transform_data.data_transform import gregorian_to_iso
+
+
+def _get_pred_dict_sarimax(prediction_series):
+    import pandas as pd
+    prediction_df_temp = prediction_series[1:].to_frame()
+    prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
+    pred = prediction_df_temp.to_dict(orient='index')
+    _final = {(gregorian_to_iso(key.split("-"))[1], gregorian_to_iso(key.split("-"))[0]): float(pred.get(key).get(0))
+              for key in pred.keys()}
+    return _final
 
 
 def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
@@ -94,7 +105,8 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         results_arima = mod.fit(disp=False)
         pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
                                            end=len(prod_arima.y) + pred_points - 1, dynamic=True)
-        _output_pred = np.array(pred_arima.predicted_mean).tolist()[1:]
+
+        _output_pred = _get_pred_dict_sarimax(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
 
         output_result = weekly_arima_error_calc(output_result)
         # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
