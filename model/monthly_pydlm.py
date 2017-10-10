@@ -76,9 +76,9 @@ def monthly_pydlm_model(prod, cus_no, mat_no, min_train_days=731, test_points=1,
             # Modeling
             myDLM = dlm(train_pydlm.y)
             # add a first-order trend (linear trending) with prior covariance 1.0
-            myDLM = myDLM + trend(3, name='quadratic', w=1.0)
+            myDLM = myDLM + trend(degree=3, name='quadratic', w=1.0)
             # # add a 12 month seasonality with prior covariance 1.0
-            myDLM = myDLM + seasonality(12, name='12month', w=1.0)
+            myDLM = myDLM + seasonality(12, name='12month', w=0.0)
             # # add a 3 step auto regression
             myDLM = myDLM + autoReg(degree=3, data=train_pydlm.y, name='ar2', w=1.0)
             # # show the added components

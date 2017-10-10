@@ -127,6 +127,7 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
         result_test = test
         result_test['y_ARIMA'] = np.array(pred_test.predicted_mean)[1:]
         result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
+        # print(pred_test.predicted_mean)
 
         # prophet
         m = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=True, changepoint_prior_scale=5)
