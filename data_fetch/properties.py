@@ -1,3 +1,11 @@
+from transform_data.data_transform import string_to_gregorian
+
+_model_bld_date_string = '2017-09-17'
+
+_CURRENT_DATE = string_to_gregorian(_model_bld_date_string)
+
+# _custom_current_date = udf(string_to_gregorian(_model_bld_date_string), DateType())
+
 CUSTOMER_LIST = "('0500083147','0500061438','0500067084','0500058324','0500080723','0500060033','0500068825','0500060917','0500078551','0500076115','0500071747','0500078478','0500078038','0500073982','0500064458','0500268924','0500070702','0500070336','0500076032','0500095883','0500284889')"
 
 # Query for all 25 customers in Cleveland,TN where sales office is C001

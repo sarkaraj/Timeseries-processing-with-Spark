@@ -45,18 +45,20 @@ def extract_elems_from_dict(row_elem, **kwargs):
 def get_pd_df(data_array, customernumber, matnr, **kwargs):
 
     import pandas as pd
+    from data_fetch.properties import _CURRENT_DATE
 
     data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p']).convert_objects(
         convert_numeric=True)
-    data_pd_df['customernumber'] = customernumber
-    data_pd_df['matnr'] = matnr
 
-    return data_pd_df
+    df2 = pd.DataFrame({'date': [_CURRENT_DATE.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
+
+    data_pd_df_final = pd.concat([data_pd_df, df2], axis=0, ignore_index=True)
+
+    data_pd_df_final['customernumber'] = customernumber
+    data_pd_df_final['matnr'] = matnr
+
+    return data_pd_df_final
 
 
-
-# a = {0: {'a':float('nan'), 'b':float('inf')}}
-#
-# print extract_elems_from_dict(a)
-#
-# print dict([('a', 1), ('b', 2)])
+if __name__ == "__main__":
+    pass

@@ -1,4 +1,5 @@
 import properties as p_data_fetch
+from transform_data.data_transform import string_to_gregorian
 
 
 def get_data_weekly(sqlContext, **kwargs):
@@ -20,15 +21,19 @@ def get_data_weekly(sqlContext, **kwargs):
                      max('b_date').alias('max_date'),
                      min('b_date').alias('min_date'),
                      count('b_date').alias('row_count')) \
+                .withColumn('temp_curr_date', lit(p_data_fetch._model_bld_date_string)) \
+                .withColumn('current_date',
+                            from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
                 .withColumn('time_gap_years',
-                            (datediff(col('max_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
-                .withColumn('time_gap_days', (datediff(col('max_date'), col('min_date')).cast("int")).cast(FloatType())) \
-                .withColumn('current_date', current_date()) \
+                            (datediff(col('current_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
+                .withColumn('time_gap_days',
+                            (datediff(col('current_date'), col('min_date')).cast("int")).cast(FloatType())) \
                 .withColumn('pdt_freq_annual', (col('row_count') / col('time_gap_years')).cast(FloatType())) \
                 .filter((datediff(col('current_date'), col('max_date')) <= p_data_fetch._latest_product_criteria_days)) \
                 .drop(col('max_date')) \
                 .drop(col('min_date')) \
                 .drop(col('row_count')) \
+                .drop(col('temp_curr_date')) \
                 .drop(col('current_date'))
         # .limit(2)
 
@@ -54,15 +59,19 @@ def get_data_monthly(sqlContext, **kwargs):
                      max('b_date').alias('max_date'),
                      min('b_date').alias('min_date'),
                      count('b_date').alias('row_count')) \
+                .withColumn('temp_curr_date', lit(p_data_fetch._model_bld_date_string)) \
+                .withColumn('current_date',
+                            from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
                 .withColumn('time_gap_years',
-                            (datediff(col('max_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
-                .withColumn('time_gap_days', (datediff(col('max_date'), col('min_date')).cast("int")).cast(FloatType())) \
-                .withColumn('current_date', current_date()) \
+                            (datediff(col('current_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
+                .withColumn('time_gap_days',
+                            (datediff(col('current_date'), col('min_date')).cast("int")).cast(FloatType())) \
                 .withColumn('pdt_freq_annual', (col('row_count') / col('time_gap_years')).cast(FloatType())) \
                 .filter((datediff(col('current_date'), col('max_date')) <= p_data_fetch._latest_product_criteria_days)) \
                 .drop(col('max_date')) \
                 .drop(col('min_date')) \
                 .drop(col('row_count')) \
+                .drop(col('temp_curr_date')) \
                 .drop(col('current_date'))
         # .limit(2)
 

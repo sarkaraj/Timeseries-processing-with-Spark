@@ -30,18 +30,18 @@ print "Add jobs.zip to system path"
 import sys
 sys.path.insert(0, "jobs.zip")
 
-# ####################################################################################################################
-# ####################################################################################################################
-# ####################################################################################################################
-# ####################################################################################################################
-#
-# #############################________________WEEKLY __________#####################################
-#
-# print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
-# test_data_weekly_models = get_data_weekly(sqlContext=sqlContext) \
-#     .map(lambda x: assign_category(x)) \
-#     .filter(lambda x: x != "NOT_CONSIDERED")
-#
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+####################################################################################################################
+
+#############################________________WEEKLY __________#####################################
+
+print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
+test_data_weekly_models = get_data_weekly(sqlContext=sqlContext) \
+    .map(lambda x: assign_category(x)) \
+    .filter(lambda x: x != "NOT_CONSIDERED")
+
 # #############################________________(ARIMA + PROPHET)__________#####################################
 #
 #
@@ -73,22 +73,24 @@ sys.path.insert(0, "jobs.zip")
 # prophet_arima_join_df_final.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_first_run")
 
-# #############################________________MOVING AVERAGE__________#####################################
-#
-# print "**************\n**************\n"
-#
-# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-# print "Running WEEKLY_MA_MODELS on products\n"
-# # print "\t\t--Running moving average models"
-#
-# ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext)
-#
+#############################________________MOVING AVERAGE__________#####################################
+
+print "**************\n**************\n"
+
+# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+print "Running WEEKLY_MA_MODELS on products\n"
+# print "\t\t--Running moving average models"
+
+ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext)
+
+ma_weekly_results_df.select('pred_ma').show()
+
 # print "Writing the MA WEEKLY data into HDFS\n"
 # ma_weekly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_ma_weekly")
 #
 # print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-#
+
 #
 ####################################################################################################################
 ####################################################################################################################
@@ -97,12 +99,12 @@ sys.path.insert(0, "jobs.zip")
 
 # start_time = time.time()
 
-#############################________________MONTHLY__________################################
-
-print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
-test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
-    .map(lambda x: assign_category(x)) \
-    .filter(lambda x: x != "NOT_CONSIDERED")
+# #############################________________MONTHLY__________################################
+#
+# print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
+# test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
+#     .map(lambda x: assign_category(x)) \
+#     .filter(lambda x: x != "NOT_CONSIDERED")
 
 # #############################________________PROPHET__________################################
 #
@@ -119,17 +121,17 @@ test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
 # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
 #
-############################________________MOVING AVERAGE__________##########################
-
-print "**************\n**************\n"
-
-# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-print "Running MONTHLY_MA_MODELS on products\n"
-# print "\t\t--Running moving average models"
-
-ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-
-ma_monthly_results_df.show()
+# ############################________________MOVING AVERAGE__________##########################
+#
+# print "**************\n**************\n"
+#
+# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+# print "Running MONTHLY_MA_MODELS on products\n"
+# # print "\t\t--Running moving average models"
+#
+# ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+#
+# ma_monthly_results_df.show()
 # print "Writing the MA MONTHLY data into HDFS\n"
 # ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_ma_monthly")
