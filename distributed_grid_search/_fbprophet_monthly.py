@@ -6,6 +6,16 @@ import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import *
 from properties import PROPH_M_MODEL_SELECTION_CRITERIA
 
+
+def _get_pred_dict_prophet_m(prediction):
+    prediction_df_temp = prediction.set_index('ds', drop=True)
+    prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
+    pred = prediction_df_temp.to_dict(orient='index')
+    _final = {(int(key.split("-")[1]), int(key.split("-")[0])): float(pred.get(key).get('yhat'))
+              for key in pred.keys()}
+    return _final
+
+
 def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
     import pandas as pd
     import numpy as np
@@ -88,7 +98,9 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                      seasonality_prior_scale=seasonality_prior_scale)
         m_.fit(prod);
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='M').tail(pred_points)
-        _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
+
+        _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
+        _prediction = _get_pred_dict_prophet_m(_prediction_temp)  # # get a dict {(month,year):pred_val}
 
         output_result = monthly_prophet_model_error_calc(output_result)
         # output_result_dict = output_result[['ds', 'y', 'y_Prophet']].to_dict(orient='index')
@@ -173,7 +185,9 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                      changepoint_prior_scale=changepoint_prior_scale)
         m_.fit(prod);
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='M').tail(pred_points)
-        _prediction = m_.predict(pred_ds)[['yhat']].to_dict(orient='list')
+
+        _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
+        _prediction = _get_pred_dict_prophet_m(_prediction_temp)  # # get a dict {(month,year):pred_val}
 
 
         output_result = monthly_prophet_model_error_calc(output_result)

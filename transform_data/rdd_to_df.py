@@ -30,7 +30,7 @@ def prophet_output_schema():
     mat_no = StructField("mat_no_prophet", StringType(), nullable=False)
     _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=True)
 
-    week_num_year = StructType([StructField("week_num", IntegerType()), StructField("week_num", IntegerType())])
+    week_num_year = StructType([StructField("week_or_year", IntegerType()), StructField("year", IntegerType())])
     _pred_prophet = StructField("pred_prophet", MapType(week_num_year, FloatType()), nullable=True)
 
     _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=True)
