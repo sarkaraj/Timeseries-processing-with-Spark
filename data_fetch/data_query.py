@@ -1,9 +1,12 @@
 import properties as p_data_fetch
-from transform_data.data_transform import string_to_gregorian
+from support_func import generate_weekly_query
 
 
 def get_data_weekly(sqlContext, **kwargs):
-    test_query = p_data_fetch.query_weekly
+    if 'week_cutoff_date' in kwargs.keys():
+
+    else:
+        test_query = p_data_fetch.query_weekly
 
     if (test_query == None):
         raise ValueError

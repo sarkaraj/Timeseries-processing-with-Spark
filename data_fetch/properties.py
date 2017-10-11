@@ -1,10 +1,3 @@
-from transform_data.data_transform import string_to_gregorian
-
-_model_bld_date_string = '2017-09-17'
-
-_CURRENT_DATE = string_to_gregorian(_model_bld_date_string)
-
-# _custom_current_date = udf(string_to_gregorian(_model_bld_date_string), DateType())
 
 CUSTOMER_LIST = "('0500083147','0500061438','0500067084','0500058324','0500080723','0500060033','0500068825','0500060917','0500078551','0500076115','0500071747','0500078478','0500078038','0500073982','0500064458','0500268924','0500070702','0500070336','0500076032','0500095883','0500284889')"
 
@@ -36,8 +29,7 @@ from mdm.dim_marm e
 ) f
 on
 d.matnr=f.matnr and d.units=f.meinh
-where d.bill_date <= '20170917'
-"""
+where d.bill_date < """
 
 query_monthly="""
 select d.customernumber customernumber, d.matnr matnr, d.bill_date bill_date, IF(d.units != 'CS', d.quantity * (f.umrez / f.umren), d.quantity) quantity, ((quantity * quantity) / d.price) q_indep_prc
@@ -66,10 +58,9 @@ from mdm.dim_marm e
 ) f
 on
 d.matnr=f.matnr and d.units=f.meinh
-where d.bill_date <= '20170831'
-"""
+where d.bill_date < """
 
 _latest_product_criteria_days = 92
 
 if __name__ == "__main__":
-    print query_monthly
+    print query_weekly
