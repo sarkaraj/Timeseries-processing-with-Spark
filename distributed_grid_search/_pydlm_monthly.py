@@ -18,12 +18,12 @@ def run_pydlm_monthly(cus_no, mat_no, prod, param, **kwargs):
     if ('test_points' in kwargs.keys()):
         test_points = kwargs.get('test_points')
     else:
-        test_points = p_model.test_points
+        test_points = p_model.test_points_monthly
 
     if ('pred_points' in kwargs.keys()):
         pred_points = kwargs.get('pred_points')
     else:
-        pred_points = p_model.pred_points
+        pred_points = p_model.pred_points_monthly
 
     # model parameters
     trend_degree = param.get('trend_degree')
@@ -72,10 +72,10 @@ def run_pydlm_monthly(cus_no, mat_no, prod, param, **kwargs):
         myDLM.fit()
 
         (predictMean, predictVar) = myDLM.predict(date=myDLM.n - 1)
-        pred_test = np.array(predictMean.item((0, 0)))
+        pred_test = np.array(round(predictMean.item((0, 0)),2))
         for i in range(test_points-1):
             (predictMean, predictVar) = myDLM.continuePredict()
-            pred_test = np.append(pred_test,predictMean.item((0, 0)))
+            pred_test = np.append(pred_test,round(predictMean.item((0, 0)),2))
 
         result_test = test
         result_test['y_pydlm'] = pred_test
@@ -87,4 +87,29 @@ def run_pydlm_monthly(cus_no, mat_no, prod, param, **kwargs):
 
         output_result = pd.concat([output_result, result_test], axis=0)
 
+    # model_prediction
+    prod_pydlm = prod.set_index('ds', drop=True)
+    # Modeling
+    myDLM_pred = dlm(prod_pydlm.y)
+    # add a first-order trend (linear trending) with prior covariance 1.0
+    myDLM_pred = myDLM_pred + trend(degree=trend_degree, name='trend', w=trend_w)
+    # # add a 12 month seasonality with prior covariance 1.0
+    myDLM_pred = myDLM_pred + seasonality(12, name='12month', w=seasonality_w)
+    # # add a 3 step auto regression
+    myDLM_pred = myDLM_pred + autoReg(degree=ar_degree, data=prod_pydlm.y, name='ar', w = ar_w)
 
+    myDLM_pred.fit()
+
+    # (predictMean, predictVar) = myDLM_pred.predict(date=myDLM_pred.n - 1)
+    # yhat = np.array(predictMean.item((0, 0)))
+    # for i in range(pred_points - 1):
+    # (predictMean1, predictVar1) = myDLM_pred.continuePredict()
+    # yhat = np.append(yhat, predictMean1.item((0, 0)))
+    #
+
+    print(myDLM_pred.predictN(N=2, date=myDLM_pred.n - 1))
+
+
+    # _output_pred = _get_pred_dict_sarimax(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
+    #
+    # output_result = weekly_arima_error_calc(output_result)

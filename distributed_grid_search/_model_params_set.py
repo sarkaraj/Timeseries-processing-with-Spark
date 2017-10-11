@@ -194,12 +194,12 @@ def generate_all_param_combo_pydlm_monthly():
                               p.trend_degree_up_lim,
                               p.trend_degree_step_size)]
 
-    trend_w = [{'trend_wt': round(i / 10.0, 2)} for i in
+    trend_w = [{'trend_w': round(i / 10.0, 2)} for i in
                 np.arange(p.trend_w_low_lim,
                           p.trend_w_up_lim,
                           p.trend_w_step_size)]
 
-    seasonality_w = [{'seasonality_wt': round(i / 10.0, 2)} for i in
+    seasonality_w = [{'seasonality_w': round(i / 10.0, 2)} for i in
                 np.arange(p.seasonality_w_low_lim,
                           p.seasonality_w_up_lim,
                           p.seasonality_w_step_size)]
@@ -209,7 +209,7 @@ def generate_all_param_combo_pydlm_monthly():
                               p.ar_degree_up_lim,
                               p.ar_degree_step_size)]
 
-    ar_w = [{'ar_wt': round(i / 10.0, 2)} for i in
+    ar_w = [{'ar_w': round(i / 10.0, 2)} for i in
                 np.arange(p.ar_w_low_lim,
                           p.ar_w_up_lim,
                           p.ar_w_step_size)]

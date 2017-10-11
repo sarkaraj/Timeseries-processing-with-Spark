@@ -5,6 +5,14 @@ import distributed_grid_search.properties as p_model
 from transform_data.data_transform import *
 import transform_data.pandas_support_func as pd_func
 
+def add_months(sourcedate,months):
+    import datetime
+    import calendar
+    month = sourcedate.month - 1 + months
+    year = int(sourcedate.year + month / 12 )
+    month = month % 12 + 1
+    day = min(sourcedate.day,calendar.monthrange(year,month)[1])
+    return datetime.date(year,month,day)
 
 def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     # If weekly data is false, monthly data is assumed
@@ -66,7 +74,14 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
         pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
 
     pred = np.array(pred_df['y'].iloc[-pred_points:]).tolist()
-    print(pred)
+    ds = np.array(prod['ds'].iloc[-1])
+    for i in range(pred_points):
+        ds = np.append(ds,add_months(ds[-1],1))[-pred_points:]
+
+    final_pred = pd.DataFrame({'ds': ds,'yhat': pred})
+    print(final_pred)
+
+    # print(pred)
     (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window =monthly_window)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
