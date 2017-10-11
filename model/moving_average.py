@@ -3,6 +3,15 @@ from model.error_calculator import *
 from model.save_images import *
 from transform_data.data_transform import *
 
+def add_months(sourcedate,months):
+    import datetime
+    import calendar
+    month = sourcedate.month - 1 + months
+    year = int(sourcedate.year + month / 12 )
+    month = month % 12 + 1
+    day = min(sourcedate.day,calendar.monthrange(year,month)[1])
+    return datetime.date(year,month,day)
+
 def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
                          weekly_window= 6, monthly_window = 3, pred_points = 2, **kwargs):
 
@@ -54,6 +63,7 @@ def moving_average_model(prod, cus_no, mat_no, weekly_data = True,
 
 
         pred = np.array(pred_df['y'].iloc[-pred_points:])
+
         (output_result, rmse, mape) = weekly_moving_average_error_calc(data= prod, weekly_window= weekly_window)
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,

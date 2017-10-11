@@ -81,6 +81,6 @@ output = moving_average_model_monthly(cus_no=cus_no, mat_no=mat_no,prod=prod)
 
 # weekly_pydlm_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
 #
-# (output_error, pred) = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = False,
-#                          weekly_window= 6, monthly_window = 3)
+(output_error, pred) = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = False,
+                         weekly_window= 6, monthly_window = 3)
 # print (output_error.head())
