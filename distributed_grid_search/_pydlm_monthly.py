@@ -87,4 +87,4 @@ def run_pydlm_monthly(cus_no, mat_no, prod, param, **kwargs):
 
         output_result = pd.concat([output_result, result_test], axis=0)
 
-
+        temp
