@@ -14,6 +14,16 @@ def add_months(sourcedate,months):
     day = min(sourcedate.day,calendar.monthrange(year,month)[1])
     return datetime.date(year,month,day)
 
+
+def _get_pred_dict_MA_m(prediction):
+    prediction_df_temp = prediction.set_index('ds', drop=True)
+    prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
+    pred = prediction_df_temp.to_dict(orient='index')
+    _final = {(int(key.split("-")[1]), int(key.split("-")[0])): float(pred.get(key).get('yhat'))
+              for key in pred.keys()}
+    return _final
+
+
 def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     # If weekly data is false, monthly data is assumed
 
@@ -74,12 +84,13 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
         pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
 
     pred = np.array(pred_df['y'].iloc[-pred_points:]).tolist()
-    ds = np.array(prod['ds'].iloc[-1])
+    ds = np.array([prod['ds'].iloc[-1]])
+
     for i in range(pred_points):
         ds = np.append(ds,add_months(ds[-1],1))[-pred_points:]
 
-    final_pred = pd.DataFrame({'ds': ds,'yhat': pred})
-    print(final_pred)
+    final_pred = _get_pred_dict_MA_m(pd.DataFrame({'ds': ds, 'yhat': pred}))
+    # print(final_pred)
 
     # print(pred)
     (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window =monthly_window)
@@ -99,6 +110,43 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     # _pred_result = {'yhat': list(pred)}
 
 
-    return cus_no, mat_no, output_error_dict, pred, _pdt_cat
+    # return cus_no, mat_no, output_error_dict, pred, _pdt_cat
+    return cus_no, mat_no, output_error_dict, final_pred, _pdt_cat
 
 
+if __name__ == "__main__":
+    import pandas as pd
+    import numpy as np
+    import datetime
+
+    data = {'ds': ['2014-05-01', '2014-05-01', '2014-05-02',
+                   '2014-05-02', '2014-05-02', '2014-05-02',
+                   '2014-05-03', '2014-05-03', '2014-05-04',
+                   '2014-05-04'],
+            'battle_deaths': [34, 25, 26, 15, 15, 14, 26, 25, 62, 41]}
+    df = pd.DataFrame(data, columns=['ds', 'battle_deaths'])
+    df.ds = df.ds.map(lambda x: pd.to_datetime(x).date())
+    # print df
+
+    a = df['ds'].iloc[-1]
+    print "a"
+    print a
+    print type(a)
+
+    ds = np.array([a])
+    print "ds"
+    print ds
+    print type(ds)
+
+    print ds[-1]
+
+    print "*************************"
+    for i in range(3):
+        ds = np.append(ds, add_months(ds[-1], 1))[-3:]
+
+    print ds
+    print len(ds)
+
+    temp_d = pd.DataFrame({'ds': ds, 'yhat': [1, 2, 3]})
+    print temp_d
+    print _get_pred_dict_MA_m(temp_d)

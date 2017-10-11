@@ -104,31 +104,32 @@ test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
     .map(lambda x: assign_category(x)) \
     .filter(lambda x: x != "NOT_CONSIDERED")
 
-#############################________________PROPHET__________################################
-
-print "**************\n**************\n"
-
-# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-# print "\t\t--Running distributed prophet"
-prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-
-prophet_monthly_results.show()
+# #############################________________PROPHET__________################################
+#
+# print "**************\n**************\n"
+#
+# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+# print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+# # print "\t\t--Running distributed prophet"
+# prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+#
+# prophet_monthly_results.show()
 
 # print "Writing the MONTHLY MODEL data into HDFS"
 # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
 #
-# ############################________________MOVING AVERAGE__________##########################
-#
-# print "**************\n**************\n"
-#
-# # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-# print "Running MONTHLY_MA_MODELS on products\n"
-# # print "\t\t--Running moving average models"
-#
-# ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-#
+############################________________MOVING AVERAGE__________##########################
+
+print "**************\n**************\n"
+
+# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+print "Running MONTHLY_MA_MODELS on products\n"
+# print "\t\t--Running moving average models"
+
+ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+
+ma_monthly_results_df.show()
 # print "Writing the MA MONTHLY data into HDFS\n"
 # ma_monthly_results_df.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
 #     "/tmp/pyspark_data/dist_model_ma_monthly")

@@ -30,7 +30,7 @@ def prophet_output_schema():
     mat_no = StructField("mat_no_prophet", StringType(), nullable=False)
     _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=True)
 
-    week_num_year = StructType([StructField("week_or_year", IntegerType()), StructField("year", IntegerType())])
+    week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
     _pred_prophet = StructField("pred_prophet", MapType(week_num_year, FloatType()), nullable=True)
 
     _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=True)
@@ -58,7 +58,7 @@ def arima_output_schema():
     mat_no = StructField("mat_no_arima", StringType(), nullable=False)
     _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=True)
 
-    week_num_year = StructType([StructField("week_num", IntegerType()), StructField("week_num", IntegerType())])
+    week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
     _pred_arima = StructField("pred_arima", MapType(week_num_year, FloatType()), nullable=True)
 
     _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=True)
@@ -94,8 +94,12 @@ def MA_output_schema():
     customernumber = StructField("customernumber", StringType(), nullable=False)
     mat_no = StructField("mat_no", StringType(), nullable=False)
     _error_ma = StructField("error_MA", MapType(StringType(), FloatType()), nullable=False)
-    _pred_ma = StructField("pred_MA", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
-                           nullable=False)
+
+    week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
+    _pred_ma = StructField("pred_ma", MapType(week_num_year, FloatType()), nullable=True)
+
+    # _pred_ma = StructField("pred_MA", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
+    #                        nullable=False)
     _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
 
     schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _pdt_category])
@@ -108,7 +112,7 @@ def map_for_output_MA_monthly(line):
     customernumber = line[0]
     mat_no = line[1]
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
-    _pred_ma = {'yhat': line[3]}
+    _pred_ma = line[3]
     _pdt_cat = line[4]
 
     _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat
