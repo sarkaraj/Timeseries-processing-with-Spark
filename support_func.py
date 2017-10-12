@@ -104,3 +104,7 @@ def get_current_date():
     _date = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M")
 
     return _date
+
+
+if __name__ == "__main__":
+    pass
