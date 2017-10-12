@@ -6,9 +6,9 @@ from run_distributed_prophet import _run_dist_prophet
 from run_moving_average import _run_moving_average_weekly
 from support_func import assign_category, get_current_date
 from transform_data.spark_dataframe_func import final_select_dataset
-from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
-from data_fetch.properties import MODEL_BLD_CURRENT_DATE
+from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location, _model_bld_date_string
 from pyspark.sql.functions import *
+from transform_data.data_transform import string_to_gregorian
 
 # from pyspark.sql.types import *
 
@@ -43,7 +43,7 @@ sys.path.insert(0, "jobs.zip")
 #############################________________DATA_ACQUISITION__________#####################################
 
 print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
-test_data_weekly_models = get_data_weekly(sqlContext=sqlContext) \
+test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=_model_bld_date_string) \
     .map(lambda x: assign_category(x)) \
     .filter(lambda x: x != "NOT_CONSIDERED") \
     .filter(lambda x: x[1].category in ('I', 'II', 'III', 'VII'))
@@ -52,15 +52,17 @@ test_data_weekly_models.cache()
 
 #############################________________(ARIMA + PROPHET)__________#####################################
 
-
+MODEL_BLD_CURRENT_DATE = string_to_gregorian(_model_bld_date_string)
 
 # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
 print "Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ >= 60"
 print "\t--Running distributed arima"
-arima_results = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext)
+arima_results = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
 print "\t--Running distributed prophet"
-prophet_results = _run_dist_prophet(test_data=test_data_weekly_models, sqlContext=sqlContext)
+prophet_results = _run_dist_prophet(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                    MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
 print "\t--Joining the ARIMA + PROPHET Results on same customernumber and matnr"
 cond = [arima_results.customernumber_arima == prophet_results.customernumber_prophet,
@@ -72,7 +74,7 @@ prophet_arima_join_df = prophet_results \
 prophet_arima_join_df_select_cols = final_select_dataset(prophet_arima_join_df, sqlContext=sqlContext)
 
 prophet_arima_join_df_final = prophet_arima_join_df_select_cols \
-    .withColumn('mdl_bld_dt', lit(MODEL_BLD_CURRENT_DATE).cast(StringType()))
+    .withColumn('mdl_bld_dt', lit(_model_bld_date_string))
 
 prophet_arima_join_df_final.printSchema()
 
@@ -90,10 +92,11 @@ print "**************\n**************\n"
 
 print "Running WEEKLY_MA_MODELS on products\n"
 
-ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext)
+ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                  MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
 ma_weekly_results_df_final = ma_weekly_results_df \
-    .withColumn('mdl_bld_dt', lit(MODEL_BLD_CURRENT_DATE).cast(StringType()))
+    .withColumn('mdl_bld_dt', lit(_model_bld_date_string))
 
 ma_weekly_results_df_final.printSchema()
 

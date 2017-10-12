@@ -2,7 +2,7 @@ from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, ca
 
 # from data_fetch.properties import MODEL_BLD_CURRENT_DATE
 
-_model_bld_date_string = '2017-09-17'
+_model_bld_date_string = '2017-09-03'
 
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"

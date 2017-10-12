@@ -29,7 +29,7 @@ from mdm.dim_marm e
 ) f
 on
 d.matnr=f.matnr and d.units=f.meinh
-where d.bill_date < """
+where d.bill_date <= """
 
 query_monthly="""
 select d.customernumber customernumber, d.matnr matnr, d.bill_date bill_date, IF(d.units != 'CS', d.quantity * (f.umrez / f.umren), d.quantity) quantity, ((quantity * quantity) / d.price) q_indep_prc

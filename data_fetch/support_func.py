@@ -32,9 +32,11 @@ def generate_monthly_query(date):
 if __name__ == "__main__":
     import datetime
 
-    today = string_to_gregorian('2017-10-11')
-    first = today.replace(day=1)
-    print first
-    lastMonth = first - datetime.timedelta(days=1)
-    print lastMonth
-    print lastMonth.strftime('\'%Y%m%d\'')
+    # today = string_to_gregorian('2017-10-11')
+    # first = today.replace(day=1)
+    # print first
+    # lastMonth = first - datetime.timedelta(days=1)
+    # print lastMonth
+    # print lastMonth.strftime('\'%Y%m%d\'')
+    input = '2017-09-03'
+    print generate_weekly_query(input)

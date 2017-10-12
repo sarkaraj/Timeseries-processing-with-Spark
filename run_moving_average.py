@@ -5,17 +5,18 @@ from transform_data.rdd_to_df import MA_output_schema, map_for_output_MA_monthly
 from transform_data.data_transform import get_weekly_aggregate
 
 
-def _moving_average_row_to_rdd_map(line):
+def _moving_average_row_to_rdd_map(line, **kwargs):
     row_object, category_obj = line
 
     customernumber = row_object.customernumber
     matnr = row_object.matnr
-    # pdt_freq_annual = row_object.pdt_freq_annual
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
 
     # Unpacking the dataset
     data_array = [row.split("\t") for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
@@ -24,11 +25,12 @@ def _moving_average_row_to_rdd_map(line):
     return _result
 
 
-def _run_moving_average_weekly(test_data, sqlContext):
+def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
     test_data_input = test_data \
         .filter(lambda x: x[1].category == 'VII') \
-        .map(lambda line: _moving_average_row_to_rdd_map(line=line))
+        .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
         .map(lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
@@ -41,10 +43,11 @@ def _run_moving_average_weekly(test_data, sqlContext):
     return opt_ma_weekly_results_df
 
 
-def _run_moving_average_monthly(test_data, sqlContext):
+def _run_moving_average_monthly(test_data, sqlContext, **kwargs):
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('VIII', 'IX', 'X')) \
-        .map(lambda line: _moving_average_row_to_rdd_map(line=line))
+        .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_monthly_results_rdd = test_data_input \
         .map(

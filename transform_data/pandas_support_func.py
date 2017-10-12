@@ -45,7 +45,8 @@ def extract_elems_from_dict(row_elem, **kwargs):
 def get_pd_df(data_array, customernumber, matnr, **kwargs):
 
     import pandas as pd
-    from data_fetch.properties import MODEL_BLD_CURRENT_DATE
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
+
 
     data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p']).convert_objects(
         convert_numeric=True)
