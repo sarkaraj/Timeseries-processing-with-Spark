@@ -6,7 +6,9 @@ from model.weekly_model import *
 from distributed_grid_search._model_params_set import *
 from distributed_grid_search._pydlm_monthly import *
 # from distributed_grid_search._fbprophet import *
-from model.moving_average_monthly import *
+from distributed_grid_search._pydlm_monthly import *
+# from model.moving_average_monthly import *
+from model.monthly_model import *
 
 # loading libs
 import pandas as pd
@@ -51,13 +53,13 @@ prod = cus[cus.matnr == mat_no]
 
 # print(data_weekly.head())
 
-import time
-start_time = time.time()
-
+# import time
+# start_time = time.time()
+#
 # for elem in generate_all_param_combo_pydlm_monthly():
-output = moving_average_model_monthly(cus_no=cus_no, mat_no=mat_no,prod=prod)
-    # print(output[1][1])
-
+#     run_pydlm_monthly(cus_no=cus_no, mat_no=mat_no,prod=prod,test_points = 2, param = elem)
+#     # print(output[1][1])
+#
 # print("--- %s seconds ---" % (time.time() - start_time))
 
 # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -74,13 +76,13 @@ output = moving_average_model_monthly(cus_no=cus_no, mat_no=mat_no,prod=prod)
 
 # run weekly model
 
-# output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no,
-#                            test_points=6)
+output = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no,
+                           test_points=1)
 
 
 
 # weekly_pydlm_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
 #
-(output_error, pred) = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = False,
-                         weekly_window= 6, monthly_window = 3)
+# (output_error, pred) = moving_average_model(prod = prod, cus_no = cus_no, mat_no= mat_no,weekly_data = False,
+#                          weekly_window= 6, monthly_window = 3)
 # print (output_error.head())

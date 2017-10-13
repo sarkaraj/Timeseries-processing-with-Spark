@@ -157,6 +157,20 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
 
     output_result = weekly_ensm_model_error_calc(output_result)
 
+    #################################
+    # m_ = Prophet(weekly_seasonality=False, holidays=holidays, yearly_seasonality=True,
+    #              changepoint_prior_scale= 2,
+    #              seasonality_prior_scale= 0.1)
+    # print(prod.tail())
+    # m_.fit(prod);
+    # pred_ds = m_.make_future_dataframe(periods=2, freq='W').tail(2)
+    #
+    # _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
+    # _prediction_temp.ds = _prediction_temp.ds.map(lambda x: x + dt.timedelta(days=4))
+    # print(_prediction_temp)
+    # # _prediction = _get_pred_dict_prophet_w(_prediction_temp)
+    #######################################################
+
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                                        mape_calculator(output_result.y_Prophet, output_result.y),
                                        np.nanmedian(output_result.rolling_6week_percent_error),
