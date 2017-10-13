@@ -23,6 +23,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
     import numpy as np
     from dateutil import parser
     from fbprophet import Prophet
+    import datetime as dt
 
     if ('min_train_days' in kwargs.keys()):
         min_train_days = kwargs.get('min_train_days')
@@ -101,6 +102,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                      seasonality_prior_scale=seasonality_prior_scale)
         m_.fit(prod);
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='W').tail(pred_points)
+        pred_ds.ds = pred_ds.ds.map(lambda x: x + dt.timedelta(days=4))
 
         _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
         _prediction = _get_pred_dict_prophet_w(_prediction_temp)  # # get a dict {(weekNum,year):pred_val}
@@ -189,6 +191,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                      changepoint_prior_scale=changepoint_prior_scale)
         m_.fit(prod);
         pred_ds = m_.make_future_dataframe(periods=pred_points, freq='W').tail(pred_points)
+        pred_ds.ds = pred_ds.ds.map(lambda x: x + dt.timedelta(days=4))
 
         _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
         _prediction = _get_pred_dict_prophet_w(_prediction_temp)  # # get a dict {(weekNum,year):pred_val}
