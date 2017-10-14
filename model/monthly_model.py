@@ -94,6 +94,17 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
         output_result = pd.concat([output_result,result_test], axis=0)
 
     output_result = monthly_prophet_model_error_calculator(output_result)
+    #############################
+    # m_ = Prophet(weekly_seasonality=False, yearly_seasonality=True,
+    #              changepoint_prior_scale=2)
+    # print(prod.tail())
+    # m_.fit(prod);
+    # pred_ds = m_.make_future_dataframe(periods=2, freq='M').tail(2)
+    # pred_ds.ds = pred_ds.ds.map(lambda x: x + dt.timedelta(days=15))
+    #
+    # _prediction_temp = m_.predict(pred_ds)[['ds', 'yhat']]
+    # print(_prediction_temp)
+    ##########################
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                                        mape_calculator(output_result.y_Prophet, output_result.y),
