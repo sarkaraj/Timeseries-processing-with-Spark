@@ -417,12 +417,9 @@ def get_monthly_aggregate_per_product(data):
     return data_grp
 
 
-# if __name__ == "__main__":
-#     temp = {'2017-09-07': {0: 0.97956494694491469}, '2017-09-14': {0: 1.9972058961967596}}
-#     temp_final = {(gregorian_to_iso(key.split("-"))[0], gregorian_to_iso(key.split("-"))[1]): temp.get(key).get(0) for
-#                   key in temp.keys()}
-#     print temp_final
-#     b = '2017-09-14'
-#     c = b.split("-")
-#     print c
-#     print gregorian_to_iso(c)
+if __name__ == "__main__":
+    first_date = '2017-09-03'
+    second_date = '2017-09-06'
+    result = string_to_gregorian(second_date) - string_to_gregorian(first_date)
+    print gregorian_to_iso(first_date.split("-"))
+    print result.days
