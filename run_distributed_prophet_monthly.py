@@ -14,7 +14,7 @@
 #     return _result
 
 
-def _run_dist_prophet_monthly(test_data, sqlContext):
+def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
     # LIBRARY IMPORTS
     from distributed_grid_search._model_params_set import generate_models_prophet_monthly
     from transform_data.rdd_to_df import map_for_output_prophet, prophet_output_schema
@@ -29,8 +29,11 @@ def _run_dist_prophet_monthly(test_data, sqlContext):
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
 
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
+
     test_data_parallel = test_data_input.flatMap(
-        lambda x: generate_models_prophet_monthly(x))  # # gets 587 * 55 = 32285 rows
+        lambda x: generate_models_prophet_monthly(x,
+                                                  MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))  # # gets 587 * 55 = 32285 rows
 
     # # Parallelizing Jobs
     prophet_results_rdd = test_data_parallel \

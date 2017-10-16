@@ -106,5 +106,15 @@ def get_current_date():
     return _date
 
 
+def _get_last_day_of_previous_month(_date):
+    import datetime
+    _first = _date.replace(day=1)
+    last_month = _first - datetime.timedelta(days=1)
+    return last_month.strftime("%Y-%m-%d")
+
 if __name__ == "__main__":
-    pass
+    import datetime as dt
+
+    now = dt.datetime.now()
+    print _get_last_day_of_previous_month(now)
+    print type(_get_last_day_of_previous_month(now))
