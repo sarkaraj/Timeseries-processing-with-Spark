@@ -22,20 +22,20 @@ def _get_monthly_mdl_bld_cutoff_date(_date):
 
 
 def generate_weekly_query(date):
-    from properties import query_weekly
+    from properties import _query
 
     MODEL_BLD_CURRENT_DATE = string_to_gregorian(date)
 
-    _result = query_weekly + _get_weekly_mdl_bld_cutoff_date(MODEL_BLD_CURRENT_DATE)
+    _result = _query + _get_weekly_mdl_bld_cutoff_date(MODEL_BLD_CURRENT_DATE)
     return _result
 
 
 def generate_monthly_query(date):
-    from properties import query_monthly
+    from properties import _query
 
     MODEL_BLD_CURRENT_DATE = string_to_gregorian(date)
 
-    _result = query_monthly + _get_monthly_mdl_bld_cutoff_date(MODEL_BLD_CURRENT_DATE)
+    _result = _query + _get_monthly_mdl_bld_cutoff_date(MODEL_BLD_CURRENT_DATE)
     return _result
 
 
@@ -50,3 +50,4 @@ if __name__ == "__main__":
     # print lastMonth.strftime('\'%Y%m%d\'')
     input = '2017-09-01'
     print generate_monthly_query(input)
+    print generate_weekly_query(input)

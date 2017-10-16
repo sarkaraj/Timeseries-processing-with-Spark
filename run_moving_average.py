@@ -15,6 +15,7 @@ def _moving_average_row_to_rdd_map(line, **kwargs):
 
     # Unpacking the dataset
     data_array = [row.split("\t") for row in row_object.data]
+
     data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
                            MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
@@ -45,6 +46,7 @@ def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
 
 def _run_moving_average_monthly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
+
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('VIII', 'IX', 'X')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
