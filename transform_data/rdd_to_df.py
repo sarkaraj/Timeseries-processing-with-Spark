@@ -121,7 +121,7 @@ def map_for_output_MA_monthly(line):
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
 
     _pred_ma_temp = line[3]
-    _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): _pred_ma_temp.get(key) for key in
+    _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): float(_pred_ma_temp.get(key)) for key in
                 _pred_ma_temp.keys()}
     _pdt_cat = line[4]
 
@@ -135,7 +135,7 @@ def map_for_output_MA_weekly(line):
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
 
     _pred_ma_temp = line[3]
-    _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): _pred_ma_temp.get(key) for key in
+    _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): float(_pred_ma_temp.get(key)) for key in
                 _pred_ma_temp.keys()}
     _pdt_cat = line[4]
 

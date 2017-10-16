@@ -47,6 +47,23 @@ def get_pd_df(data_array, customernumber, matnr, **kwargs):
     import pandas as pd
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
+    # TODO Check for ERROR HERE. Something is going wrong here
+    data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p']).convert_objects(
+        convert_numeric=True)
+
+    df2 = pd.DataFrame({'date': [MODEL_BLD_CURRENT_DATE.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
+
+    data_pd_df_final = pd.concat([data_pd_df, df2], axis=0, ignore_index=True)
+
+    data_pd_df_final['customernumber'] = customernumber
+    data_pd_df_final['matnr'] = matnr
+
+    return data_pd_df_final
+
+
+def get_pd_df_test(data_array, customernumber, matnr, **kwargs):
+    import pandas as pd
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
     data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p']).convert_objects(
         convert_numeric=True)
