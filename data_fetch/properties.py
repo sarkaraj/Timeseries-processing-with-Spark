@@ -58,9 +58,9 @@ from mdm.dim_marm e
 ) f
 on
 d.matnr=f.matnr and d.units=f.meinh
-where d.bill_date < """
+where d.bill_date <= """
 
 _latest_product_criteria_days = 92
 
 if __name__ == "__main__":
-    print query_weekly
+    print query_monthly

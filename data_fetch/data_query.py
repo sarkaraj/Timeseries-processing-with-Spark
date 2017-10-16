@@ -1,5 +1,5 @@
 import properties as p_data_fetch
-from support_func import generate_weekly_query
+from support_func import generate_weekly_query, generate_monthly_query
 
 
 def get_data_weekly(sqlContext, **kwargs):
@@ -46,10 +46,10 @@ def get_data_weekly(sqlContext, **kwargs):
 
 def get_data_monthly(sqlContext, **kwargs):
     if 'month_cutoff_date' in kwargs.keys():
-        # TODO create function to get data till last day of month of given sunday and then query - still not sure
-        pass
+        month_cutoff_date = kwargs.get('month_cutoff_date')
+        test_query = generate_monthly_query(month_cutoff_date)
     else:
-        test_query = p_data_fetch.query_monthly
+        raise ValueError
 
     if (test_query == None):
         raise ValueError
@@ -67,7 +67,7 @@ def get_data_monthly(sqlContext, **kwargs):
                      max('b_date').alias('max_date'),
                      min('b_date').alias('min_date'),
                      count('b_date').alias('row_count')) \
-                .withColumn('temp_curr_date', lit(p_data_fetch._model_bld_date_string)) \
+                .withColumn('temp_curr_date', lit(month_cutoff_date)) \
                 .withColumn('current_date',
                             from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
                 .withColumn('time_gap_years',
