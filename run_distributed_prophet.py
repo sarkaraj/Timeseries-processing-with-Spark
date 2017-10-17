@@ -78,7 +78,7 @@ from transform_data.data_transform import string_to_gregorian
 
 
 def _run_dist_prophet(test_data, sqlContext, **kwargs):
-    MODEL_BLD_CURRENT_DATE = string_to_gregorian(_model_bld_date_string)
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('I', 'II', 'III'))

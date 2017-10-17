@@ -10,11 +10,18 @@ def _moving_average_row_to_rdd_map(line, **kwargs):
 
     customernumber = row_object.customernumber
     matnr = row_object.matnr
-    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
+
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
+
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # is of datetime.date type
 
 
     # Unpacking the dataset
-    data_array = [row.split("\t") for row in row_object.data]
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
 
     data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
                            MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -45,7 +52,7 @@ def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
 
 
 def _run_moving_average_monthly(test_data, sqlContext, **kwargs):
-    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # is of datetime.date type
 
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('VIII', 'IX', 'X')) \
@@ -61,3 +68,17 @@ def _run_moving_average_monthly(test_data, sqlContext, **kwargs):
     opt_ma_monthly_results_df = sqlContext.createDataFrame(opt_ma_monthly_results_mapped, schema=MA_output_schema())
 
     return opt_ma_monthly_results_df
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    from transform_data.data_transform import get_weekly_aggregate
+
+    a = [['2016-09-09', '1.0', '2.0'], ['2016-09-19', '2.0', '3.0'], ['2016-10-02', '1.0', '2.0']]
+
+    b = pd.DataFrame(data=a, columns=['date', 'q', 'q_i_p']).convert_objects(convert_numeric=True)
+
+    print get_weekly_aggregate(b)
+
+    # print b
+    # print type(b)
