@@ -7,6 +7,8 @@ from transform_data.rdd_to_df import map_for_output_prophet, prophet_output_sche
 from support_func import dist_grid_search_create_combiner, dist_grid_search_merge_value, dist_grid_search_merge_combiner
 
 from distributed_grid_search._fbprophet import run_prophet
+from properties import _model_bld_date_string
+from transform_data.data_transform import string_to_gregorian
 
 # conf = SparkConf().setAppName("test_cona_distributed_prophet").setMaster("yarn-client")
 # sc = SparkContext(conf=conf)
@@ -76,11 +78,13 @@ from distributed_grid_search._fbprophet import run_prophet
 
 
 def _run_dist_prophet(test_data, sqlContext, **kwargs):
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('I', 'II', 'III'))
 
-    test_data_parallel = test_data_input.flatMap(lambda x: generate_models_prophet(x))
+    test_data_parallel = test_data_input.flatMap(
+        lambda x: generate_models_prophet(x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     prophet_results_rdd = test_data_parallel \
         .map(lambda x: run_prophet(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3], min_train_days=x[4].min_train_days,

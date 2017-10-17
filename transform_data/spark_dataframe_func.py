@@ -63,12 +63,12 @@ def _schema():
     mat_no = StructField("mat_no", StringType(), nullable=False)
 
     _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=True)
-    week_num_year = StructType([StructField("week_num", IntegerType()), StructField("week_num", IntegerType())])
-    _pred_arima = StructField("pred_arima", MapType(week_num_year, FloatType()), nullable=True)
+    # week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
+    _pred_arima = StructField("pred_arima", MapType(StringType(), FloatType()), nullable=True)
     _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=True)
 
     _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=True)
-    _pred_prophet = StructField("pred_prophet", MapType(week_num_year, FloatType()), nullable=True)
+    _pred_prophet = StructField("pred_prophet", MapType(StringType(), FloatType()), nullable=True)
     _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=True)
 
     _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)

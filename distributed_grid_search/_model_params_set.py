@@ -23,16 +23,23 @@ def generate_all_param_combo_sarimax():
     return all_combo
 
 
-def generate_models_sarimax(x):
+def generate_models_sarimax(x, **kwargs):
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
+
     row_object, category_obj = x
     customernumber = row_object.customernumber
     matnr = row_object.matnr
-    # pdt_freq_annual = row_object.pdt_freq_annual
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
 
     # Unpacking the dataset
-    data_array = [row.split("\t") for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
@@ -142,16 +149,23 @@ def generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior
     return yearly_seasonality_all_combo
 
 
-def generate_models_prophet(x):
+def generate_models_prophet(x, **kwargs):
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
+
     row_object, category_obj = x
     customernumber = row_object.customernumber
     matnr = row_object.matnr
-    # pdt_freq_annual = row_object.pdt_freq_annual
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
 
     # Unpacking the dataset
-    data_array = [row.split("\t") for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
@@ -160,16 +174,23 @@ def generate_models_prophet(x):
             generate_all_param_combo_prophet()]
 
 
-def generate_models_prophet_monthly(x):
+def generate_models_prophet_monthly(x, **kwargs):
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
+
     row_object, category_obj = x
     customernumber = row_object.customernumber
     matnr = row_object.matnr
-    # pdt_freq_annual = row_object.pdt_freq_annual
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
 
     # Unpacking the dataset
-    data_array = [row.split("\t") for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
@@ -180,6 +201,7 @@ def generate_models_prophet_monthly(x):
 
     return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
             generate_all_param_combo_prophet_monthly()]
+
 
 def generate_all_param_combo_pydlm_monthly():
     """

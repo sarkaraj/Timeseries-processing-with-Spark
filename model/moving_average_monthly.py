@@ -87,7 +87,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     ds = np.array([prod['ds'].iloc[-1]])
 
     for i in range(pred_points):
-        ds = np.append(ds,[add_months(ds[-1],1)])[-pred_points:]
+        ds = np.append(ds, [add_months(ds[-1], 1)])[-pred_points:]
 
     final_pred = _get_pred_dict_MA_m(pd.DataFrame({'ds': ds, 'yhat': pred}))
     # print(final_pred)

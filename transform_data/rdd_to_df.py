@@ -1,14 +1,20 @@
 from pyspark.sql.types import *
 
+
 # # _________________PROPHET__________________________ # #
 
 def map_for_output_prophet(line):
     customernumber, mat_no = line[0]
     _error_prophet = line[1][1][1]
-    _req_error_prophet_param = {key: float(_error_prophet.get(key)) for key in _error_prophet.keys() if key not in ('mat_no', 'cus_no')}
-    _pred_prophet = line[1][1][2]
+    _req_error_prophet_param = {key: float(_error_prophet.get(key)) for key in _error_prophet.keys() if
+                                key not in ('mat_no', 'cus_no')}
+
+    _pred_prophet_temp = line[1][1][2]
+    _pred_prophet = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): _pred_prophet_temp.get(key) for key in
+                     _pred_prophet_temp.keys()}
+
     _opt_param = line[1][1][3]
-    _opt_param_prophet = {key:str(_opt_param.get(key)) for key in _opt_param.keys()}
+    _opt_param_prophet = {key: str(_opt_param.get(key)) for key in _opt_param.keys()}
     _pdt_cat = line[1][1][4]
 
     _result = customernumber, mat_no, _req_error_prophet_param, _pred_prophet, _opt_param_prophet, _pdt_cat
@@ -30,8 +36,7 @@ def prophet_output_schema():
     mat_no = StructField("mat_no_prophet", StringType(), nullable=False)
     _error_prophet = StructField("error_prophet", MapType(StringType(), FloatType()), nullable=True)
 
-    week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
-    _pred_prophet = StructField("pred_prophet", MapType(week_num_year, FloatType()), nullable=True)
+    _pred_prophet = StructField("pred_prophet", MapType(StringType(), FloatType()), nullable=True)
 
     _opt_param_prophet = StructField("prophet_params", MapType(StringType(), StringType()), nullable=True)
     _pdt_category = StructField("pdt_cat_prophet", MapType(StringType(), StringType()), nullable=True)
@@ -58,8 +63,7 @@ def arima_output_schema():
     mat_no = StructField("mat_no_arima", StringType(), nullable=False)
     _error_arima = StructField("error_arima", MapType(StringType(), FloatType()), nullable=True)
 
-    week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
-    _pred_arima = StructField("pred_arima", MapType(week_num_year, FloatType()), nullable=True)
+    _pred_arima = StructField("pred_arima", MapType(StringType(), FloatType()), nullable=True)
 
     _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=True)
     _pdt_category = StructField("pdt_cat_arima", MapType(StringType(), StringType()), nullable=True)
@@ -74,14 +78,17 @@ def map_for_output_arima(line):
 
     _error_arima = line[1][1][1]
 
-    _req_error_arima_param = {key: float(_error_arima.get(key)) for key in _error_arima.keys() if key not in ('mat_no', 'cus_no')}
+    _req_error_arima_param = {key: float(_error_arima.get(key)) for key in _error_arima.keys() if
+                              key not in ('mat_no', 'cus_no')}
 
-    _pred_arima = line[1][1][2]
+    _pred_arima_temp = line[1][1][2]
+    _pred_arima = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): _pred_arima_temp.get(key) for key in
+                   _pred_arima_temp.keys()}
 
     pdq = line[1][1][3]
     seasonal_pdq = line[1][1][4]
     _pdt_cat = line[1][1][5]
-    _opt_param_arima = {'pdq':pdq, 'seasonal_pdq':seasonal_pdq}
+    _opt_param_arima = {'pdq': pdq, 'seasonal_pdq': seasonal_pdq}
 
     _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
 
@@ -95,8 +102,8 @@ def MA_output_schema():
     mat_no = StructField("mat_no", StringType(), nullable=False)
     _error_ma = StructField("error_MA", MapType(StringType(), FloatType()), nullable=False)
 
-    week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
-    _pred_ma = StructField("pred_ma", MapType(week_num_year, FloatType()), nullable=True)
+    # week_num_year = StructType([StructField("week_or_month", IntegerType()), StructField("year", IntegerType())])
+    _pred_ma = StructField("pred_ma", MapType(StringType(), FloatType()), nullable=True)
 
     # _pred_ma = StructField("pred_MA", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
     #                        nullable=False)
@@ -112,7 +119,10 @@ def map_for_output_MA_monthly(line):
     customernumber = line[0]
     mat_no = line[1]
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
-    _pred_ma = line[3]
+
+    _pred_ma_temp = line[3]
+    _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): float(_pred_ma_temp.get(key)) for key in
+                _pred_ma_temp.keys()}
     _pdt_cat = line[4]
 
     _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat
@@ -123,7 +133,10 @@ def map_for_output_MA_weekly(line):
     customernumber = line[0]
     mat_no = line[1]
     _error_ma = {key: float(line[2].get(key)) for key in line[2].keys() if key not in ('mat_no', 'cus_no')}
-    _pred_ma = line[3]
+
+    _pred_ma_temp = line[3]
+    _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): float(_pred_ma_temp.get(key)) for key in
+                _pred_ma_temp.keys()}
     _pdt_cat = line[4]
 
     _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat

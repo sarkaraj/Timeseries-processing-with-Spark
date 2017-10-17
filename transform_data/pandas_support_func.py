@@ -45,18 +45,45 @@ def extract_elems_from_dict(row_elem, **kwargs):
 def get_pd_df(data_array, customernumber, matnr, **kwargs):
 
     import pandas as pd
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of datetime.date type
 
-    data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity', 'q_indep_p']).convert_objects(
+    # data array contains only 2 value ['date', 'quantity' -- hard coded due to unforeseen error]
+    data_pd_df = pd.DataFrame(data_array, columns=['date', 'quantity']).convert_objects(convert_numeric=True)
+    data_pd_df['q_indep_p'] = 0.0  # # Inserting a column of zeroes since weekly_aggregate function needs 3 columns
+
+    # Inserting a new row of the month/week cutoff date so that dataset for model building is up-to-date
+    df2 = pd.DataFrame({'date': [MODEL_BLD_CURRENT_DATE.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
+
+    data_pd_df_final = pd.concat([data_pd_df, df2], axis=0, ignore_index=True)
+
+    data_pd_df_final['customernumber'] = customernumber
+    data_pd_df_final['matnr'] = matnr
+
+    return data_pd_df_final
+
+
+
+
+
+if __name__ == "__main__":
+    import pandas as pd
+    from transform_data.data_transform import get_weekly_aggregate
+    import datetime
+
+    now = datetime.datetime.now()
+
+    temp = ['2016-09-09\t1.0', '2016-09-19\t2.0', '2017-10-02\t1.0\t']
+
+    a = [i.split("\t") for i in temp]
+
+    # a = [['2016-09-09', '1.0'], ['2016-09-19', '2.0'], ['2017-10-02', '1.0', '0.0']]
+
+    b = pd.DataFrame(data=a, columns=['date', 'quantity', 'q_indep_p']).fillna(9999).convert_objects(
         convert_numeric=True)
-    data_pd_df['customernumber'] = customernumber
-    data_pd_df['matnr'] = matnr
+    b['customernumber'] = '12345'
+    b['matnr'] = '100'
 
-    return data_pd_df
+    df2 = pd.DataFrame({'date': [now.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
 
-
-
-# a = {0: {'a':float('nan'), 'b':float('inf')}}
-#
-# print extract_elems_from_dict(a)
-#
-# print dict([('a', 1), ('b', 2)])
+    print b.dtypes
+    print get_weekly_aggregate(b)

@@ -3,86 +3,105 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext
 from run_distributed_prophet_monthly import _run_dist_prophet_monthly
 from run_moving_average import _run_moving_average_monthly
-from support_func import assign_category, get_current_date
+from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
 from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
-from pyspark.sql.functions import current_date
+import properties as p
+from pyspark.sql.functions import *
+from transform_data.data_transform import string_to_gregorian
 
-###################################################################################################################
 
-# Getting Current Date Time for AppName
-appName = "_".join([MODEL_BUILDING, "M", get_current_date()])
-####################################################################################################################
+def build_prediction_monthly(sc, sqlContext, **kwargs):
+    if '_model_bld_date_string' in kwargs.keys():
+        _model_bld_date_string = kwargs.get('_model_bld_date_string')
+    else:
+        _model_bld_date_string = p._model_bld_date_string
 
-conf = SparkConf().setAppName(appName)
+    ####################################################################################################################
+    # # Defining the date variables
 
-sc = SparkContext(conf=conf)
-sqlContext = HiveContext(sparkContext=sc)
+    month_cutoff_date = _get_last_day_of_previous_month(string_to_gregorian(
+        _model_bld_date_string))  # # returns the last day of previous month for given "_model_bld_date_string"
 
-import time
+    MODEL_BLD_CURRENT_DATE = string_to_gregorian(month_cutoff_date)  # # is of datetime.date type
 
-start_time = time.time()
+    ####################################################################################################################
+    ###################################______________MONTHLY_____________###############################################
+    ####################################################################################################################
 
-print "Setting LOG LEVEL as ERROR"
-sc.setLogLevel("ERROR")
 
-print "Add jobs.zip to system path"
-import sys
 
-sys.path.insert(0, "jobs.zip")
+    print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
+    test_data_monthly_model = get_data_monthly(sqlContext=sqlContext, month_cutoff_date=month_cutoff_date) \
+        .map(lambda x: assign_category(x)) \
+        .filter(lambda x: x != "NOT_CONSIDERED") \
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-####################################################################################################################
-###################################______________MONTHLY_____________###############################################
-####################################################################################################################
+    test_data_monthly_model.cache()
 
-print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
-test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
-    .map(lambda x: assign_category(x)) \
-    .filter(lambda x: x != "NOT_CONSIDERED") \
-    .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
+    #############################________________PROPHET__________################################
 
-test_data_monthly_model.cache()
+    # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+    print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+    # print "\t\t--Running distributed prophet"
+    prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-#############################________________PROPHET__________################################
+    prophet_monthly_results_final = prophet_monthly_results \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
-print "**************\n**************\n"
+    print "Writing the MONTHLY MODEL data into HDFS"
+    prophet_monthly_results_final \
+        .coalesce(2) \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_456_location)
 
-# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-# print "\t\t--Running distributed prophet"
-prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+    ############################________________MOVING AVERAGE__________##########################
 
-prophet_monthly_results_final = prophet_monthly_results \
-    .withColumn('mdl_bld_dt', current_date())
+    print "**************\n**************\n"
 
-# print prophet_monthly_results
+    print "Running MONTHLY_MA_MODELS on products\n"
 
-print "Writing the MONTHLY MODEL data into HDFS"
-prophet_monthly_results_final \
-    .coalesce(4) \
-    .write.mode('append') \
-    .format('orc') \
-    .option("header", "false") \
-    .save(monthly_pdt_cat_456_location)
+    ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-############################________________MOVING AVERAGE__________##########################
+    ma_monthly_results_df_final = ma_monthly_results_df \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
-print "**************\n**************\n"
+    print "Writing the MA MONTHLY data into HDFS\n"
+    ma_monthly_results_df_final \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_8910_location)
 
-# Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-print "Running MONTHLY_MA_MODELS on products\n"
-# print "\t\t--Running moving average models"
 
-ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+if __name__ == "__main__":
+    ###################################################################################################################
 
-ma_monthly_results_df_final = ma_monthly_results_df \
-    .withColumn('mdl_bld_dt', current_date())
+    # Getting Current Date Time for AppName
+    appName = "_".join([MODEL_BUILDING, "M", get_current_date()])
+    ####################################################################################################################
 
-print "Writing the MA MONTHLY data into HDFS\n"
-ma_monthly_results_df_final \
-    .coalesce(4) \
-    .write.mode('append') \
-    .format('orc') \
-    .option("header", "false") \
-    .save(monthly_pdt_cat_8910_location)
+    conf = SparkConf().setAppName(appName)
 
-print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    sc = SparkContext(conf=conf)
+    sqlContext = HiveContext(sparkContext=sc)
+
+    import time
+
+    start_time = time.time()
+
+    print "Setting LOG LEVEL as ERROR"
+    sc.setLogLevel("ERROR")
+
+    print "Add jobs.zip to system path"
+    import sys
+
+    sys.path.insert(0, "jobs.zip")
+
+    build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=p._model_bld_date_string)
+    print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

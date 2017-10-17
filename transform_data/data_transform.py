@@ -8,6 +8,21 @@ import pandas as pd
 import datetime
 
 
+def string_to_gregorian(dt_str, sep='-'):
+    from datetime import date
+    x = dt_str.split(sep)
+    if (isinstance(x[0], int) and isinstance(x[1], int) and isinstance(x[2], int)):
+        year = x[0]
+        month = x[1]
+        day = x[2]
+    else:
+        year = int(x[0])
+        month = int(x[1])
+        day = int(x[2])
+
+    return date(year=year, month=month, day=day)
+
+
 def iso_year_start(iso_year):
     "The gregorian calendar date of the first day of the given ISO year"
     fourth_jan = datetime.date(iso_year, 1, 4)
@@ -46,13 +61,13 @@ def gregorian_to_iso(x):
     return date(year=year, month=month, day=day).isocalendar()
 
 
-def make_date(iso_date_string):
+def make_date(iso_date_string, sep=","):
     """
     Converts ISO to Gregorian - Support function for iso_to_gregorian()
     :param iso_date_string: String of date separated by ","
     :return: Gregorian Date Object
     """
-    date_tuple = iso_date_string.split(",")
+    date_tuple = iso_date_string.split(sep)
 
     iso_year = date_tuple[0]
     iso_week = date_tuple[1]
@@ -402,12 +417,9 @@ def get_monthly_aggregate_per_product(data):
     return data_grp
 
 
-# if __name__ == "__main__":
-#     temp = {'2017-09-07': {0: 0.97956494694491469}, '2017-09-14': {0: 1.9972058961967596}}
-#     temp_final = {(gregorian_to_iso(key.split("-"))[0], gregorian_to_iso(key.split("-"))[1]): temp.get(key).get(0) for
-#                   key in temp.keys()}
-#     print temp_final
-#     b = '2017-09-14'
-#     c = b.split("-")
-#     print c
-#     print gregorian_to_iso(c)
+if __name__ == "__main__":
+    first_date = '2017-09-03'
+    second_date = '2017-09-06'
+    result = string_to_gregorian(second_date) - string_to_gregorian(first_date)
+    print gregorian_to_iso(first_date.split("-"))
+    print result.days
