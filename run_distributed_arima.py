@@ -77,7 +77,7 @@ def _run_dist_arima(test_data, sqlContext, **kwargs):
     test_data_input = test_data \
         .filter(lambda x: x[1].category in ('I', 'II', 'III'))
 
-    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
     test_data_parallel = test_data_input.flatMap(
         lambda x: generate_models_sarimax(x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
