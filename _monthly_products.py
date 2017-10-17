@@ -52,7 +52,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Writing the MONTHLY MODEL data into HDFS"
     prophet_monthly_results_final \
-        .coalesce(2) \
+        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
@@ -73,6 +73,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Writing the MA MONTHLY data into HDFS\n"
     ma_monthly_results_df_final \
+        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \

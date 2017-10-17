@@ -67,7 +67,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print "Writing the WEEKLY_MODELS (ARIMA + PROPHET) data into HDFS"
     prophet_arima_join_df_final \
-        .coalesce(2) \
+        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
