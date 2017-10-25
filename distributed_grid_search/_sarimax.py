@@ -4,6 +4,7 @@ import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import weekly_arima_error_calc
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso
+from properties import SARIMAX_W_MODEL_SELECTION_CRITERIA
 
 
 def _get_pred_dict_sarimax(prediction_series):
@@ -113,10 +114,12 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_ARIMA, output_result.y),
                                            mape_calculator(output_result.y_ARIMA, output_result.y),
-                                           np.nanmedian(output_result.rolling_6week_percent_error_arima),
+                                           np.nanmedian(
+                                               np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
                                            np.nanmax(
                                                np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
-                                           np.nanmedian(output_result.rolling_12week_percent_error_arima),
+                                           np.nanmedian(
+                                               np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
                                            np.nanmax(
                                                np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
                                            output_result['Error_Cumsum_arima'].iloc[-1],
@@ -126,7 +129,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                              'wre_med_12', 'wre_max_12', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
-        _criteria = output_error_dict.get('wre_max_12')
+        _criteria = output_error_dict.get(SARIMAX_W_MODEL_SELECTION_CRITERIA)
         pdt_category = kwargs.get('pdt_cat')
         _result = (
         (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))

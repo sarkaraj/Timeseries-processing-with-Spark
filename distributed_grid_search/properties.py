@@ -19,6 +19,12 @@ D_max=1
 
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
+#################SARIMAX##################################
+# OPTIONS:::'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_med_12', 'wre_max_12', 'cum_error'
+SARIMAX_W_MODEL_SELECTION_CRITERIA = 'wre_max_12'
+
+#################
+################WEEKLY################################WEEKLY################################WEEKLY################
 #  PROPHET MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT is PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT / 10.0
 #  AND PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT / 10.0 respectively
 

@@ -114,10 +114,10 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
         output_error = pd.DataFrame(
             data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                    mape_calculator(output_result.y_Prophet, output_result.y),
-                   np.nanmedian(output_result.rolling_6week_percent_error_prophet),
+                   np.nanmedian(np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
-                   np.nanmedian(output_result.rolling_12week_percent_error_prophet),
+                   np.nanmedian(np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
                    output_result['Error_Cumsum_prophet'].iloc[-1],
@@ -202,10 +202,10 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
         output_error = pd.DataFrame(
             data=[[cus_no, mat_no, rmse_calculator(output_result.y_Prophet, output_result.y),
                    mape_calculator(output_result.y_Prophet, output_result.y),
-                   np.nanmedian(output_result.rolling_6week_percent_error_prophet),
+                   np.nanmedian(np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_6week_percent_error_prophet))),
-                   np.nanmedian(output_result.rolling_12week_percent_error_prophet),
+                   np.nanmedian(np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_12week_percent_error_prophet))),
                    output_result['Error_Cumsum_prophet'].iloc[-1],

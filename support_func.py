@@ -3,8 +3,8 @@ from transform_data.data_transform import get_weekly_aggregate
 from transform_data.pandas_support_func import *
 import properties as p
 
-def model_fit(row_object):
 
+def model_fit(row_object):
     customernumber = row_object.customernumber
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
@@ -39,12 +39,12 @@ def dist_grid_search_merge_value(_comb_a, _value):
     :param _value: (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter)
     :return: (_criteria, (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq, value_error_counter))
     """
-    if(_comb_a[0] > _value[0]):
+    if (_comb_a[0] > _value[0]):
         # _comb_a[0] = _value[0]
         # _comb_a[1] = _value
         # return _comb_a
         return _value[0], _value
-    elif(_comb_a[0] < _value[0]):
+    elif (_comb_a[0] < _value[0]):
         return _comb_a
     else:
         return _comb_a
@@ -57,9 +57,9 @@ def dist_grid_search_merge_combiner(_comb_a, _comb_b):
     :param _comb_b: (_criteria, (_criteria, output_error_dict, output_result_dict, param))
     :return: (_criteria, (_criteria, output_error_dict, output_result_dict, param))
     """
-    if(_comb_a[0] > _comb_b[0]):
+    if (_comb_a[0] > _comb_b[0]):
         return _comb_b
-    elif(_comb_a[0] < _comb_b[0]):
+    elif (_comb_a[0] < _comb_b[0]):
         return _comb_a
     else:
         return _comb_a
@@ -76,7 +76,8 @@ def assign_category(row_object):
         elif (
                             row_object.time_gap_days > p.cat_3.time_gap_days_lower and row_object.time_gap_days <= p.cat_3.time_gap_days_upper and row_object.time_gap_years >= p.cat_3.time_gap_years):
             return row_object, p.cat_3
-        elif(row_object.time_gap_days > p.cat_7.time_gap_days_lower and row_object.time_gap_days <= p.cat_7.time_gap_days_upper):
+        elif (
+                        row_object.time_gap_days > p.cat_7.time_gap_days_lower and row_object.time_gap_days <= p.cat_7.time_gap_days_upper):
             return row_object, p.cat_7
     elif (row_object.pdt_freq_annual >= 20 and row_object.pdt_freq_annual < 60):
         if (
@@ -88,7 +89,8 @@ def assign_category(row_object):
         elif (
                             row_object.time_gap_days > p.cat_6.time_gap_days_lower and row_object.time_gap_days <= p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
             return row_object, p.cat_6
-        elif(row_object.time_gap_days > p.cat_8.time_gap_days_lower and row_object.time_gap_days <= p.cat_8.time_gap_days_upper):
+        elif (
+                        row_object.time_gap_days > p.cat_8.time_gap_days_lower and row_object.time_gap_days <= p.cat_8.time_gap_days_upper):
             return row_object, p.cat_8
     elif (row_object.pdt_freq_annual >= 12 and row_object.pdt_freq_annual < 20):
         return row_object, p.cat_9
@@ -111,6 +113,7 @@ def _get_last_day_of_previous_month(_date):
     _first = _date.replace(day=1)
     last_month = _first - datetime.timedelta(days=1)
     return last_month.strftime("%Y-%m-%d")
+
 
 if __name__ == "__main__":
     import datetime as dt
