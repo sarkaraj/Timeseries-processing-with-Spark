@@ -75,7 +75,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     #############################________________MOVING AVERAGE__________#####################################
 
-    print "**************\n**************\n"
+    print "**************\n**************"
 
     print "Running WEEKLY_MA_MODELS on products\n"
 
@@ -93,6 +93,8 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
+
+    print("************************************************************************************")
 
 
 if __name__ == "__main__":

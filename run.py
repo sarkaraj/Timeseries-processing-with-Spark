@@ -31,13 +31,19 @@ print("Starting Weekly Model building")
 start_time = time.time()
 
 for _model_bld_date_string in p._model_bld_date_string:
+    print("************************************************************************************")
     print (_model_bld_date_string)
+    print("************************************************************************************\n")
     build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
 
-print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
-# print("Starting Monthly Model building")
-# start_time = time.time()
-#
-# build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=p._model_bld_date_string)
-# print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    if p.monthly_dates.get(_model_bld_date_string)==True:
+        print("Starting Monthly Model building")
+        start_time = time.time()
+
+        build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=p._model_bld_date_string)
+        print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
+# Force Stopping SparkContext
+sc.stop()
