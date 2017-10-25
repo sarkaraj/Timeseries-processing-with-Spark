@@ -96,9 +96,9 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window =monthly_window)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
-                                       np.nanmedian(output_result.rolling_3month_percent_error),
+                                       np.nanmedian(np.absolute(np.array(output_result.rolling_3month_percent_error))),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
-                                       np.nanmedian(output_result.rolling_4month_percent_error),
+                                       np.nanmedian(np.absolute(np.array(output_result.rolling_4month_percent_error))),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_4month_percent_error))),
                                        output_result['Error_Cumsum'].iloc[-1],
                                        output_result['cumsum_quantity'].iloc[-1],
