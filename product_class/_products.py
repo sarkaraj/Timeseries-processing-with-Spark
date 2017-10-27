@@ -130,7 +130,7 @@ class product_cat_9(object):
         self.time_gap_days_lower = 0
         self.time_gap_days_upper = float("inf")
         self.category = 'IX'
-        self._window = 4
+        self._window = 6
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
@@ -146,7 +146,7 @@ class product_cat_10(object):
         self.time_gap_days_lower = 0
         self.time_gap_days_upper = float("inf")
         self.category = 'X'
-        self._window = 6
+        self._window = 12
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}

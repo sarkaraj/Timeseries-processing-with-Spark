@@ -100,11 +100,16 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
                                        np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
                                        np.nanmedian(np.absolute(np.array(output_result.rolling_4month_percent_error))),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_4month_percent_error))),
+                                       np.nanmedian(np.absolute(np.array(output_result.rolling_6month_percent_error))),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_6month_percent_error))),
+                                       np.nanmedian(np.absolute(np.array(output_result.rolling_12month_percent_error))),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_12month_percent_error))),
                                        output_result['Error_Cumsum'].iloc[-1],
                                        output_result['cumsum_quantity'].iloc[-1],
                                        ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
                                 columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
-                                         'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
+                                         'mre_med_4', 'mre_max_4', 'mre_med_6', 'mre_max_6', 'mre_med_12', 'mre_max_12',
+                                         'cum_error', 'cum_quantity', 'period_days'])
 
     output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
     # _pred_result = {'yhat': list(pred)}

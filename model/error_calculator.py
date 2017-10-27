@@ -173,6 +173,16 @@ def monthly_moving_average_error_calc(data, monthly_window):
     data_pred['rolling_4month_percent_error'] = data_pred['rolling_4month_error'] / data_pred[
         'rolling_4month_y'] * 100
 
+    data_pred['rolling_6month_error'] = pd.rolling_sum(data_pred['Error'], window=6, min_periods=6)
+    data_pred['rolling_6month_y'] = pd.rolling_sum(data_pred['y'], window=6, min_periods=6)
+    data_pred['rolling_6month_percent_error'] = data_pred['rolling_6month_error'] / data_pred[
+        'rolling_6month_y'] * 100
+
+    data_pred['rolling_12month_error'] = pd.rolling_sum(data_pred['Error'], window=12, min_periods=12)
+    data_pred['rolling_12month_y'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
+    data_pred['rolling_12month_percent_error'] = data_pred['rolling_12month_error'] / data_pred[
+        'rolling_12month_y'] * 100
+
     rmse = rmse_calculator(y_forecasted= data_pred.rolling_mean,y_truth= data_pred.y)
 
     mape = mape_calculator(y_forecasted= data_pred.rolling_mean, y_truth=data_pred.y)
