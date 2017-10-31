@@ -36,7 +36,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    test_data_monthly_model.cache()
+    # test_data_monthly_model.cache()
 
     #############################________________PROPHET__________################################
 

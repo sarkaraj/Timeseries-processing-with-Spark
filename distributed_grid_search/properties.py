@@ -20,7 +20,7 @@ D_max=1
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
-# OPTIONS:::'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_med_12', 'wre_max_12', 'cum_error'
+# OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
 SARIMAX_W_MODEL_SELECTION_CRITERIA = 'wre_med_12'
 
 #################
@@ -36,7 +36,7 @@ PROPH_W_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT = 1  # # Point is INCLUSIVE
 PROPH_W_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT = 6  # # Point is EXCLUSIVE
 PROPH_W_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 1
 
-# OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_med_12', 'wre_max_12', 'cum_error'
+# OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
 PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_med_12'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
@@ -54,7 +54,7 @@ PROPH_M_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT = 1  # # Point is INCLUSIVE
 PROPH_M_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT = 4  # # Point is EXCLUSIVE
 PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 1
 
-# OPTIONS::: 'rmse', 'mape', 'mre_med_3', 'mre_max_3', 'mre_med_4', 'mre_max_4', 'cum_error'
+# OPTIONS::: 'rmse', 'mape', 'mre_med_3', 'mre_max_3', 'mre_mean_3', 'mre_med_4', 'mre_max_4', 'mre_mean_4', 'cum_error'
 PROPH_M_MODEL_SELECTION_CRITERIA = 'mre_med_4'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################

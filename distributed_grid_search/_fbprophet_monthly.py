@@ -113,14 +113,16 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                    np.nanmedian(np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
+                   np.nanmean(np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
                    np.nanmedian(np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
+                   np.nanmean(np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
                    output_result['Error_Cumsum_prophet'].iloc[-1],
                    output_result['cumsum_quantity'].iloc[-1],
                    ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
-            columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
-                     'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
+            columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3', 'mre_mean_3',
+                     'mre_med_4', 'mre_max_4', 'mre_mean_4', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get(PROPH_M_MODEL_SELECTION_CRITERIA)
@@ -202,14 +204,16 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
                    np.nanmedian(np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
+                   np.nanmean(np.absolute(np.array(output_result.rolling_3month_percent_error_prophet))),
                    np.nanmedian(np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
                    np.nanmax(
                        np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
+                   np.nanmean(np.absolute(np.array(output_result.rolling_4month_percent_error_prophet))),
                    output_result['Error_Cumsum_prophet'].iloc[-1],
                    output_result['cumsum_quantity'].iloc[-1],
                    ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
-            columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3',
-                     'mre_med_4', 'mre_max_4', 'cum_error', 'cum_quantity', 'period_days'])
+            columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mre_med_3', 'mre_max_3', 'mre_mean_3',
+                     'mre_med_4', 'mre_max_4', 'mre_mean_4', 'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get(PROPH_M_MODEL_SELECTION_CRITERIA)
