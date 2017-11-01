@@ -2,11 +2,12 @@ from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, ca
 
 # from data_fetch.properties import MODEL_BLD_CURRENT_DATE
 
-# _model_bld_date_string = ['2017-09-03', '2017-09-10', '2017-09-17','2017-09-24', '2017-10-01', '2017-10-08', '2017-10-15', '2017-10-22']
-_model_bld_date_string = ['2017-09-03', '2017-10-01']
+_model_bld_date_string = ['2017-09-03', '2017-09-10', '2017-09-17', '2017-09-24', '2017-10-01', '2017-10-08',
+                          '2017-10-15', '2017-10-22']
+# _model_bld_date_string = ['2017-09-03', '2017-10-01']
 
 # weekly_dates = {'2017-09-03': True, '2017-09-10': True, '2017-09-17': True,'2017-09-24': True, '2017-10-01': True, '2017-10-08': True, '2017-10-15': True, '2017-10-22': True}
-#
+
 monthly_dates = {'2017-09-03': True, '2017-10-01': True}
 
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"

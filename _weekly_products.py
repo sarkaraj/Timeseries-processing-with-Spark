@@ -37,6 +37,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('I', 'II', 'III', 'VII'))
 
+    # # Caching Data for current run
     test_data_weekly_models.cache()
 
     #############################________________(ARIMA + PROPHET)__________#####################################
@@ -93,6 +94,9 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
+
+    # # Clearing cache before the next run
+    sqlContext.clearCache()
 
     print("************************************************************************************")
 

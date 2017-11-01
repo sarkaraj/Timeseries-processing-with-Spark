@@ -36,7 +36,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    # test_data_monthly_model.cache()
+    # # Caching Data for this run
+    test_data_monthly_model.cache()
 
     #############################________________PROPHET__________################################
 
@@ -78,6 +79,9 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .format('orc') \
         .option("header", "false") \
         .save(monthly_pdt_cat_8910_location)
+
+    # # Clearing cache
+    sqlContext.clearCache()
 
     print("************************************************************************************")
 
