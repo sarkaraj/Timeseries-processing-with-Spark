@@ -134,11 +134,13 @@ def weekly_moving_average_error_calc(data, weekly_window):
     data_pred['rolling_6week_y'] = pd.rolling_sum(data_pred['y'], window=6, min_periods=6)
     data_pred['rolling_6week_percent_error'] = data_pred['rolling_6week_error'] / data_pred[
         'rolling_6week_y'] * 100
+    data_pred['rolling_6week_quantity'] = pd.rolling_sum(data_pred['y'], window=6, min_periods=6)
 
     data_pred['rolling_12week_error'] = pd.rolling_sum(data_pred['Error'], window=12, min_periods=12)
     data_pred['rolling_12week_y'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
     data_pred['rolling_12week_percent_error'] = data_pred['rolling_12week_error'] / data_pred[
         'rolling_12week_y'] * 100
+    data_pred['rolling_12week_quantity'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
 
     rmse = rmse_calculator(y_forecasted= data_pred.rolling_mean,y_truth= data_pred.y)
 
@@ -167,21 +169,25 @@ def monthly_moving_average_error_calc(data, monthly_window):
     data_pred['rolling_3month_y'] = pd.rolling_sum(data_pred['y'], window=3, min_periods=3)
     data_pred['rolling_3month_percent_error'] = data_pred['rolling_3month_error'] / data_pred[
         'rolling_3month_y'] * 100
+    data_pred['rolling_3month_quantity'] = pd.rolling_sum(data_pred['y'], window=3, min_periods=3)
 
     data_pred['rolling_4month_error'] = pd.rolling_sum(data_pred['Error'], window=4, min_periods=4)
     data_pred['rolling_4month_y'] = pd.rolling_sum(data_pred['y'], window=4, min_periods=4)
     data_pred['rolling_4month_percent_error'] = data_pred['rolling_4month_error'] / data_pred[
         'rolling_4month_y'] * 100
+    data_pred['rolling_4month_quantity'] = pd.rolling_sum(data_pred['y'], window=4, min_periods=4)
 
     data_pred['rolling_6month_error'] = pd.rolling_sum(data_pred['Error'], window=6, min_periods=6)
     data_pred['rolling_6month_y'] = pd.rolling_sum(data_pred['y'], window=6, min_periods=6)
     data_pred['rolling_6month_percent_error'] = data_pred['rolling_6month_error'] / data_pred[
         'rolling_6month_y'] * 100
+    data_pred['rolling_6month_quantity'] = pd.rolling_sum(data_pred['y'], window=6, min_periods=6)
 
     data_pred['rolling_12month_error'] = pd.rolling_sum(data_pred['Error'], window=12, min_periods=12)
     data_pred['rolling_12month_y'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
     data_pred['rolling_12month_percent_error'] = data_pred['rolling_12month_error'] / data_pred[
         'rolling_12month_y'] * 100
+    data_pred['rolling_12month_quantity'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
 
     rmse = rmse_calculator(y_forecasted= data_pred.rolling_mean,y_truth= data_pred.y)
 

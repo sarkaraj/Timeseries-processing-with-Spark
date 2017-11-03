@@ -120,17 +120,23 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                                np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
                                            np.nanmean(
                                                np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
+                                           np.nanmean(
+                                               np.absolute(np.array(output_result.rolling_6week_quantity))),
                                            np.nanmedian(
                                                np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
                                            np.nanmax(
                                                np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
                                            np.nanmean(
                                                np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
+                                           np.nanmean(
+                                               np.absolute(np.array(output_result.rolling_12week_quantity))),
                                            output_result['Error_Cumsum_arima'].iloc[-1],
                                            output_result['cumsum_quantity'].iloc[-1],
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6',
-                                             'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error', 'cum_quantity',
+                                    columns=['cus_no', 'mat_no', 'rmse', 'mape',
+                                             'wre_med_6', 'wre_max_6', 'wre_mean_6','quantity_mean_6',
+                                             'wre_med_12', 'wre_max_12', 'wre_mean_12','quantity_mean_12',
+                                             'cum_error', 'cum_quantity',
                                              'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
