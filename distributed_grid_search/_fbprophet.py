@@ -223,7 +223,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
                    ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
             columns=['cus_no', 'mat_no', 'rmse', 'mape',
                      'wre_med_6', 'wre_max_6', 'wre_mean_6', 'quantity_mean_6',
-                     'wre_med_12', 'wre_max_12', 'wre_mean_12', 'quantity_mean_6',
+                     'wre_med_12', 'wre_max_12', 'wre_mean_12', 'quantity_mean_12',
                      'cum_error', 'cum_quantity', 'period_days'])
 
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
