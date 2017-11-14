@@ -80,8 +80,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .option("header", "false") \
         .save(monthly_pdt_cat_8910_location)
 
-    # # Clearing cache
-    sqlContext.clearCache()
+    # # # Clearing cache
+    # sqlContext.clearCache()
 
     print("************************************************************************************")
 

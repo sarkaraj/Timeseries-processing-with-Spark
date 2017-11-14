@@ -45,5 +45,8 @@ for _model_bld_date_string in p._model_bld_date_string:
         build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
         print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
+    # # Clearing cache before the next run
+    sqlContext.clearCache()
+
 # Force Stopping SparkContext
 sc.stop()
