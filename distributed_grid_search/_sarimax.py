@@ -154,4 +154,5 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         return "MODEL_NOT_VALID"
     except np.linalg.linalg.LinAlgError:
         return "MODEL_NOT_VALID"
-
+    except IndexError:
+        return "MODEL_NOT_VALID"

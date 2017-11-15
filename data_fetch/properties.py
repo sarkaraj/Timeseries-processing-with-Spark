@@ -36,7 +36,7 @@ join
 (
 select kunnr customernumber
 from mdm.customer
-where katr6='3' and regio in ('TN', 'FL')
+where katr6='3' and regio='FL'
 limit 100
 ) c
 on
