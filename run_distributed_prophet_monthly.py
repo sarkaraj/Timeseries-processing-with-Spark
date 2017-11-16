@@ -23,6 +23,7 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
         dist_grid_search_merge_combiner
 
     from distributed_grid_search._fbprophet_monthly import run_prophet_monthly
+    from properties import REPARTITION_STAGE_1, REPARTITION_STAGE_2
 
     # ###################
 
@@ -37,16 +38,17 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
 
     # # Parallelizing Jobs
     prophet_results_rdd = test_data_parallel \
+        .repartition(REPARTITION_STAGE_1) \
         .map(lambda x: run_prophet_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3],
                                            min_train_days=x[4].min_train_days, pdt_cat=x[4].get_product_prop())) \
-        .filter(lambda x: x != "MODEL_NOT_VALID") \
-        .repartition(60)
+        .filter(lambda x: x != "MODEL_NOT_VALID")
+    # .repartition(REPARTITION_STAGE_1)
 
     opt_prophet_results_rdd = prophet_results_rdd \
         .combineByKey(dist_grid_search_create_combiner,
                       dist_grid_search_merge_value,
                       dist_grid_search_merge_combiner,
-                      numPartitions=30)
+                      numPartitions=REPARTITION_STAGE_2)
 
     opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 

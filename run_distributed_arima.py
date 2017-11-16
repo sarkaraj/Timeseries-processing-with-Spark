@@ -5,6 +5,7 @@ from distributed_grid_search._model_params_set import generate_models_sarimax
 from transform_data.rdd_to_df import map_for_output_arima, arima_output_schema
 from support_func import dist_grid_search_create_combiner, dist_grid_search_merge_value, dist_grid_search_merge_combiner
 from distributed_grid_search._sarimax import sarimax
+from properties import REPARTITION_STAGE_1, REPARTITION_STAGE_2
 
 
 # conf = SparkConf().setAppName("test_cona_distributed_arima").setMaster("yarn-client")
@@ -87,17 +88,18 @@ def _run_dist_arima(test_data, sqlContext, **kwargs):
     # cus_no, mat_no, pdq, seasonal_pdq, prod
     # print "Running all models:"
     arima_results_rdd = test_data_parallel \
+        .repartition(REPARTITION_STAGE_1) \
         .map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4],
                                min_train_days=x[5].min_train_days, pdt_cat=x[5].get_product_prop())) \
-        .filter(lambda x: x != "MODEL_NOT_VALID") \
-        .repartition(60)
+        .filter(lambda x: x != "MODEL_NOT_VALID")
+    # .repartition(REPARTITION_STAGE_1)
 
     # prophet_results_rdd is receiving ((cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_cat))
 
     opt_arima_results_rdd = arima_results_rdd.combineByKey(dist_grid_search_create_combiner,
                                                            dist_grid_search_merge_value,
                                                            dist_grid_search_merge_combiner,
-                                                           numPartitions=20)
+                                                           numPartitions=REPARTITION_STAGE_2)
 
     opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima(line))
 

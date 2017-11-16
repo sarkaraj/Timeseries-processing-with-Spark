@@ -18,7 +18,22 @@ def generate_all_param_combo_sarimax():
 
     seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
 
-    all_combo = list(itertools.product(pdq, seasonal_pdq))
+    # all_combo = list(itertools.product(pdq, seasonal_pdq))
+
+    all_combo = [((0, 1, 1), (0, 1, 0, 52)),
+                 ((0, 0, 1), (1, 1, 0, 52)),
+                 ((1, 0, 0), (1, 0, 0, 52)),
+                 ((1, 0, 0), (0, 1, 0, 52)),
+                 ((1, 1, 1), (0, 1, 0, 52)),
+                 ((1, 0, 1), (0, 0, 0, 52)),
+                 ((1, 1, 1), (1, 0, 0, 52)),
+                 ((1, 0, 0), (0, 0, 0, 52)),
+                 ((1, 1, 1), (0, 0, 0, 52)),
+                 ((0, 1, 1), (0, 0, 0, 52)),
+                 ((1, 1, 0), (0, 1, 0, 52)),
+                 ((0, 1, 0), (1, 0, 0, 52)),
+                 ((1, 1, 0), (0, 0, 0, 52)),
+                 ((1, 1, 0), (1, 0, 0, 52))]
 
     return all_combo
 
@@ -258,7 +273,9 @@ def generate_models_pydlm_monthly(x):
 
 if __name__ == '__main__':
     a = generate_all_param_combo_pydlm_monthly()
-    print (len(a))
+    # print (len(a))
+
+    print (generate_all_param_combo_sarimax())
     # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
     #
     # print param

@@ -67,18 +67,23 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
         # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
         output_result = pd.DataFrame()
 
+        # # Forecast
+        # m_ = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
+        #              changepoint_prior_scale=changepoint_prior_scale,
+        #              seasonality_prior_scale=seasonality_prior_scale)
+
         while (len(test) > 0):
             # prophet
-            m = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
-                        changepoint_prior_scale=changepoint_prior_scale,
-                        seasonality_prior_scale=seasonality_prior_scale)
-            m.fit(train);
+            m_ = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
+                         changepoint_prior_scale=changepoint_prior_scale,
+                         seasonality_prior_scale=seasonality_prior_scale)
+            m_.fit(train);
 
             # creating pred train and test data frame
-            # past = m.make_future_dataframe(periods=0, freq='W')
+            # past = m_.make_future_dataframe(periods=0, freq='W')
             future = pd.DataFrame(test['ds'])
-            # pf_train_pred = m.predict(past)
-            pf_test_pred = m.predict(future)
+            # pf_train_pred = m_.predict(past)
+            pf_test_pred = m_.predict(future)
             # pf_train_pred = pf_train_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([past.index])
             pf_test_pred = pf_test_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([future.index])
 
@@ -163,17 +168,21 @@ def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
         # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
         output_result = pd.DataFrame()
 
+        # # Forecast
+        # m_ = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
+        #              changepoint_prior_scale=changepoint_prior_scale)
+
         while (len(test) > 0):
             # prophet
-            m = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
-                        changepoint_prior_scale=changepoint_prior_scale)
-            m.fit(train);
+            m_ = Prophet(weekly_seasonality=False, yearly_seasonality=yearly_seasonality,
+                         changepoint_prior_scale=changepoint_prior_scale)
+            m_.fit(train);
 
             # creating pred train and test data frame
-            # past = m.make_future_dataframe(periods=0, freq='W')
+            # past = m_.make_future_dataframe(periods=0, freq='W')
             future = pd.DataFrame(test['ds'])
-            # pf_train_pred = m.predict(past)
-            pf_test_pred = m.predict(future)
+            # pf_train_pred = m_.predict(past)
+            pf_test_pred = m_.predict(future)
             # pf_train_pred = pf_train_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([past.index])
             pf_test_pred = pf_test_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([future.index])
 
