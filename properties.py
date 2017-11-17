@@ -1,7 +1,7 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
 
-REPARTITION_STAGE_1 = 90
-REPARTITION_STAGE_2 = 90
+REPARTITION_STAGE_1 = 60
+REPARTITION_STAGE_2 = 60
 
 _model_bld_date_string = ['2017-09-03', '2017-09-10', '2017-09-17', '2017-09-24', '2017-10-01', '2017-10-08',
                           '2017-10-15', '2017-10-22', '2017-10-29', '2017-11-05']

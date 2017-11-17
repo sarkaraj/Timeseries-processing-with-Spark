@@ -95,8 +95,8 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
 
-    # # # Clearing cache before the next run
-    # sqlContext.clearCache()
+    # # Clearing cache before the next run
+    sqlContext.clearCache()
 
     print("************************************************************************************")
 

@@ -37,7 +37,7 @@ join
 select kunnr customernumber
 from mdm.customer
 where katr6='3' and regio='FL'
-limit 100
+limit 3000
 ) c
 on
 b.customernumber = c.customernumber
