@@ -96,7 +96,8 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .save(weekly_pdt_cat_7_location)
 
     # # Clearing cache before the next run
-    sqlContext.clearCache()
+    # sqlContext.clearCache()
+    test_data_weekly_models.unpersist()
 
     print("************************************************************************************")
 

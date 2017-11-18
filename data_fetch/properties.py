@@ -34,10 +34,8 @@ from skuopt.invoices a
 ) b
 join
 (
-select kunnr customernumber
-from mdm.customer
-where katr6='3' and regio='FL'
-limit 3000
+select customernumber
+from customerdata
 ) c
 on
 b.customernumber = c.customernumber

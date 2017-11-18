@@ -81,7 +81,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .save(monthly_pdt_cat_8910_location)
 
     # # Clearing cache
-    sqlContext.clearCache()
+    # sqlContext.clearCache()
+    test_data_monthly_model.unpersist()
 
     print("************************************************************************************")
 

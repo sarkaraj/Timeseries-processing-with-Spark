@@ -1,3 +1,5 @@
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
 from model.weekly_model_ver_1 import weekly_ensm_model
 from transform_data.data_transform import get_weekly_aggregate
 from transform_data.pandas_support_func import *
@@ -113,6 +115,23 @@ def _get_last_day_of_previous_month(_date):
     _first = _date.replace(day=1)
     last_month = _first - datetime.timedelta(days=1)
     return last_month.strftime("%Y-%m-%d")
+
+
+def get_sample_customer_list(sqlContext):
+    from properties import _query, customer_data_location
+
+    customer_sample = sqlContext.sql(_query)
+
+    customer_list = customer_sample.select(col("customernumber"))
+    customer_list.cache()
+
+    customer_list.registerTempTable("customerdata")
+
+    customer_sample.coalesce(1) \
+        .write.mode('overwrite') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(customer_data_location)
 
 
 if __name__ == "__main__":

@@ -18,11 +18,23 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # weekly_pdt_cat_7_location = "/CONA_CSO/weekly_pdt_cat_7"
 # monthly_pdt_cat_456_location = "/CONA_CSO/monthly_pdt_cat_456"
 # monthly_pdt_cat_8910_location = "/CONA_CSO/monthly_pdt_cat_8910"
+# customer_data_location="/CONA_CSO/customer_data"
 
 weekly_pdt_cat_123_location = "/CONA_CSO/model_eda/weekly_pdt_cat_123"
 weekly_pdt_cat_7_location = "/CONA_CSO/model_eda/weekly_pdt_cat_7"
 monthly_pdt_cat_456_location = "/CONA_CSO/model_eda/monthly_pdt_cat_456"
 monthly_pdt_cat_8910_location = "/CONA_CSO/model_eda/monthly_pdt_cat_8910"
+customer_data_location="/CONA_CSO/model_eda/customer_data"
+
+
+
+_query = """
+select kunnr customernumber, name1 name, lot_gc_latitude latitude, lot_gc_longitud longitude
+from mdm.customer
+where katr6='3' and regio='FL'
+limit 3000"""
+
+
 
 
 if __name__ == "__main__":
