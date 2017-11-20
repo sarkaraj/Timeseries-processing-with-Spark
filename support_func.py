@@ -127,11 +127,12 @@ def get_sample_customer_list(sqlContext):
 
     customer_list.registerTempTable("customerdata")
 
-    customer_sample.coalesce(1) \
-        .write.mode('overwrite') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(customer_data_location)
+    # TODO: Uncomment this section
+    # customer_sample.coalesce(1) \
+    #     .write.mode('overwrite') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(customer_data_location)
 
 
 if __name__ == "__main__":
