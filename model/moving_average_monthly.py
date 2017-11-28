@@ -24,8 +24,8 @@ def _get_pred_dict_MA_m(prediction):
     return _final
 
 
-def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
-    # If weekly data is false, monthly data is assumed
+def moving_average_model_monthly(prod, cus_no, mat_no, baseline = False, **kwargs):
+    # min_train_days must be defined for it to be used as baseline****
 
     import pandas as pd
     import numpy as np
@@ -42,6 +42,11 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
         pred_points = kwargs.get('pred_points')
     else:
         pred_points = p_model.pred_points_monthly
+
+    if ('min_train_days' in kwargs.keys()):
+        min_train_days = kwargs.get('min_train_days')
+    else:
+        min_train_days = p_model.min_train_days
 
     # data transform
     prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -93,7 +98,8 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
     # print(final_pred)
 
     # print(pred)
-    (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window =monthly_window)
+    (output_result, rmse, mape) = monthly_moving_average_error_calc(data=prod, monthly_window =monthly_window,
+                                                                    baseline = baseline, min_train_days = min_train_days)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
                                        np.nanmedian(np.absolute(np.array(output_result.rolling_3month_percent_error))),
@@ -124,7 +130,6 @@ def moving_average_model_monthly(prod, cus_no, mat_no, **kwargs):
 
     output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
     # _pred_result = {'yhat': list(pred)}
-
 
     # return cus_no, mat_no, output_error_dict, pred, _pdt_cat
     return cus_no, mat_no, output_error_dict, final_pred, _pdt_cat
