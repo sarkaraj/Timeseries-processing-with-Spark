@@ -16,7 +16,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
     else:
-        _model_bld_date_string = p._model_bld_date_string
+        _model_bld_date_string = p._model_bld_date_string_list
 
     ####################################################################################################################
     # # Defining the date variables
@@ -68,7 +68,6 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print "Writing the WEEKLY_MODELS (ARIMA + PROPHET) data into HDFS"
     prophet_arima_join_df_final \
-        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
@@ -89,12 +88,12 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print "Writing the MA WEEKLY data into HDFS\n"
     ma_weekly_results_df_final \
-        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
 
+    ####################################################################################################################
     # # Clearing cache before the next run
     # sqlContext.clearCache()
     test_data_weekly_models.unpersist()
@@ -126,5 +125,5 @@ if __name__ == "__main__":
 
     sys.path.insert(0, "jobs.zip")
 
-    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=p._model_bld_date_string)
+    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=p._model_bld_date_string_list)
     print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

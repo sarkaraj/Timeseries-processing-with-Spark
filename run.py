@@ -1,6 +1,6 @@
 from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext
-from support_func import get_current_date, get_sample_customer_list
+from support_func import get_current_date, get_sample_customer_list, obtain_mdl_bld_dt
 from properties import MODEL_BUILDING
 from _weekly_products import build_prediction_weekly
 import properties as p
@@ -19,6 +19,12 @@ sqlContext = HiveContext(sparkContext=sc)
 
 import time
 
+# # # Total Number of executors for the current run
+# total_execs = int(sc._jsc.sc().getExecutorMemoryStatus().size())
+
+# # # model building date to be obtained as external argument
+# mdl_bld_date_string = obtain_mdl_bld_dt()
+
 
 print "Setting LOG LEVEL as ERROR"
 sc.setLogLevel("ERROR")
@@ -27,11 +33,12 @@ print "Adding jobs.zip to system path"
 import sys
 sys.path.insert(0, "jobs.zip")
 
+mdl_bld_date_string = ["".join(sys.argv[1])]
+
 print "Importing Sample Customer List"
 get_sample_customer_list(sqlContext=sqlContext)
 
-
-for _model_bld_date_string in p._model_bld_date_string:
+for _model_bld_date_string in mdl_bld_date_string:
     print("************************************************************************************")
     print (_model_bld_date_string)
     print("************************************************************************************\n")

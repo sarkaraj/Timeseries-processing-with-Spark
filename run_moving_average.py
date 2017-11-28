@@ -3,6 +3,7 @@ from model.moving_average_monthly import moving_average_model_monthly
 from transform_data.pandas_support_func import get_pd_df
 from transform_data.rdd_to_df import MA_output_schema, map_for_output_MA_monthly, map_for_output_MA_weekly
 from transform_data.data_transform import get_weekly_aggregate
+from properties import REPARTITION_STAGE_1
 
 
 def _moving_average_row_to_rdd_map(line, **kwargs):
@@ -41,6 +42,7 @@ def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
         .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
+        .repartition(REPARTITION_STAGE_1) \
         .map(lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
                                                    weekly_window=x[3].get_window()))
 
@@ -59,6 +61,7 @@ def _run_moving_average_monthly(test_data, sqlContext, **kwargs):
         .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_monthly_results_rdd = test_data_input \
+        .repartition(REPARTITION_STAGE_1) \
         .map(
         lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
                                                monthly_window=x[3].get_window()))

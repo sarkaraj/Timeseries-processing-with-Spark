@@ -14,13 +14,13 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
     else:
-        _model_bld_date_string = p._model_bld_date_string
+        _model_bld_date_string = p._model_bld_date_string_list
 
     ####################################################################################################################
     # # Defining the date variables
 
     month_cutoff_date = _get_last_day_of_previous_month(string_to_gregorian(
-        _model_bld_date_string))  # # returns the last day of previous month for given "_model_bld_date_string"
+        _model_bld_date_string))  # # returns the last day of previous month for given "_model_bld_date_string_list"
 
     MODEL_BLD_CURRENT_DATE = string_to_gregorian(month_cutoff_date)  # # is of datetime.date type
 
@@ -53,7 +53,6 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Writing the MONTHLY MODEL data into HDFS"
     prophet_monthly_results_final \
-        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
@@ -74,7 +73,6 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Writing the MA MONTHLY data into HDFS\n"
     ma_monthly_results_df_final \
-        .coalesce(1) \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
@@ -111,6 +109,6 @@ if __name__ == "__main__":
 
     sys.path.insert(0, "jobs.zip")
 
-    for _model_bld_date_string in p._model_bld_date_string:
+    for _model_bld_date_string in p._model_bld_date_string_list:
         build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
         print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))

@@ -135,6 +135,23 @@ def get_sample_customer_list(sqlContext):
     #     .save(customer_data_location)
 
 
+def obtain_mdl_bld_dt():
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--mdl_bld_date_string", help="Model Build Date as Str in yyyy-MM-dd format")
+    args = parser.parse_args()
+    try:
+        if args.mdl_bld_date_string:
+            mdl_bld_date_string = list(args.mdl_bld_date_string)
+            return mdl_bld_date_string
+    except AttributeError:
+        print "No valid model build date has been passed as argument.\n Using Model Build Date from properties.py file."
+        mdl_bld_date_string = p._model_bld_date_string_list
+        print "\n\n"
+        return mdl_bld_date_string
+
+
 if __name__ == "__main__":
     import datetime as dt
 
