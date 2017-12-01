@@ -68,7 +68,7 @@ def dist_grid_search_merge_combiner(_comb_a, _comb_b):
 
 
 def assign_category(row_object):
-    if (row_object.pdt_freq_annual >= 60 and row_object.pdt_freq_annual < float('inf')):
+    if (row_object.pdt_freq_annual >= 48 and row_object.pdt_freq_annual < float('inf')):
         if (
                             row_object.time_gap_days > p.cat_1.time_gap_days_lower and row_object.time_gap_days < p.cat_1.time_gap_days_upper and row_object.time_gap_years >= p.cat_1.time_gap_years):
             return row_object, p.cat_1
@@ -81,7 +81,7 @@ def assign_category(row_object):
         elif (
                         row_object.time_gap_days > p.cat_7.time_gap_days_lower and row_object.time_gap_days <= p.cat_7.time_gap_days_upper):
             return row_object, p.cat_7
-    elif (row_object.pdt_freq_annual >= 20 and row_object.pdt_freq_annual < 60):
+    elif (row_object.pdt_freq_annual >= 20 and row_object.pdt_freq_annual < 48):
         if (
                             row_object.time_gap_days > p.cat_4.time_gap_days_lower and row_object.time_gap_days < p.cat_4.time_gap_days_upper and row_object.time_gap_years >= p.cat_4.time_gap_years):
             return row_object, p.cat_4
