@@ -1,13 +1,13 @@
-from transform_data.data_transform import *
-from model.ma_outlier import *
+# from transform_data.data_transform import *
+# from model.ma_outlier import *
 from model.weekly_model import *
-# from model.monthly_pydlm import *
-# from model.moving_average import *
-from distributed_grid_search._model_params_set import *
-from distributed_grid_search._pydlm_monthly import *
-# from distributed_grid_search._fbprophet import *
-from distributed_grid_search._pydlm_monthly import *
-# from model.moving_average_monthly import *
+# # from model.monthly_pydlm import *
+# # from model.moving_average import *
+# from distributed_grid_search._model_params_set import *
+# from distributed_grid_search._pydlm_monthly import *
+# # from distributed_grid_search._fbprophet import *
+# from distributed_grid_search._pydlm_monthly import *
+# # from model.moving_average_monthly import *
 from model.monthly_model import *
 
 # loading libs
@@ -25,7 +25,7 @@ rcParams['figure.figsize'] = 15, 6
 file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\generate_all_param_combo_prophet"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\weekly_ensm\\fl_param_test"
 
 # holidays
 holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
@@ -34,7 +34,7 @@ holidays.lower_window = -7
 holidays.upper_window = 7
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "25_C005_greater_than_60.tsv", sep="\t", header=None,
+raw_data = pd.read_csv(file_dir + "invoice_data_raw_cat_123_FL_100_cutoff_dt_10-11-2017.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 data_weekly = get_weekly_aggregate(inputDF=raw_data)
 data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
@@ -45,11 +45,19 @@ data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 # print data_monthly.head()
 
 # single prod data
-cus_no = str(500064458)
-mat_no = 103029
+cus_no = str(500149685)
+mat_no = 115583
 cus = data_weekly[data_weekly.customernumber == cus_no]
 
 prod = cus[cus.matnr == mat_no]
+
+print(prod.head())
+
+# def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, holidays=get_holidays_dataframe_pd(),
+#                       **kwargs)
+output = weekly_ensm_model(prod=prod, cus_no=cus_no,mat_no=mat_no, holidays= holidays,dir_name= image_dir)
+
+print(output)
 
 # print(data_weekly.head())
 
@@ -76,8 +84,8 @@ prod = cus[cus.matnr == mat_no]
 
 # run weekly model
 
-output = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no,
-                           test_points=1)
+# output = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no,
+#                            test_points=1)
 
 
 
