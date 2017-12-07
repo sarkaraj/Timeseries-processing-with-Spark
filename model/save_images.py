@@ -7,7 +7,7 @@ rcParams['figure.figsize'] = 15, 6
 # 2d Image saver function
 def one_dim_save_plot(x, y, xlable, ylable, title, dir_name, cus_no, mat_no):
     fig = plt.figure()
-    plt.plot(x, y)
+    plt.plot(x, y, marker = "*", markerfacecolor = "red", markeredgecolor = "red", markersize=3.0)
     plt.title(title)
     plt.xlabel(xlable)
     plt.ylabel(ylable)
