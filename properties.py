@@ -1,5 +1,12 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
 
+annual_freq_cut_MAX = 'inf'
+annual_freq_cut_MIN = 0.0
+
+annual_freq_cut_1 = 48.0
+annual_freq_cut_2 = 20.0
+annual_freq_cut_3 = 12.0
+
 # from run import total_execs
 
 REPARTITION_STAGE_1 = 60
@@ -15,7 +22,7 @@ _model_bld_date_string_list = ['2017-10-01']
 
 # weekly_dates = {'2017-09-03': True, '2017-09-10': True, '2017-09-17': True,'2017-09-24': True, '2017-10-01': True, '2017-10-08': True, '2017-10-15': True, '2017-10-22': True}
 
-monthly_dates = {'2017-09-03': True, '2017-10-01': True, '2017-11-05': True}
+monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '2017-11-05': True}
 
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
