@@ -9,6 +9,7 @@ from model.weekly_model import *
 # from distributed_grid_search._pydlm_monthly import *
 # # from model.moving_average_monthly import *
 from model.monthly_model import *
+from model.plt_data import *
 
 # loading libs
 import pandas as pd
@@ -25,7 +26,7 @@ rcParams['figure.figsize'] = 15, 6
 file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\weekly_ensm\\fl_param_test"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\just_images\\"
 
 # holidays
 holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
@@ -34,9 +35,14 @@ holidays.lower_window = -7
 holidays.upper_window = 7
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "invoice_data_raw_cat_123_FL_100_cutoff_dt_10-11-2017.tsv", sep="\t", header=None,
+raw_data = pd.read_csv(file_dir + "raw_invoice_data_sample_FL_200_cutoff_date_05-11-2017.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
-data_weekly = get_weekly_aggregate(inputDF=raw_data)
+cus_no = 500128741
+mat_no = 103029
+cus = raw_data[raw_data.customernumber == cus_no]
+
+prod = cus[cus.matnr == mat_no]
+data_weekly = get_weekly_aggregate(inputDF=prod)
 data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 # data_weekly.head()
 
@@ -45,19 +51,36 @@ data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 # print data_monthly.head()
 
 # single prod data
-cus_no = str(500149685)
-mat_no = 115583
-cus = data_weekly[data_weekly.customernumber == cus_no]
+# cus_no = 500141055
+# mat_no = 103029
+# cus = raw_data[raw_data.customernumber == cus_no]
+#
+# prod = cus[cus.matnr == mat_no]
 
-prod = cus[cus.matnr == mat_no]
+prod.date = prod.date.apply(str).apply(parser.parse)
+prod.y = prod.quantity.apply(float)
+prod = prod.sort_values('date')
+prod = prod.reset_index(drop=True)
+plot_raw_data(data=prod, dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
 
-print(prod.head())
+
+prod = data_weekly
+
+prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+
+plot_weekly_data(data=prod, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+
+monthly_data = get_monthly_aggregate_per_product(prod)
+
+plot_monthly_data(data=monthly_data, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+
+# print(prod.head())
 
 # def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, holidays=get_holidays_dataframe_pd(),
 #                       **kwargs)
-output = weekly_ensm_model(prod=prod, cus_no=cus_no,mat_no=mat_no, holidays= holidays,dir_name= image_dir)
-
-print(output)
+# output = weekly_ensm_model(prod=prod, cus_no=cus_no,mat_no=mat_no, holidays= holidays,dir_name= image_dir)
+#
+# print(output)
 
 # print(data_weekly.head())
 
