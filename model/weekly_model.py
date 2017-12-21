@@ -130,8 +130,10 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
         # print(pred_test.predicted_mean)
 
         # prophet
-        m = Prophet(weekly_seasonality=False,yearly_seasonality= True,holidays= holidays,
-                    seasonality_prior_scale= 0.5, changepoint_prior_scale= 5)
+        # m = Prophet(weekly_seasonality=False,yearly_seasonality= True,holidays= holidays,
+        #             seasonality_prior_scale= 0.5, changepoint_prior_scale= 5)
+        m = Prophet(weekly_seasonality=False, yearly_seasonality=False,
+                   changepoint_prior_scale=5)
         m.fit(train);
 
         # creating pred train and test data frame

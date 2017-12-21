@@ -27,11 +27,17 @@ monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '20
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
 
-weekly_pdt_cat_123_location = "/CONA_CSO/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = "/CONA_CSO/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = "/CONA_CSO/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = "/CONA_CSO/monthly_pdt_cat_8910"
-customer_data_location="/CONA_CSO/customer_data"
+weekly_pdt_cat_123_location = "/CONA_CSO/CCBF/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = "/CONA_CSO/CCBF/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = "/CONA_CSO/CCBF/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = "/CONA_CSO/CCBF/monthly_pdt_cat_8910"
+customer_data_location= "/CONA_CSO/CCBF/customer_data"
+
+# weekly_pdt_cat_123_location = "/CONA_CSO/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = "/CONA_CSO/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = "/CONA_CSO/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = "/CONA_CSO/monthly_pdt_cat_8910"
+# customer_data_location="/CONA_CSO/customer_data"
 
 # weekly_pdt_cat_123_location = "/CONA_CSO/model_eda/weekly_pdt_cat_123"
 # weekly_pdt_cat_7_location = "/CONA_CSO/model_eda/weekly_pdt_cat_7"
