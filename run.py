@@ -22,9 +22,6 @@ import time
 # # # Total Number of executors for the current run
 # total_execs = int(sc._jsc.sc().getExecutorMemoryStatus().size())
 
-# # # model building date to be obtained as external argument
-# mdl_bld_date_string = obtain_mdl_bld_dt()
-
 
 print "Setting LOG LEVEL as ERROR"
 sc.setLogLevel("ERROR")
@@ -33,6 +30,7 @@ print "Adding jobs.zip to system path"
 import sys
 sys.path.insert(0, "jobs.zip")
 
+# mdl_bld_date_string --> model build date string taken as an argument as an external parameter from the command line
 mdl_bld_date_string = ["".join(sys.argv[1])]
 
 print "Importing Sample Customer List"

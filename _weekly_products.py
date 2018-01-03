@@ -13,6 +13,16 @@ from transform_data.data_transform import string_to_gregorian
 
 
 def build_prediction_weekly(sc, sqlContext, **kwargs):
+    """
+    Run weekly prediction for given model build date.
+    :param sc: SparkContext
+    :param sqlContext: SQLContext
+    :param kwargs: Additional argument: '_model_bld_date_string' --> Model Build Date String. Usually expected to be Sundays
+    :return: None
+    """
+
+    # If _model_bld_date_string is not passed as an argument, then it is taken up from the properties file
+    # It is recommended to pass it as an argument
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
     else:
@@ -21,6 +31,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ####################################################################################################################
     # # Defining the date variables
 
+    # week_cutoff_date --> cutoff date for weekly
     week_cutoff_date = _model_bld_date_string  # # is a string
     MODEL_BLD_CURRENT_DATE = string_to_gregorian(week_cutoff_date)  # # is of datetime.date type
 
@@ -31,6 +42,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     #############################________________DATA_ACQUISITION__________#####################################
 
+    # # Obtain data from hive table and assign and segregate for the weekly categories
     print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
     test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
         .map(lambda x: assign_category(x)) \

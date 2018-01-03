@@ -119,6 +119,12 @@ def _get_last_day_of_previous_month(_date):
 
 
 def get_sample_customer_list(sqlContext):
+    """
+    Get custom sample of customer list. If custom customer list required change '_query' in properties file.
+    Sample customer set is made into a SparkTempTable. Customer list is (over)-written at 'customer_data_location'.
+    :param sqlContext: SQLContext for accessing Hive table
+    :return: None
+    """
     from properties import _query, customer_data_location
 
     customer_sample = sqlContext.sql(_query)
