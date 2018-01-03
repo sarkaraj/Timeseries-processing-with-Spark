@@ -1,11 +1,9 @@
 # Data-Fetch Module
 
-###### Usage
-------
+#### Usage
 Retrieve data from Hive tables.
 
-###### Module Structure
-------
+#### Module Structure
 1. ``__init__`` : 
 2. ``data_query`` : 
 3. ``properties`` :
