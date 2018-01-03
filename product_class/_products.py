@@ -8,6 +8,7 @@ class product_cat_1(object):
         self.time_gap_years = 2.0
         self.min_train_days = 731
         self.category = 'I'
+        self.baseline_ma_window = 6
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
@@ -23,6 +24,7 @@ class product_cat_2(object):
         self.time_gap_years = 1.5
         self.min_train_days = int(365 * 1.5)
         self.category = 'II'
+        self.baseline_ma_window = 6
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
@@ -38,6 +40,7 @@ class product_cat_3(object):
         self.time_gap_years = 1.0
         self.min_train_days = 365
         self.category = 'III'
+        self.baseline_ma_window = 6
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
@@ -53,6 +56,7 @@ class product_cat_4(object):
         self.time_gap_years = 2.0
         self.min_train_days = 731
         self.category = 'IV'
+        self.baseline_ma_window = 3
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
@@ -68,6 +72,7 @@ class product_cat_5(object):
         self.time_gap_years = 1.5
         self.min_train_days = int(365 * 1.5)
         self.category = 'V'
+        self.baseline_ma_window = 3
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
@@ -83,6 +88,7 @@ class product_cat_6(object):
         self.time_gap_years = 1.0
         self.min_train_days = 365
         self.category = 'VI'
+        self.baseline_ma_window = 3
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
