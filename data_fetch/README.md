@@ -6,8 +6,9 @@ Retrieve data from Hive tables.
 #### Module Structure
 1. ``__init__`` : Initiate module
 2. ``data_query`` : Contains functions to get weekly and monthly data with appropriate transformations and filters
-  2.1 ``get_data_weekly``
-
+   *``get_data_weekly``
+   
+   
     Fetch data for weekly categories.
     Filters applied to dataset(s):
         1. 'quantity' greater than 0
@@ -17,7 +18,7 @@ Retrieve data from Hive tables.
     :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
 
     
-  2.2 ``get_data_monthly``
+  *``get_data_monthly``
 
     Fetch data for monthly categories.
     Filters applied to dataset(s):
