@@ -9,6 +9,11 @@ from transform_data.data_transform import gregorian_to_iso
 
 
 def _get_pred_dict_prophet_w(prediction):
+    """
+    Get a dict {(weekNum,year):pred_val} from a pandas dataframe. weekNum
+    :param prediction: Pandas DataFrame of the structure --> |date |prediction |
+    :return: Dictionary {(weekNum,year): pred_val}
+    """
     prediction_df_temp = prediction.set_index('ds', drop=True)
     prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
     pred = prediction_df_temp.to_dict(orient='index')
@@ -19,6 +24,15 @@ def _get_pred_dict_prophet_w(prediction):
 
 
 def run_prophet(cus_no, mat_no, prod, param, **kwargs):
+    """
+    
+    :param cus_no:
+    :param mat_no:
+    :param prod:
+    :param param:
+    :param kwargs:
+    :return:
+    """
     import pandas as pd
     import numpy as np
     from dateutil import parser

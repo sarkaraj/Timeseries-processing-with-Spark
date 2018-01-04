@@ -9,31 +9,32 @@ Retrieve data from Hive tables.
 3. ``properties`` : Parameter file for ``data_query``. Primary data-fetch query for the program should be changed here
 4. ``support_func`` : Utility functions used in ``data_query``
 
+------
 #### Function Documentation
 
   1. ##### data_query
 
         1.``get_data_weekly`` : Fetch data for weekly categories. Filters applied to dataset(s):
-            1. 'quantity' greater than 0
-            2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
+                1. 'quantity' greater than 0
+                2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
        
-            :``param sqlContext``: Spark SQLContext
+            :param sqlContext: Spark SQLContext
         
-            :``param kwargs``: 'week_cutoff_date' : String:: (yyyy-MM-dd)
+            :param kwargs: 'week_cutoff_date' : String:: (yyyy-MM-dd)
         
-            :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
+            :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
      -----
      
         2.``get_data_monthly`` : Fetch data for monthly categories. Filters applied to dataset(s):
-            1. 'quantity' greater than 0
-            2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
+                1. 'quantity' greater than 0
+                2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
     
-            :``param sqlContext``: Spark SQLContext
+            :param sqlContext: Spark SQLContext
         
-            :``param kwargs``: 'month_cutoff_date' : String:: (yyyy-MM-dd)
+            :param kwargs: 'month_cutoff_date' : String:: (yyyy-MM-dd)
         
-            :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
+            :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
   ------
      
@@ -47,17 +48,17 @@ Retrieve data from Hive tables.
   3. ##### support_func
         1.``_get_weekly_mdl_bld_cutoff_date`` : Input should ONLY be Sundays when model building is performed. Used in the initial data query from Hive
         
-            :``param _date``: Date of SUNDAY in datetime.date type
+            :param _date: Date of SUNDAY in datetime.date type
             
-            :``return``: String of Date used for query --> last Saturday to the corresponding Sunday
+            :return: String of Date used for query --> last Saturday to the corresponding Sunday
             
         ------
     
         2.``_get_monthly_mdl_bld_cutoff_date`` : Input should ONLY be Sundays when model building is performed. Used in the initial data query from Hive
         
-            :``param _date``: Date of SUNDAY in datetime.date type
+            :param _date: Date of SUNDAY in datetime.date type
             
-            :``return``: String of Date used for query --> date of the last day of previous month is string format
+            :return: String of Date used for query --> date of the last day of previous month is string format
         
         ------
     
