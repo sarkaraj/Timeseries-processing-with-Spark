@@ -13,27 +13,27 @@ Retrieve data from Hive tables.
 
   1. ##### data_query
 
-     1.``get_data_weekly`` : Fetch data for weekly categories. Filters applied to dataset(s):
-       1. 'quantity' greater than 0
-       2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
+        1.``get_data_weekly`` : Fetch data for weekly categories. Filters applied to dataset(s):
+            1. 'quantity' greater than 0
+            2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
        
-        :``param sqlContext``: Spark SQLContext
+            :``param sqlContext``: Spark SQLContext
         
-        :``param kwargs``: 'week_cutoff_date' : String:: (yyyy-MM-dd)
+            :``param kwargs``: 'week_cutoff_date' : String:: (yyyy-MM-dd)
         
-        :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
+            :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
      -----
      
-     2.``get_data_monthly`` : Fetch data for monthly categories. Filters applied to dataset(s):
-       1. 'quantity' greater than 0
-       2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
+        2.``get_data_monthly`` : Fetch data for monthly categories. Filters applied to dataset(s):
+            1. 'quantity' greater than 0
+            2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
     
-        :``param sqlContext``: Spark SQLContext
+            :``param sqlContext``: Spark SQLContext
         
-        :``param kwargs``: 'month_cutoff_date' : String:: (yyyy-MM-dd)
+            :``param kwargs``: 'month_cutoff_date' : String:: (yyyy-MM-dd)
         
-        :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
+            :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
   ------
      
