@@ -22,7 +22,7 @@ Retrieve data from Hive tables.
        
             :param sqlContext: Spark SQLContext
         
-            :param kwargs: 'week_cutoff_date' : String:: (yyyy-MM-dd)
+            :param kwargs: 'week_cutoff_date' : String:: ('yyyy-MM-dd')
         
             :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
@@ -36,7 +36,7 @@ Retrieve data from Hive tables.
     
             :param sqlContext: Spark SQLContext
         
-            :param kwargs: 'month_cutoff_date' : String:: (yyyy-MM-dd)
+            :param kwargs: 'month_cutoff_date' : String:: ('yyyy-MM-dd')
         
             :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
