@@ -3,6 +3,15 @@ from support_func import generate_weekly_query, generate_monthly_query
 
 
 def get_data_weekly(sqlContext, **kwargs):
+    """
+    Fetch data for weekly categories.
+    Filters applied to dataset(s):
+        1. 'quantity' greater than 0
+        2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
+    :param sqlContext: Spark SQLContext
+    :param kwargs: 'week_cutoff_date' : String:: (yyyy-MM-dd)
+    :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
+    """
     if 'week_cutoff_date' in kwargs.keys():
         week_cutoff_date = kwargs.get('week_cutoff_date')
         test_query = generate_weekly_query(week_cutoff_date)
@@ -45,6 +54,15 @@ def get_data_weekly(sqlContext, **kwargs):
 
 
 def get_data_monthly(sqlContext, **kwargs):
+    """
+    Fetch data for monthly categories.
+    Filters applied to dataset(s):
+        1. 'quantity' greater than 0
+        2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
+    :param sqlContext: Spark SQLContext
+    :param kwargs: 'month_cutoff_date' : String:: (yyyy-MM-dd)
+    :return: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
+    """
     if 'month_cutoff_date' in kwargs.keys():
         month_cutoff_date = kwargs.get('month_cutoff_date')
         test_query = generate_monthly_query(month_cutoff_date)
@@ -84,3 +102,10 @@ def get_data_monthly(sqlContext, **kwargs):
         # .limit(2)
 
         return test_data
+
+
+if __name__ == "__main__":
+    print (get_data_weekly.__name__)
+    print (get_data_weekly.__doc__)
+    print (get_data_monthly.__name__)
+    print (get_data_monthly.__doc__)
