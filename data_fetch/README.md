@@ -35,9 +35,11 @@ Retrieve data from Hive tables.
         
         :``return``: Spark DataFrame of all filtered groups. Each row is 1 group. Full time-series for each group is zipped in each row.
      
-     ------
+  ------
      
   2. ##### properties
   
-        1. ``_query`` : Primary query for data extraction from Hive tables
+        1.``_query`` : Primary query for data extraction from Hive tables
+        2.``CUSTOMER_LIST`` : Optional parameter to specify a set of customers into the query. There are existing two sets of query. This works only with a specific one. Use it appropriately 
+  ------
         
