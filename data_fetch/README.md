@@ -15,7 +15,9 @@ Retrieve data from Hive tables.
   1. ##### data_query
 
         1.``get_data_weekly`` : Fetch data for weekly categories. Filters applied to dataset(s):
+        
                 1. 'quantity' greater than 0
+                
                 2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
        
             :param sqlContext: Spark SQLContext
@@ -27,7 +29,9 @@ Retrieve data from Hive tables.
      -----
      
         2.``get_data_monthly`` : Fetch data for monthly categories. Filters applied to dataset(s):
+        
                 1. 'quantity' greater than 0
+                
                 2.  Ignore all groups (cust-pdt combo) which has no invoice for the past _latest_product_criteria_days (92 days)
     
             :param sqlContext: Spark SQLContext
