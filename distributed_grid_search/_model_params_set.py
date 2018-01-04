@@ -6,6 +6,10 @@ from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggr
 from properties import *
 
 def generate_all_param_combo_sarimax():
+    """
+    Generate all parameter combinations for SARIMAX - Weekly.
+    :return: Array[Tuple(Tuple, Tuple)]:: Complete parameter set. Structure --> [((p,d,q), (P,D,Q)), ...]
+    """
     param_p = xrange(p.p_max + 1)
     param_q = xrange(p.q_max + 1)
     param_d = xrange(p.d_max + 1)
@@ -39,6 +43,13 @@ def generate_all_param_combo_sarimax():
 
 
 def generate_models_sarimax(x, **kwargs):
+    """
+    Generate all the model instances for SARIMAX - Weekly.
+    :param x: Tuple(Spark.Row Object, InstanceOf[product_class.products]):: Tuple of data for 1 cust-prod and product_class object assigned to the same
+    :param kwargs: OPTIONAL
+                    1. 'sep' : Separator used to separate each row element from <Spark.RowObject>.data. Default : '\t'
+    :return: Array[Tuple[customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj]]
+    """
     if 'sep' in kwargs.keys():
         sep = kwargs.get('sep')
     else:
@@ -65,21 +76,8 @@ def generate_models_sarimax(x, **kwargs):
 
 def generate_all_param_combo_prophet():
     """
-    CONDITIONS::::
-    yearly_seasonality = True / False
-    seasonality_prior_scale
-    {0.1, 0.2, _______, 1)
-
-    ###########################
-
-    changepoint_prior_scale
-    {1, 2________, 10}
-
-    ###########################
-
-    Holidays = Holidays / None
-
-    :return:
+    Generate all parameter combinations for PROPHET - Weekly.
+    :return: Array[{String, String}]:: Complete parameter set. Structure --> [{String: String}, ...]
     """
     import numpy as np
 
@@ -103,19 +101,11 @@ def generate_all_param_combo_prophet():
 
     return _result
 
+
 def generate_all_param_combo_prophet_monthly():
     """
-    CONDITIONS::::
-    yearly_seasonality = True / False
-    seasonality_prior_scale
-    {0.1, 0.2, _______, 1)
-
-    ###########################
-
-    changepoint_prior_scale
-    {1, 2________, 10}
-
-    :return:
+    Generate all parameter combinations for PROPHET - Monthly.
+    :return: Array[{String, String}]:: Complete parameter set. Structure --> [{String: String}, ...]
     """
     import numpy as np
 
@@ -138,6 +128,11 @@ def generate_all_param_combo_prophet_monthly():
 
 
 def make_single_dict(a):
+    """
+    Converts an array of dictionaries into a single one.
+    :param a: Array[Dict{elem, elem}]:: Array of dictionaries.
+    :return: Dictonary{elem, elem}:: Combined dictionary
+    """
     b = {}
 
     for i in a:
@@ -147,6 +142,14 @@ def make_single_dict(a):
 
 
 def generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior_scale):
+    """
+    Generate all combinations of parameter set for yearly_seasonality and seasonality_prior_scale for PROPHET
+    :param yearly_seasonality: Array[Boolean]:: Array containing True and/or False
+    :param seasonality_prior_scale: Array[Dict{String, Float}]:: Array containing dictionary of 'seasonality_prior_scale' values
+                                    Structure:
+                                        [{'seasonality_prior_scale': 0.1}, ...]
+    :return: Array[Dict{String, Float/String}]:: Array of all parameter combinations
+    """
     yearly_seasonality_all_combo = []
 
     for i in yearly_seasonality:

@@ -25,7 +25,7 @@ def _get_pred_dict_prophet_w(prediction):
 
 def run_prophet(cus_no, mat_no, prod, param, **kwargs):
     """
-    Execute Prophet given a specific set of parameters.
+    Execute Prophet given a specific set of parameters - WEEKLY run.
     :param cus_no: String:: Customer Number
     :param mat_no: String:: Material Number
     :param prod: Pandas DataFrame:: DataFrame containing the time series data

@@ -8,6 +8,11 @@ from properties import PROPH_M_MODEL_SELECTION_CRITERIA
 
 
 def _get_pred_dict_prophet_m(prediction):
+    """
+    Get a dict {(month,year):pred_val} from a pandas dataframe.
+    :param prediction: Pandas DataFrame:: DataFrame of the structure --> |date |prediction |
+    :return: Dictionary:: {(month,year):pred_val}
+    """
     prediction_df_temp = prediction.set_index('ds', drop=True)
     prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
     pred = prediction_df_temp.to_dict(orient='index')
@@ -17,6 +22,25 @@ def _get_pred_dict_prophet_m(prediction):
 
 
 def run_prophet_monthly(cus_no, mat_no, prod, param, **kwargs):
+    """
+    Execute Prophet given a specific set of parameters - MONTHLY run.
+    :param cus_no: String:: Customer Number
+    :param mat_no: String:: Material Number
+    :param prod: Pandas DataFrame:: DataFrame containing the time series data
+    :param param: Dictionary:: a dictionary containing the complete parameter set for a single Prophet instance
+    :param kwargs:
+                    1. 'min_train_days': Float/Int:: Minimum Training Days
+                    2. 'test_points': Float/Int:: Number of test points for each successive cross-validation loop
+                    3. 'pred_points': Float/Int:: Number of prediction points
+                    4. 'pdt_cat': Dictionary:: All category specific information
+    :return: Tuple:: Tuple of the structure
+                    ((cus_no, mat_no), (_criteria, output_error_dict, _prediction, param, _pdt_cat))
+
+                    1. _criteria: Float/Double:: Selection criteria used to select the best parameter set for a given cust-pdt group
+                    2. output_error_dict: Dictionary{String : Float}:: dictionary containing all the captured errors
+                    3. _prediction: Dictionary{(String, String) : Float}:: dictionary containing the prediction values.
+                                    Structure -->  {(month,year):pred_val}
+    """
     import pandas as pd
     import numpy as np
     from dateutil import parser
