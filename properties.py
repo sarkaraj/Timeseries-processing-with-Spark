@@ -28,7 +28,7 @@ MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
 
 weekly_pdt_cat_123_location_baseline = "/CONA_CSO/CCBF/model_eda/weekly_pdt_cat_123_baseline"
-monthly_pdt_cat_456_location_baseline = "/CONA_CSO/CCBF/model_eda/weekly_pdt_cat_123_baseline"
+monthly_pdt_cat_456_location_baseline = "/CONA_CSO/CCBF/model_eda/monthly_pdt_cat_456_baseline"
 
 weekly_pdt_cat_123_location = "/CONA_CSO/CCBF/model_eda/weekly_pdt_cat_123"
 weekly_pdt_cat_7_location = "/CONA_CSO/CCBF/model_eda/weekly_pdt_cat_7"

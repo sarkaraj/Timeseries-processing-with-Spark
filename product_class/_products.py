@@ -13,6 +13,9 @@ class product_cat_1(object):
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
 
+    def get_window(self):
+        return self.baseline_ma_window
+
 
 # # CATEGORY 2
 class product_cat_2(object):
@@ -28,6 +31,9 @@ class product_cat_2(object):
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
+
+    def get_window(self):
+        return self.baseline_ma_window
 
 
 # # CATEGORY 3
@@ -45,6 +51,9 @@ class product_cat_3(object):
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
 
+    def get_window(self):
+        return self.baseline_ma_window
+
 
 # # CATEGORY 4
 class product_cat_4(object):
@@ -60,6 +69,9 @@ class product_cat_4(object):
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
+
+    def get_window(self):
+        return self.baseline_ma_window
 
 
 # # CATEGORY 5
@@ -77,6 +89,9 @@ class product_cat_5(object):
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
 
+    def get_window(self):
+        return self.baseline_ma_window
+
 
 # # CATEGORY 6
 class product_cat_6(object):
@@ -92,6 +107,9 @@ class product_cat_6(object):
 
     def get_product_prop(self):
         return {key: str(self.__dict__.get(key)) for key in self.__dict__.keys()}
+
+    def get_window(self):
+        return self.baseline_ma_window
 
 
 # # CATEGORY 7

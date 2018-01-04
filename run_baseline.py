@@ -2,9 +2,9 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext
 from support_func import get_current_date, get_sample_customer_list, obtain_mdl_bld_dt
 from properties import MODEL_BUILDING
-from weekly_baseline import build_baseline_prediction_weekly
+from _weekly_baseline import build_baseline_prediction_weekly
 import properties as p
-from monthly_baseline import build_baseline_prediction_monthly
+from _monthly_baseline import build_baseline_prediction_monthly
 
 ####################################################################################################################
 

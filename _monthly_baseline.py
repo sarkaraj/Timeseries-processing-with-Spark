@@ -30,7 +30,7 @@ def build_baseline_prediction_monthly(sc, sqlContext, **kwargs):
 
 
 
-    print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
+    print ("Querying of Hive Table - Obtaining Product Data for Monthly Models")
     test_data_monthly_model = get_data_monthly(sqlContext=sqlContext, month_cutoff_date=month_cutoff_date) \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
@@ -41,9 +41,9 @@ def build_baseline_prediction_monthly(sc, sqlContext, **kwargs):
 
     ############################________________MOVING AVERAGE__________##########################
 
-    print "**************\n**************\n"
+    print ("**************\n**************\n")
 
-    print "Running MONTHLY_MA_MODELS on products\n"
+    print ("Running MONTHLY_MA_MODELS on products\n")
 
     ma_monthly_results_df = _run_baseline_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -52,7 +52,7 @@ def build_baseline_prediction_monthly(sc, sqlContext, **kwargs):
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
         .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
-    print "Writing the MA MONTHLY data into HDFS\n"
+    print ("Writing the MA MONTHLY data into HDFS\n")
     ma_monthly_results_df_final \
         .write.mode('append') \
         .format('orc') \

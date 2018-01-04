@@ -38,13 +38,14 @@ def _run_baseline_moving_average_weekly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category == 'I', 'II', 'III') \
+        .filter(lambda x: x[1].category in ('I', 'II', 'III')) \
         .map(lambda line: _baseline_moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
         .repartition(REPARTITION_STAGE_1) \
         .map(lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
-                                                   weekly_window=x[3].baseline_ma_window(), baseline = True))
+                                                   weekly_window=x[3].get_window(), baseline = True,
+                                                   min_train_days=x[3].min_train_days))
 
     opt_ma_weekly_results_mapped = ma_weekly_results_rdd.map(lambda line: map_for_output_MA_weekly(line))
 
@@ -62,9 +63,9 @@ def _run_baseline_moving_average_monthly(test_data, sqlContext, **kwargs):
 
     ma_monthly_results_rdd = test_data_input \
         .repartition(REPARTITION_STAGE_1) \
-        .map(
-        lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
-                                               monthly_window=x[3].baseline_ma_window(), baseline= True))
+        .map(lambda x: moving_average_model_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
+                                               monthly_window=x[3].get_window(), baseline= True,
+                                                    min_train_days=x[3].min_train_days))
 
     opt_ma_monthly_results_mapped = ma_monthly_results_rdd.map(lambda line: map_for_output_MA_monthly(line))
 
