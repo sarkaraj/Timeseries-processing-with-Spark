@@ -14,6 +14,8 @@ Retrieve data from Hive tables.
   1. ##### data_query
 
      1.``get_data_weekly``
+     
+     
        Fetch data for weekly categories.
        Filters applied to dataset(s):
           1. 'quantity' greater than 0
