@@ -26,7 +26,7 @@ rcParams['figure.figsize'] = 15, 6
 file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\images\\CCBF"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\images\\CCBF\\modeling_result"
 
 # holidays
 holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
@@ -47,6 +47,8 @@ prod = get_weekly_aggregate(inputDF=prod)
 
 result = weekly_ensm_model(prod= prod, cus_no= cus_no, mat_no= mat_no, holidays= holidays,
                            dir_name = image_dir)
+
+print(result)
 
 # for mat_no in cus.matnr.unique():
 #     prod = cus[cus.matnr == mat_no]
