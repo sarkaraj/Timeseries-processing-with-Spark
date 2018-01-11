@@ -62,7 +62,43 @@ def get_pd_df(data_array, customernumber, matnr, **kwargs):
     return data_pd_df_final
 
 
+def convert_string_to_array_of_dict(pred_description):
+    # string_array = prediction['pred_history'][0]
+    pred_description = pred_description[1: len(pred_description) - 1]
+    pred_description = [elem for elem in pred_description.split("\"") if len(elem) > 1]
 
+    b = []
+    for string_list in pred_description:
+        a = {}
+        # print(string_list)
+        for elem in string_list.split(","):
+            # print(elem)
+            key = elem.split(" ")[0]
+            value = elem.split(" ")[1]
+            a[key] = value
+        b.append(a)
+
+    return(b)
+
+def find_dominant_category(data, cus_no, mat_no):
+
+    from collections import Counter
+
+    cus = data[data.customernumber == cus_no]
+    prod = cus[cus.matnr == mat_no]
+    prod = prod.reset_index(drop = True)
+
+    pred_history = []
+    for i in range(len(prod)):
+        [pred_history.append(elem) for elem in prod.pred_description[i]]
+
+    # print(pred_history)
+    cat = []
+    for elem in range(len(pred_history)):
+        cat.append(pred_history[elem]['pdt_cat'])
+
+    most_common, num_most_common = Counter(cat).most_common(1)[0]
+    return (most_common)
 
 
 if __name__ == "__main__":
@@ -85,5 +121,5 @@ if __name__ == "__main__":
 
     df2 = pd.DataFrame({'date': [now.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
 
-    print b.dtypes
-    print get_weekly_aggregate(b)
+    print (b.dtypes)
+    print (get_weekly_aggregate(b))
