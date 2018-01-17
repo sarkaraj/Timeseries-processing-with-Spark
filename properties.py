@@ -22,7 +22,7 @@ _model_bld_date_string_list = ['2017-10-01']
 
 # weekly_dates = {'2017-09-03': True, '2017-09-10': True, '2017-09-17': True,'2017-09-24': True, '2017-10-01': True, '2017-10-08': True, '2017-10-15': True, '2017-10-22': True}
 
-monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '2017-11-05': True}
+monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '2017-11-05': True,'2017-12-03': True}
 
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
