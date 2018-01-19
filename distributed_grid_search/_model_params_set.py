@@ -168,6 +168,13 @@ def generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior
 
 
 def generate_models_prophet(x, **kwargs):
+    """
+    Entry point for all Cust-Prod dataset for PROPHET - Weekly. Applied on a Spark-Dataframe with a 'map' function.
+
+    :param x:
+    :param kwargs:
+    :return:
+    """
     if 'sep' in kwargs.keys():
         sep = kwargs.get('sep')
     else:
