@@ -177,9 +177,6 @@ def ma_replace_outlier(data, n_pass=2, aggressive=True, window_size = 12, sigma 
 
     """
 
-    # plt.plot(data.ds, data.y)
-    # plt.show()
-
     if aggressive == True:
         n = 1
         while (n <= n_pass):

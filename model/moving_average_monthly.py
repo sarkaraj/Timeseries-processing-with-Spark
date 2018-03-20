@@ -102,6 +102,10 @@ def moving_average_model_monthly(prod, cus_no, mat_no, baseline = False, **kwarg
                                                                     baseline = baseline, min_train_days = min_train_days)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
+                                       np.nanmedian(np.absolute(np.array(output_result.rolling_2month_percent_error))),
+                                       np.nanmax(np.absolute(np.array(output_result.rolling_2month_percent_error))),
+                                       np.nanmean(np.absolute(np.array(output_result.rolling_2month_percent_error))),
+                                       np.nanmean(np.absolute(np.array(output_result.rolling_2month_quantity))),
                                        np.nanmedian(np.absolute(np.array(output_result.rolling_3month_percent_error))),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_3month_percent_error))),
                                        np.nanmean(np.absolute(np.array(output_result.rolling_3month_percent_error))),
@@ -122,6 +126,7 @@ def moving_average_model_monthly(prod, cus_no, mat_no, baseline = False, **kwarg
                                        output_result['cumsum_quantity'].iloc[-1],
                                        ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
                                 columns=['cus_no', 'mat_no', 'rmse', 'mape',
+                                         'mre_med_2', 'mre_max_2', 'mre_mean_2', 'quantity_mean_2',
                                          'mre_med_3', 'mre_max_3', 'mre_mean_3', 'quantity_mean_3',
                                          'mre_med_4', 'mre_max_4', 'mre_mean_4', 'quantity_mean_4',
                                          'mre_med_6', 'mre_max_6', 'mre_mean_6', 'quantity_mean_6',

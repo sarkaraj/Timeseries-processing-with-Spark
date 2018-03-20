@@ -1,5 +1,4 @@
 def weekly_arima_error_calc(data):
-
     import pandas as pd
     import numpy as np
 
@@ -18,6 +17,12 @@ def weekly_arima_error_calc(data):
     data['Error_Cumsum_arima'] = data.Error_arima.cumsum() / data.y.cumsum() * 100
 
     # Calculate Rolling 6-week and 12-week error for Arima
+    data['rolling_4week_error_arima'] = pd.rolling_sum(data['Error_arima'], window=4, min_periods=4)
+    data['rolling_4week_y'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+    data['rolling_4week_percent_error_arima'] = data['rolling_4week_error_arima'] / data[
+        'rolling_4week_y'] * 100
+    data['rolling_4week_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+
     data['rolling_6week_error_arima'] = pd.rolling_sum(data['Error_arima'], window=6, min_periods=6)
     data['rolling_6week_y'] = pd.rolling_sum(data['y'], window=6, min_periods=6)
     data['rolling_6week_percent_error_arima'] = data['rolling_6week_error_arima'] / data[
@@ -70,6 +75,13 @@ def weekly_prophet_error_calc(data):
     data['Error_Cumsum_prophet'] = data.Error_prophet.cumsum() / data.y.cumsum() * 100
 
     # Calculate Rolling 6-week and 12-week error for Prophet
+    data['rolling_4week_error_prophet'] = pd.rolling_sum(data['Error_prophet'], window=4,
+                                                         min_periods=4)
+    data['rolling_4week_y'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+    data['rolling_4week_percent_error_prophet'] = data['rolling_4week_error_prophet'] / data[
+        'rolling_4week_y'] * 100
+    data['rolling_4week_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+
     data['rolling_6week_error_prophet'] = pd.rolling_sum(data['Error_prophet'], window=6,
                                                                   min_periods=6)
     data['rolling_6week_y'] = pd.rolling_sum(data['y'], window=6, min_periods=6)
@@ -98,6 +110,13 @@ def monthly_prophet_model_error_calc(data):
     data['Error_Cumsum_prophet'] = data.Error_prophet.cumsum() / data.y.cumsum() * 100
 
     # Calculate Rolling 6-week and 12-week error for Prophet
+    data['rolling_2month_error_prophet'] = pd.rolling_sum(data['Error_prophet'], window=2,
+                                                          min_periods=2)
+    data['rolling_2month_y'] = pd.rolling_sum(data['y'], window=2, min_periods=2)
+    data['rolling_2month_percent_error_prophet'] = data['rolling_2month_error_prophet'] / data[
+        'rolling_2month_y'] * 100
+    data['rolling_2month_quantity'] = pd.rolling_sum(data['y'], window=2, min_periods=2)
+
     data['rolling_3month_error_prophet'] = pd.rolling_sum(data['Error_prophet'], window=3,
                                                          min_periods=3)
     data['rolling_3month_y'] = pd.rolling_sum(data['y'], window=3, min_periods=3)
