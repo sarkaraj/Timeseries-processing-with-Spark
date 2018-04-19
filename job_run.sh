@@ -15,8 +15,8 @@ spark-submit \
 --driver-memory 3G \
 --executor-memory 1G \
 --executor-cores 1 \
---py-files /home/sshuser/rajarshi/forecaster.zip \
-/home/sshuser/rajarshi/run.py \
+--py-files ~/cso_predictor/forecaster.zip \
+~/cso_predictor/run.py \
 $date_string
 }
 exit 0
