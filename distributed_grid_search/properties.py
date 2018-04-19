@@ -9,9 +9,9 @@ test_points_monthly=1
 pred_points_monthly=2
 
 ################
-p_max=1
-d_max=1
-q_max=1
+p_max = 2
+d_max = 2
+q_max = 2
 
 P_max=1
 Q_max=1

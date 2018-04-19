@@ -31,7 +31,8 @@ sc.setLogLevel("ERROR")
 
 print "Adding jobs.zip to system path"
 import sys
-sys.path.insert(0, "jobs.zip")
+
+sys.path.insert(0, "forecaster.zip")
 
 mdl_bld_date_string = ["".join(sys.argv[1])]
 
