@@ -29,7 +29,7 @@ import time
 print "Setting LOG LEVEL as ERROR"
 sc.setLogLevel("ERROR")
 
-print "Adding jobs.zip to system path"
+print "Adding forecaster.zip to system path"
 import sys
 
 sys.path.insert(0, "forecaster.zip")

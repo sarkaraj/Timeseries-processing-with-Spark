@@ -33,6 +33,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
     test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
+        .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('I', 'II', 'III', 'VII'))

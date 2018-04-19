@@ -32,6 +32,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
     test_data_monthly_model = get_data_monthly(sqlContext=sqlContext, month_cutoff_date=month_cutoff_date) \
+        .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
