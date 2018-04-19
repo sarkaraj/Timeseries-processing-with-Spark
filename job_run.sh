@@ -11,9 +11,9 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --supervise \
---num-executors 30 \
---driver-memory 3G \
---executor-memory 1G \
+--num-executors 50 \
+--driver-memory 5G \
+--executor-memory 2G \
 --executor-cores 1 \
 --py-files ~/cso_predictor/forecaster.zip \
 ~/cso_predictor/run.py \
