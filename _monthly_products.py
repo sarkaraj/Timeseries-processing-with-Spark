@@ -5,7 +5,7 @@ from run_distributed_prophet_monthly import _run_dist_prophet_monthly
 from run_moving_average import _run_moving_average_monthly
 from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
 from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
-import properties as p
+# import properties as p
 from pyspark.sql.functions import *
 from transform_data.data_transform import string_to_gregorian
 
@@ -87,6 +87,10 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
 
 if __name__ == "__main__":
+
+    from support_func import get_current_date, get_sample_customer_list
+    import properties as p
+
     ###################################################################################################################
 
     # Getting Current Date Time for AppName
@@ -108,8 +112,29 @@ if __name__ == "__main__":
     print "Add jobs.zip to system path"
     import sys
 
-    sys.path.insert(0, "jobs.zip")
+    sys.path.insert(0, "forecaster.zip")
 
-    for _model_bld_date_string in p._model_bld_date_string_list:
-        build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    mdl_bld_date_string = ["".join(sys.argv[1])]
+
+    print "Importing Sample Customer List"
+    get_sample_customer_list(sqlContext=sqlContext)
+
+    for _model_bld_date_string in mdl_bld_date_string:
+        print("************************************************************************************")
+        print (_model_bld_date_string)
+        print("************************************************************************************\n")
+
+        if p.monthly_dates.get(_model_bld_date_string):
+            print("Starting Monthly Model building")
+            start_time = time.time()
+
+            build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+            print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
+        # print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
+    # Clearing cache
+    sqlContext.clearCache()
+
+    # Force Stopping SparkContext
+    sc.stop()
