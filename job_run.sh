@@ -8,7 +8,8 @@ for date_string in '2018-04-01'
 {
 echo $date_string
 spark-submit \
---master yarn-client \
+--master yarn \
+--deploy-mode client \
 --supervise \
 --queue tsmdl \
 --driver-memory 10G \
