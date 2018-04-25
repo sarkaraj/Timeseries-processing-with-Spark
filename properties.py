@@ -74,10 +74,6 @@ limit 100
 """
 
 
-
-
-
-
 if __name__ == "__main__":
     from data_fetch.support_func import generate_weekly_query
 
