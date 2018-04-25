@@ -36,7 +36,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X')) \
-        .sample(False, 0.01, 42)
+        .sample(False, 0.1, 42)
 
     # TODO: The above line needs to be removed
 
@@ -62,7 +62,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
     print("Printing prophet_monthly_results_final")
-    print(prophet_monthly_results_final.show(10))
+    prophet_monthly_results_final.show(10)
 
     print "Writing the MONTHLY MODEL data into HDFS"
     prophet_monthly_results_final \
