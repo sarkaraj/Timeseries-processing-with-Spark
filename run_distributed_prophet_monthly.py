@@ -36,6 +36,9 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
         lambda x: generate_models_prophet_monthly(x,
                                                   MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))  # # gets 587 * 55 = 32285 rows
 
+    test_data_parallel.cache()
+    test_data_parallel.take(1)
+
     # # Parallelizing Jobs
     prophet_results_rdd = test_data_parallel \
         .repartition(REPARTITION_STAGE_1) \
@@ -44,11 +47,12 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
         .filter(lambda x: x != "MODEL_NOT_VALID")
     # .repartition(REPARTITION_STAGE_1)
 
+    test_data_parallel.unpersist()
+
     opt_prophet_results_rdd = prophet_results_rdd \
         .combineByKey(dist_grid_search_create_combiner,
                       dist_grid_search_merge_value,
-                      dist_grid_search_merge_combiner,
-                      numPartitions=REPARTITION_STAGE_2)
+                      dist_grid_search_merge_combiner)
 
     opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 

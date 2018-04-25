@@ -62,7 +62,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
     print("Printing prophet_monthly_results_final")
-    prophet_monthly_results_final.show(10)
+    # prophet_monthly_results_final.show(10)
 
     print "Writing the MONTHLY MODEL data into HDFS"
     prophet_monthly_results_final \
