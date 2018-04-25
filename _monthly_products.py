@@ -1,6 +1,6 @@
 from data_fetch.data_query import get_data_monthly
 from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext
+from pyspark.sql import HiveContext, SparkSession, SQLContext
 from run_distributed_prophet_monthly import _run_dist_prophet_monthly
 from run_moving_average import _run_moving_average_monthly
 from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
@@ -97,10 +97,20 @@ if __name__ == "__main__":
     appName = "_".join([MODEL_BUILDING, "M", get_current_date()])
     ####################################################################################################################
 
-    conf = SparkConf().setAppName(appName)
+    # conf = SparkConf().setAppName(appName)
+    #
+    # sc = SparkContext(conf=conf)
+    # sqlContext = HiveContext(sparkContext=sc)
 
-    sc = SparkContext(conf=conf)
-    sqlContext = HiveContext(sparkContext=sc)
+    spark = SparkSession \
+        .builder \
+        .appName(appName) \
+        .enableHiveSupport() \
+        .getOrCreate()
+
+    # sc = SparkContext(conf=conf)
+    sc = spark.sparkContext
+    sqlContext = spark
 
     import time
 
@@ -133,8 +143,10 @@ if __name__ == "__main__":
 
         # print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
-    # Clearing cache
-    sqlContext.clearCache()
+    # # Clearing cache
+    # SQLContext.clearCache()
 
-    # Force Stopping SparkContext
-    sc.stop()
+    # # Force Stopping SparkContext
+    # sc.stop()
+
+    spark.stop()

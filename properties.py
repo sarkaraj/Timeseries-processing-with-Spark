@@ -9,8 +9,8 @@ annual_freq_cut_3 = 12.0
 
 # from run import total_execs
 
-REPARTITION_STAGE_1 = 60
-REPARTITION_STAGE_2 = 60
+REPARTITION_STAGE_1 = 30
+REPARTITION_STAGE_2 = 30
 
 # _model_bld_date_string_list = ['2017-09-03', '2017-09-10', '2017-09-17', '2017-09-24', '2017-10-01', '2017-10-08',
 #                           '2017-10-15', '2017-10-22', '2017-10-29', '2017-11-05']
@@ -70,7 +70,7 @@ from mdm.customer
 where salesofficedesc LIKE 'Cleveland%' 
 and vkorg = '4200' 
 and katr6 = '3'
-limit 20
+limit 2
 """
 
 

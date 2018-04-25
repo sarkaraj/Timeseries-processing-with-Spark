@@ -1,5 +1,5 @@
 from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext
+from pyspark.sql import HiveContext, SparkSession, SQLContext
 from support_func import get_current_date, get_sample_customer_list, obtain_mdl_bld_dt
 from properties import MODEL_BUILDING
 from _weekly_products import build_prediction_weekly
@@ -12,10 +12,17 @@ from _monthly_products import build_prediction_monthly
 appName = "_".join([MODEL_BUILDING, "CONSOLIDATED", get_current_date()])
 ####################################################################################################################
 
-conf = SparkConf().setAppName(appName)
+# conf = SparkConf()
 
-sc = SparkContext(conf=conf)
-sqlContext = HiveContext(sparkContext=sc)
+spark = SparkSession \
+    .builder \
+    .appName(appName) \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+# sc = SparkContext(conf=conf)
+sc = spark.sparkContext
+sqlContext = spark
 
 import time
 

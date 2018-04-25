@@ -126,7 +126,7 @@ def get_sample_customer_list(sqlContext):
     customer_list = customer_sample.select(col("customernumber"))
     customer_list.cache()
 
-    customer_list.registerTempTable("customerdata")
+    customer_list.createOrReplaceTempView("customerdata")
 
     # TODO: Uncomment this section
     customer_sample.coalesce(1) \
