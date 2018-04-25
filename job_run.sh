@@ -10,7 +10,7 @@ echo $date_string
 spark-submit \
 --verbose \
 --master yarn \
---deploy-mode cluster \
+--deploy-mode client \
 --supervise \
 --queue tsmdl \
 --num-executors 30 \
