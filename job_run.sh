@@ -8,17 +8,31 @@ for date_string in '2018-04-01'
 {
 echo $date_string
 spark-submit \
---verbose \
---master yarn \
---deploy-mode client \
+--master yarn-client \
 --supervise \
 --queue tsmdl \
---num-executors 30 \
---driver-memory 5G \
---executor-memory 2G \
---executor-cores 1 \
+--driver-memory 10G \
+--executor-memory 3G \
+--total-executor-cores 30 \
 --py-files ~/cso_predictor/forecaster.zip \
 ~/cso_predictor/_monthly_products.py \
 $date_string
 }
 exit 0
+
+
+
+
+# spark-submit \
+# --verbose \
+# --master yarn \
+# --deploy-mode client \
+# --supervise \
+# --queue tsmdl \
+# --num-executors 30 \
+# --driver-memory 5G \
+# --executor-memory 2G \
+# --executor-cores 1 \
+# --py-files ~/cso_predictor/forecaster.zip \
+# ~/cso_predictor/_monthly_products.py \
+# $date_string

@@ -104,6 +104,8 @@ if __name__ == "__main__":
 
     spark = SparkSession \
         .builder \
+        .config("spark.sql.warehouse.dir",
+                "wasb://conahdiv3@conapocv2standardsa.blob.core.windows.net/user/sshuser/spark-warehouse") \
         .appName(appName) \
         .enableHiveSupport() \
         .getOrCreate()
