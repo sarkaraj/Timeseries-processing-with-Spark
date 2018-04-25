@@ -37,53 +37,56 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    # # Caching Data for this run
-    test_data_monthly_model.cache()
+    # # # Caching Data for this run
+    # test_data_monthly_model.cache()
 
-    #############################________________PROPHET__________################################
+    print("Printing test_data_monthly_model")
+    print(test_data_monthly_model.take(10))
 
-    # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-    # print "\t\t--Running distributed prophet"
-    prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    prophet_monthly_results_final = prophet_monthly_results \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('month_cutoff_date', lit(month_cutoff_date))
-
-    print "Writing the MONTHLY MODEL data into HDFS"
-    prophet_monthly_results_final \
-        .write.mode('append') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_456_location)
-
-    ############################________________MOVING AVERAGE__________##########################
-
-    print "**************\n**************\n"
-
-    print "Running MONTHLY_MA_MODELS on products\n"
-
-    ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    ma_monthly_results_df_final = ma_monthly_results_df \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('month_cutoff_date', lit(month_cutoff_date))
-
-    print "Writing the MA MONTHLY data into HDFS\n"
-    ma_monthly_results_df_final \
-        .write.mode('append') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_8910_location)
-
-    # # Clearing cache
-    # sqlContext.clearCache()
-    test_data_monthly_model.unpersist()
-
-    print("************************************************************************************")
+    # #############################________________PROPHET__________################################
+    #
+    # # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+    # print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+    # # print "\t\t--Running distributed prophet"
+    # prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # prophet_monthly_results_final = prophet_monthly_results \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
+    #
+    # print "Writing the MONTHLY MODEL data into HDFS"
+    # prophet_monthly_results_final \
+    #     .write.mode('append') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(monthly_pdt_cat_456_location)
+    #
+    # ############################________________MOVING AVERAGE__________##########################
+    #
+    # print "**************\n**************\n"
+    #
+    # print "Running MONTHLY_MA_MODELS on products\n"
+    #
+    # ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # ma_monthly_results_df_final = ma_monthly_results_df \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
+    #
+    # print "Writing the MA MONTHLY data into HDFS\n"
+    # ma_monthly_results_df_final \
+    #     .write.mode('append') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(monthly_pdt_cat_8910_location)
+    #
+    # # # Clearing cache
+    # # sqlContext.clearCache()
+    # test_data_monthly_model.unpersist()
+    #
+    # print("************************************************************************************")
 
 
 if __name__ == "__main__":
