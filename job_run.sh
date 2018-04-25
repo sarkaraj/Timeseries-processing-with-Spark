@@ -14,7 +14,8 @@ spark-submit \
 --queue tsmdl \
 --driver-memory 10G \
 --executor-memory 3G \
---total-executor-cores 30 \
+--num-executors 30 \
+--executor-cores 1 \
 --py-files ~/cso_predictor/forecaster.zip \
 ~/cso_predictor/_monthly_products.py \
 $date_string
