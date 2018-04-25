@@ -35,7 +35,10 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X')) \
+        .sample(False, 0.01, 42)
+
+    # TODO: The above line needs to be removed
 
     # # # Caching Data for this run
     # test_data_monthly_model.cache()
@@ -43,14 +46,17 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     print("Printing test_data_monthly_model")
     print(test_data_monthly_model.take(10))
 
-    # #############################________________PROPHET__________################################
-    #
-    # # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    # print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-    # # print "\t\t--Running distributed prophet"
-    # prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-    #
+    #############################________________PROPHET__________################################
+
+    # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+    print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+    # print "\t\t--Running distributed prophet"
+    prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    print("Printing prophet_monthly_results")
+    print(prophet_monthly_results.take(10))
+
     # prophet_monthly_results_final = prophet_monthly_results \
     #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
     #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
