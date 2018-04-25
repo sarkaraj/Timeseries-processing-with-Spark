@@ -52,10 +52,11 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
 
     opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
 
-    # opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
+    opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
 
-    # return opt_prophet_results_df # TODO: This needs to be uncommented
-    return opt_prophet_results_mapped
+    # return opt_prophet_results_mapped
+    return opt_prophet_results_df
+
 
 
 # FOR MODULE TESTING

@@ -44,7 +44,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # test_data_monthly_model.cache()
 
     print("Printing test_data_monthly_model")
-    print(test_data_monthly_model.take(10))
+    # print(test_data_monthly_model.take(10))
 
     #############################________________PROPHET__________################################
 
@@ -55,12 +55,15 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
     print("Printing prophet_monthly_results")
-    print(prophet_monthly_results.take(10))
+    print(prophet_monthly_results.show(10))
 
-    # prophet_monthly_results_final = prophet_monthly_results \
-    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
-    #
+    prophet_monthly_results_final = prophet_monthly_results \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+
+    print("Printing prophet_monthly_results_final")
+    print(prophet_monthly_results_final.show(10))
+
     # print "Writing the MONTHLY MODEL data into HDFS"
     # prophet_monthly_results_final \
     #     .write.mode('append') \
