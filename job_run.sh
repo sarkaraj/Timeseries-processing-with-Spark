@@ -16,7 +16,6 @@ spark-submit \
 --executor-memory 3G \
 --num-executors 30 \
 --executor-cores 1 \
---conf spark.dynamicAllocation.enabled=false \
 --py-files ~/cso_predictor/forecaster.zip \
 ~/cso_predictor/_monthly_products.py \
 $date_string
@@ -24,7 +23,7 @@ $date_string
 exit 0
 
 
-
+# --conf spark.dynamicAllocation.enabled=false \
 
 # spark-submit \
 # --verbose \

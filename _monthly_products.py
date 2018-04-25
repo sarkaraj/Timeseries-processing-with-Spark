@@ -54,8 +54,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    print("Printing prophet_monthly_results")
-    print(prophet_monthly_results.show(10))
+    # print("Printing prophet_monthly_results")
+    # print(prophet_monthly_results.show(10))
 
     prophet_monthly_results_final = prophet_monthly_results \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
@@ -64,13 +64,13 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     print("Printing prophet_monthly_results_final")
     print(prophet_monthly_results_final.show(10))
 
-    # print "Writing the MONTHLY MODEL data into HDFS"
-    # prophet_monthly_results_final \
-    #     .write.mode('append') \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(monthly_pdt_cat_456_location)
-    #
+    print "Writing the MONTHLY MODEL data into HDFS"
+    prophet_monthly_results_final \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_456_location)
+
     # ############################________________MOVING AVERAGE__________##########################
     #
     # print "**************\n**************\n"
