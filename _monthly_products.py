@@ -35,13 +35,10 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X')) \
-        .sample(False, 0.1, 42)
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    # TODO: The above line needs to be removed
-
-    # # # Caching Data for this run
-    # test_data_monthly_model.cache()
+    # # Caching Data for this run
+    test_data_monthly_model.cache()
 
     print("Printing test_data_monthly_model")
     # print(test_data_monthly_model.take(10))
@@ -71,31 +68,31 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .option("header", "false") \
         .save(monthly_pdt_cat_456_location)
 
-    # ############################________________MOVING AVERAGE__________##########################
-    #
-    # print "**************\n**************\n"
-    #
-    # print "Running MONTHLY_MA_MODELS on products\n"
-    #
-    # ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-    #
-    # ma_monthly_results_df_final = ma_monthly_results_df \
-    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
-    #
-    # print "Writing the MA MONTHLY data into HDFS\n"
-    # ma_monthly_results_df_final \
-    #     .write.mode('append') \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(monthly_pdt_cat_8910_location)
-    #
-    # # # Clearing cache
-    # # sqlContext.clearCache()
-    # test_data_monthly_model.unpersist()
-    #
-    # print("************************************************************************************")
+    ############################________________MOVING AVERAGE__________##########################
+
+    print "**************\n**************\n"
+
+    print "Running MONTHLY_MA_MODELS on products\n"
+
+    ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    ma_monthly_results_df_final = ma_monthly_results_df \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+
+    print "Writing the MA MONTHLY data into HDFS\n"
+    ma_monthly_results_df_final \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_8910_location)
+
+    # # Clearing cache
+    # sqlContext.clearCache()
+    test_data_monthly_model.unpersist()
+
+    print("************************************************************************************")
 
 
 if __name__ == "__main__":
