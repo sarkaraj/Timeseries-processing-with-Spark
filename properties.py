@@ -69,7 +69,8 @@ select kunnr customernumber, salesofficedesc
 from mdm.customer 
 where salesofficedesc LIKE 'Cleveland%' 
 and vkorg = '4200' 
-and katr6 = '3' 
+and katr6 = '3'
+limit 20
 """
 
 
