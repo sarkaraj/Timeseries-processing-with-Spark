@@ -14,9 +14,13 @@ spark-submit \
 --queue tsmdl \
 --driver-memory 10G \
 --executor-memory 3G \
---num-executors 30 \
+--num-executors 20 \
 --executor-cores 1 \
 --conf spark.dynamicAllocation.enabled=false \
+--conf spark.speculation=true \
+--conf spark.speculation.multiplier=2.5 \
+--conf spark.speculation.quantile=0.9 \
+--conf spark.speculation.interval=900000 \
 --py-files ~/cso_predictor/forecaster.zip \
 ~/cso_predictor/_monthly_products.py \
 $date_string

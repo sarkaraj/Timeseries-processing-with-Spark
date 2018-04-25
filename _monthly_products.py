@@ -37,8 +37,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    # # Caching Data for this run
-    test_data_monthly_model.cache()
+    # # # Caching Data for this run
+    # test_data_monthly_model.cache()
 
     print("Printing test_data_monthly_model")
     # print(test_data_monthly_model.take(10))
@@ -90,7 +90,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     # # Clearing cache
     # sqlContext.clearCache()
-    test_data_monthly_model.unpersist()
+    # test_data_monthly_model.unpersist()
 
     print("************************************************************************************")
 
