@@ -21,7 +21,8 @@ REPARTITION_STAGE_2 = 50
 _model_bld_date_string_list = ['2017-10-01']
 
 weekly_dates = {'2017-09-03': True, '2017-09-10': True, '2017-09-17': True, '2017-09-24': True, '2017-10-01': True,
-                '2017-10-08': True, '2017-10-15': True, '2017-10-22': True, '2018-04-01': True, '2018-04-08': True}
+                '2017-10-08': True, '2017-10-15': True, '2017-10-22': True, '2018-04-01': True, '2018-04-08': True,
+                '2018-04-29': True}
 
 monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '2017-11-05': True, '2018-04-01': True}
 
@@ -31,11 +32,21 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # weekly_pdt_cat_123_location_baseline = "/CONA_CSO/CCBF/model_eda/weekly_pdt_cat_123_baseline"
 # monthly_pdt_cat_456_location_baseline = "/CONA_CSO/CCBF/model_eda/monthly_pdt_cat_456_baseline"
 
-weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/monthly_pdt_cat_8910"
-customer_data_location = "/CONA_CSO/CCBC_Consolidated/customer_data"
+
+# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/monthly_pdt_cat_8910"
+# customer_data_location = "/CONA_CSO/CCBC_Consolidated/customer_data"
+# comments = "Thaddeus Smith Route"
+
+weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_8910"
+customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
+comments = "Thaddeus Smith Route"
+
 
 
 # weekly_pdt_cat_123_location = "/CONA_CSO/CCBF/weekly_pdt_cat_123"

@@ -1,6 +1,6 @@
 from data_fetch.data_query import get_data_weekly
 from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext
+from pyspark.sql import HiveContext, SparkSession
 from run_distributed_arima import _run_dist_arima
 from run_distributed_prophet import _run_dist_prophet
 from run_moving_average import _run_moving_average_weekly
@@ -103,16 +103,31 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
 
 if __name__ == "__main__":
-    ####################################################################################################################
+    from support_func import get_current_date, get_sample_customer_list
+    import properties as p
+
+    ###################################################################################################################
 
     # Getting Current Date Time for AppName
     appName = "_".join([MODEL_BUILDING, "W", get_current_date()])
     ####################################################################################################################
 
-    conf = SparkConf().setAppName(appName)
+    # conf = SparkConf().setAppName(appName)
+    #
+    # sc = SparkContext(conf=conf)
+    # sqlContext = HiveContext(sparkContext=sc)
 
-    sc = SparkContext(conf=conf)
-    sqlContext = HiveContext(sparkContext=sc)
+    spark = SparkSession \
+        .builder \
+        .config("spark.sql.warehouse.dir",
+                "wasb://conahdiv3@conapocv2standardsa.blob.core.windows.net/user/sshuser/spark-warehouse") \
+        .appName(appName) \
+        .enableHiveSupport() \
+        .getOrCreate()
+
+    # sc = SparkContext(conf=conf)
+    sc = spark.sparkContext
+    sqlContext = spark
 
     import time
 
@@ -124,7 +139,30 @@ if __name__ == "__main__":
     print "Add jobs.zip to system path"
     import sys
 
-    sys.path.insert(0, "jobs.zip")
+    sys.path.insert(0, "forecaster.zip")
 
-    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=p._model_bld_date_string_list)
-    print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    mdl_bld_date_string = "".join(sys.argv[1])
+
+    print "Importing Sample Customer List"
+    get_sample_customer_list(sc=sc, sqlContext=sqlContext)
+
+    _model_bld_date_string = mdl_bld_date_string
+
+    print("************************************************************************************")
+    print (_model_bld_date_string)
+    print("************************************************************************************\n")
+
+    if p.weekly_dates.get(_model_bld_date_string):
+        print("Starting Weekly Model building")
+        start_time = time.time()
+
+        build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+        print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
+    # # Clearing cache
+    # SQLContext.clearCache()
+
+    # # Force Stopping SparkContext
+    # sc.stop()
+
+    spark.stop()
