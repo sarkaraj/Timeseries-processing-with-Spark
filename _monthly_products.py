@@ -111,7 +111,7 @@ if __name__ == "__main__":
     ###################################################################################################################
 
     # Getting Current Date Time for AppName
-    appName = "_".join([MODEL_BUILDING, "M", get_current_date()])
+    appName_Monthly = "_".join([MODEL_BUILDING, "M", get_current_date()])
     ####################################################################################################################
 
     # conf = SparkConf().setAppName(appName)
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         .builder \
         .config("spark.sql.warehouse.dir",
                 "wasb://conahdiv3@conapocv2standardsa.blob.core.windows.net/user/sshuser/spark-warehouse") \
-        .appName(appName) \
+        .appName(appName_Monthly) \
         .enableHiveSupport() \
         .getOrCreate()
 
