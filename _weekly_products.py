@@ -1,5 +1,7 @@
 
 def build_prediction_weekly(sc, sqlContext, **kwargs):
+    from data_fetch.data_query import get_data_weekly
+
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
     else:
@@ -90,7 +92,6 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
 
 if __name__ == "__main__":
-    from data_fetch.data_query import get_data_weekly
     # from pyspark import SparkContext, SparkConf
     from pyspark.sql import HiveContext, SparkSession
     from run_distributed_arima import _run_dist_arima

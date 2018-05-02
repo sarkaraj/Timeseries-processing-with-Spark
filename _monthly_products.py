@@ -1,5 +1,8 @@
 
 def build_prediction_monthly(sc, sqlContext, **kwargs):
+    from data_fetch.data_query import get_data_monthly
+
+
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
     else:
@@ -85,7 +88,6 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
 
 if __name__ == "__main__":
-    from data_fetch.data_query import get_data_monthly
     from pyspark import SparkContext, SparkConf
     from pyspark.sql import HiveContext, SparkSession, SQLContext
     from run_distributed_prophet_monthly import _run_dist_prophet_monthly
