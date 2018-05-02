@@ -138,19 +138,19 @@ if __name__ == "__main__":
     mdl_bld_date_string = ["".join(sys.argv[1])]
 
     print "Importing Sample Customer List"
-    get_sample_customer_list(sqlContext=sqlContext)
+    get_sample_customer_list(sc=sc, sqlContext=sqlContext)
 
-    for _model_bld_date_string in mdl_bld_date_string:
-        print("************************************************************************************")
-        print (_model_bld_date_string)
-        print("************************************************************************************\n")
-
-        if p.monthly_dates.get(_model_bld_date_string):
-            print("Starting Monthly Model building")
-            start_time = time.time()
-
-            build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-            print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    # for _model_bld_date_string in mdl_bld_date_string:
+    #     print("************************************************************************************")
+    #     print (_model_bld_date_string)
+    #     print("************************************************************************************\n")
+    #
+    #     if p.monthly_dates.get(_model_bld_date_string):
+    #         print("Starting Monthly Model building")
+    #         start_time = time.time()
+    #
+    #         build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    #         print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
         # print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 

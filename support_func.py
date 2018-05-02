@@ -118,22 +118,34 @@ def _get_last_day_of_previous_month(_date):
     return last_month.strftime("%Y-%m-%d")
 
 
-def get_sample_customer_list(sqlContext):
+def get_sample_customer_list(sc, sqlContext):
     from properties import _query, customer_data_location
+    from data_fetch.custom_customer_list import generate_customer_list_fomatted
 
-    customer_sample = sqlContext.sql(_query)
+    full_custom_customer_list = generate_customer_list_fomatted()
+    custom_schema = StructType(
+        [StructField("customernumber", StringType(), True)]
+    )
+    _custom_customer_list_df = sqlContext.createDataFrame(sc.parallelize(full_custom_customer_list),
+                                                          schema=custom_schema)
+
+    # customer_sample = sqlContext.sql(_query)
+    customer_sample = _custom_customer_list_df
 
     customer_list = customer_sample.select(col("customernumber"))
     customer_list.cache()
 
     customer_list.createOrReplaceTempView("customerdata")
 
-    # TODO: Uncomment this section
-    customer_sample.coalesce(1) \
-        .write.mode('overwrite') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(customer_data_location)
+    customer_list.show()
+    print(customer_list.count())
+
+    # # TODO: Uncomment this section
+    # customer_sample.coalesce(1) \
+    #     .write.mode('overwrite') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(customer_data_location)
 
 
 def obtain_mdl_bld_dt():
