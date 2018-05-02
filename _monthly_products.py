@@ -1,14 +1,3 @@
-from data_fetch.data_query import get_data_monthly
-from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext, SparkSession, SQLContext
-from run_distributed_prophet_monthly import _run_dist_prophet_monthly
-from run_moving_average import _run_moving_average_monthly
-from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
-from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
-# import properties as p
-from pyspark.sql.functions import *
-from transform_data.data_transform import string_to_gregorian
-
 
 def build_prediction_monthly(sc, sqlContext, **kwargs):
     if '_model_bld_date_string' in kwargs.keys():
@@ -96,7 +85,16 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
 
 if __name__ == "__main__":
-
+    from data_fetch.data_query import get_data_monthly
+    from pyspark import SparkContext, SparkConf
+    from pyspark.sql import HiveContext, SparkSession, SQLContext
+    from run_distributed_prophet_monthly import _run_dist_prophet_monthly
+    from run_moving_average import _run_moving_average_monthly
+    from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
+    from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
+    # import properties as p
+    from pyspark.sql.functions import *
+    from transform_data.data_transform import string_to_gregorian
     from support_func import get_current_date, get_sample_customer_list
     import properties as p
 

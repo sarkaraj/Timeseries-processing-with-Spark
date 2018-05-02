@@ -1,16 +1,3 @@
-from data_fetch.data_query import get_data_weekly
-from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext, SparkSession
-from run_distributed_arima import _run_dist_arima
-from run_distributed_prophet import _run_dist_prophet
-from run_moving_average import _run_moving_average_weekly
-from support_func import assign_category, get_current_date
-from transform_data.spark_dataframe_func import final_select_dataset
-from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
-import properties as p
-from pyspark.sql.functions import *
-from transform_data.data_transform import string_to_gregorian
-
 
 def build_prediction_weekly(sc, sqlContext, **kwargs):
     if '_model_bld_date_string' in kwargs.keys():
@@ -103,6 +90,18 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
 
 if __name__ == "__main__":
+    from data_fetch.data_query import get_data_weekly
+    # from pyspark import SparkContext, SparkConf
+    from pyspark.sql import HiveContext, SparkSession
+    from run_distributed_arima import _run_dist_arima
+    from run_distributed_prophet import _run_dist_prophet
+    from run_moving_average import _run_moving_average_weekly
+    from support_func import assign_category, get_current_date
+    from transform_data.spark_dataframe_func import final_select_dataset
+    from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
+    import properties as p
+    from pyspark.sql.functions import *
+    from transform_data.data_transform import string_to_gregorian
     from support_func import get_current_date, get_sample_customer_list
     import properties as p
 
