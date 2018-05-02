@@ -132,18 +132,18 @@ def get_sample_customer_list(sc, sqlContext):
     # print(temp_rdd.take(1))
     _custom_customer_list_df = sqlContext.createDataFrame(temp_rdd, schema=custom_schema)
 
-    _custom_customer_list_df.show()
+    # _custom_customer_list_df.show()
     #
     # # customer_sample = sqlContext.sql(_query)
-    # customer_sample = _custom_customer_list_df
-    #
-    # customer_list = customer_sample.select(col("customernumber"))
-    # customer_list.cache()
-    #
-    # customer_list.createOrReplaceTempView("customerdata")
-    #
-    # customer_list.show()
-    # print(customer_list.count())
+    customer_sample = _custom_customer_list_df
+
+    customer_list = customer_sample.select(col("customernumber"))
+    customer_list.cache()
+
+    customer_list.createOrReplaceTempView("customerdata")
+
+    customer_list.show()
+    print(customer_list.count())
 
     # # TODO: Uncomment this section
     # customer_sample.coalesce(1) \
