@@ -54,11 +54,12 @@ _customer_list = """
 
 
 def generate_customer_list_fomatted(customer_list=_customer_list, string_to_append="0"):
-    result_list = [string_to_append + str(elem) for elem in customer_list.split("\n") if len(elem) > 0]
+    result_list = ["".join([string_to_append + str(elem)]) for elem in customer_list.split("\n") if len(elem) > 0]
     return result_list
 
 
 if __name__ == "__main__":
     result = generate_customer_list_fomatted()
+    print([type(elem) for elem in result])
     print(result)
     print(len(result))
