@@ -136,7 +136,7 @@ def get_sample_customer_list(sc, sqlContext):
     #
     # # customer_sample = sqlContext.sql(_query)
     customer_sample = _custom_customer_list_df \
-        .withColumn("Comments".lit(comments))
+        .withColumn("Comments", lit(comments))
 
     customer_list = customer_sample.select(col("customernumber"))
     customer_list.cache()
