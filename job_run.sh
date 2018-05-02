@@ -13,7 +13,7 @@ spark-submit \
 --deploy-mode client \
 --supervise \
 --queue tsmdl \
---num-executors 30 \
+--num-executors 5 \
 --driver-memory 5G \
 --executor-memory 2G \
 --executor-cores 1 \
