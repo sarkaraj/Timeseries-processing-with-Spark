@@ -60,6 +60,4 @@ def generate_customer_list_fomatted(customer_list=_customer_list, string_to_appe
 
 if __name__ == "__main__":
     result = generate_customer_list_fomatted()
-    print([type(elem) for elem in result])
-    print(result)
-    print(len(result))
+    print([elem[0] for elem in result])
