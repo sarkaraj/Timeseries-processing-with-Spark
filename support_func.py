@@ -129,10 +129,12 @@ def get_sample_customer_list(sc, sqlContext):
 
     temp_rdd = sc.parallelize(full_custom_customer_list)
 
-    print(temp_rdd.take(1))
-    # _custom_customer_list_df = sqlContext.createDataFrame(temp_rdd, schema=custom_schema)
+    # print(temp_rdd.take(1))
+    _custom_customer_list_df = sqlContext.createDataFrame(temp_rdd)
+
+    _custom_customer_list_df.show()
     #
-    customer_sample = sqlContext.sql(_query)
+    # # customer_sample = sqlContext.sql(_query)
     # customer_sample = _custom_customer_list_df
     #
     # customer_list = customer_sample.select(col("customernumber"))
