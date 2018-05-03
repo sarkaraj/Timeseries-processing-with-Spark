@@ -32,13 +32,15 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # # # Caching Data for this run
     # test_data_monthly_model.cache()
 
-    print("Printing test_data_monthly_model")
+    # print("Printing test_data_monthly_model")
     # print(test_data_monthly_model.take(10))
 
     #############################________________PROPHET__________################################
 
     # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + p.annual_freq_cut_2 + " <= X < "
+           + p.annual_freq_cut_1 + "\n")
+
     # print "\t\t--Running distributed prophet"
     prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -64,7 +66,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "**************\n**************\n"
 
-    print "Running MONTHLY_MA_MODELS on products\n"
+    print ("Running MONTHLY_MODELS MOVING AVERAGE on products with FREQ : " + p.annual_freq_cut_3 + " <= X < "
+           + p.annual_freq_cut_2 + "\n")
 
     ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -139,6 +142,8 @@ if __name__ == "__main__":
     sc.setLogLevel("ERROR")
 
     mdl_bld_date_string = "".join(sys.argv[1])
+
+    print("Correct git branch pulled")
 
     print "Importing Sample Customer List"
     get_sample_customer_list(sc=sc, sqlContext=sqlContext)

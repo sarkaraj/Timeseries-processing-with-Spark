@@ -10,12 +10,12 @@ echo $date_string
 spark-submit \
 --verbose \
 --master yarn \
---deploy-mode cluster \
+--deploy-mode client \
 --queue tsmdl \
---num-executors 15 \
+--num-executors 16 \
 --driver-memory 5G \
---executor-memory 1G \
---executor-cores 1 \
+--executor-memory 2G \
+--executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
 --conf spark.speculation.multiplier=1.5 \
