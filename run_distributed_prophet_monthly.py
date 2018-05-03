@@ -66,21 +66,51 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
 # FOR MODULE TESTING
 
 if __name__ == "__main__":
-    from data_fetch.data_query import get_data_weekly, get_data_monthly
-    from pyspark import SparkContext, SparkConf
-    from pyspark.sql import HiveContext
+    from pyspark.sql import HiveContext, SparkSession, SQLContext
+    import data_fetch.properties as p_data_fetch
+    from pyspark.sql.functions import *
+    from pyspark.sql.types import *
+    import properties as p
+    from transform_data.data_transform import string_to_gregorian
+    from run_distributed_prophet_monthly import _run_dist_prophet_monthly
+    from support_func import assign_category
+
+    # from data_fetch.data_query import get_data_weekly, get_data_monthly
+    # from pyspark import SparkContext, SparkConf
+    # from pyspark.sql import HiveContext
     # from run_distributed_arima import _run_dist_arima
     # from run_distributed_prophet import _run_dist_prophet
-    # from run_distributed_prophet_monthly import _run_dist_prophet_monthly
     # from run_moving_average import _run_moving_average_weekly, _run_moving_average_monthly
-    from support_func import assign_category
 
     # from transform_data.spark_dataframe_func import final_select_dataset
 
-    conf = SparkConf().setAppName("CONA_TS_MODEL_VALIDATION_JOB_ID_15")
-    # .setMaster("yarn-client")
-    sc = SparkContext(conf=conf)
-    sqlContext = HiveContext(sparkContext=sc)
+    # conf = SparkConf().setAppName("CONA_TS_MODEL_VALIDATION_JOB_ID_15")
+    # # .setMaster("yarn-client")
+    # sc = SparkContext(conf=conf)
+    # sqlContext = HiveContext(sparkContext=sc)
+
+    ###################################################################################################################
+
+    # Getting Current Date Time for AppName
+    appName_Monthly = "CONA_TS_MODEL_VALIDATION_JOB_ID_15"
+    ####################################################################################################################
+
+    # conf = SparkConf().setAppName(appName)
+    #
+    # sc = SparkContext(conf=conf)
+    # sqlContext = HiveContext(sparkContext=sc)
+
+    spark = SparkSession \
+        .builder \
+        .config("spark.sql.warehouse.dir",
+                "/home/rajarshi/spark-warehouse") \
+        .appName(appName_Monthly) \
+        .enableHiveSupport() \
+        .getOrCreate()
+
+    # sc = SparkContext(conf=conf)
+    sc = spark.sparkContext
+    sqlContext = spark
 
     import time
 
@@ -89,35 +119,94 @@ if __name__ == "__main__":
     print "Setting LOG LEVEL as ERROR"
     sc.setLogLevel("ERROR")
 
-    # print "Adding Extra paths for several site-packages"
-    # import sys
-    # sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
-    # sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
+    MODEL_BLD_CURRENT_DATE = string_to_gregorian("2018-04-01")
+    _model_bld_date_string = "2018-04-01"
+    month_cutoff_date = '2018-03-31'
+    temp_test_location = "~/temporary_spark_file_dump"
 
+    raw_dataset = spark.read.format('csv') \
+        .option("delimiter", "\t") \
+        .option("header", "true") \
+        .load("/home/rajarshi/Documents/CONA_LINUX/thaddeusSmithRawInvoice")
 
-    print "Add jobs.zip to system path"
-    import sys
+    # raw_dataset.show(10)
 
-    sys.path.insert(0, "jobs.zip")
+    filtered_dataset = raw_dataset \
+        .filter(col('quantity') > 0) \
+        .withColumn('b_date', from_unixtime(unix_timestamp(col('bill_date'), "yyyyMMdd")).cast(DateType())) \
+        .withColumn('matnr_data', concat_ws("\t", col('b_date'), col('quantity'), col('q_indep_prc'))) \
+        .groupBy('customernumber', 'matnr') \
+        .agg(collect_list('matnr_data').alias('data'),
+             max('b_date').alias('max_date'),
+             min('b_date').alias('min_date'),
+             count('b_date').alias('row_count')) \
+        .withColumn('temp_curr_date', lit(month_cutoff_date)) \
+        .withColumn('current_date',
+                    from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
+        .withColumn('time_gap_years',
+                    (datediff(col('current_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
+        .withColumn('time_gap_days',
+                    (datediff(col('current_date'), col('min_date')).cast("int")).cast(FloatType())) \
+        .withColumn('pdt_freq_annual', (col('row_count') / col('time_gap_years')).cast(FloatType())) \
+        .filter((datediff(col('current_date'), col('max_date')) <= p_data_fetch._latest_product_criteria_days)) \
+        .drop(col('max_date')) \
+        .drop(col('min_date')) \
+        .drop(col('row_count')) \
+        .drop(col('temp_curr_date')) \
+        .drop(col('current_date'))
 
-    print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
-    test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
+    # filtered_dataset.show(10)
+
+    assigned_category = filtered_dataset.rdd \
         .map(lambda x: assign_category(x)) \
-        .filter(lambda x: x != "NOT_CONSIDERED")
+        .filter(lambda x: x != "NOT_CONSIDERED") \
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI')) \
+        .sample(False, 0.01, 34)
 
-    #############################________________PROPHET__________################################
+    # .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    print "**************\n**************\n"
+    # print(assigned_category.count())
 
-    # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-    # print "\t\t--Running distributed prophet"
-    prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
+           + str(p.annual_freq_cut_1) + "\n")
 
-    prophet_monthly_results.distinct().show()
+    print "\t\t--Running distributed prophet"
+    prophet_monthly_results = _run_dist_prophet_monthly(test_data=assigned_category, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    # # print prophet_monthly_results
+    prophet_monthly_results.show(10)
+
+    prophet_monthly_results_final = prophet_monthly_results \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+
+    print("Printing prophet_monthly_results_final")
+    # prophet_monthly_results_final.show(10)
+
+    print "Writing the MONTHLY MODEL data into HDFS"
+    prophet_monthly_results_final \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "true") \
+        .save(temp_test_location)
+
+    # #############################________________PROPHET__________################################
     #
-    # print "Writing the MONTHLY MODEL data into HDFS"
-    # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-    #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
+    # print "**************\n**************\n"
+    #
+    # # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+    # print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+    # # print "\t\t--Running distributed prophet"
+    # prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+    #
+    # prophet_monthly_results.distinct().show()
+    #
+    # # # print prophet_monthly_results
+    # #
+    # # print "Writing the MONTHLY MODEL data into HDFS"
+    # # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+    # #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
+
+    # print(sc)
+    # print(sqlContext)
+    spark.stop()
