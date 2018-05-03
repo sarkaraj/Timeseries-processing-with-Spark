@@ -38,8 +38,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     #############################________________PROPHET__________################################
 
     # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + p.annual_freq_cut_2 + " <= X < "
-           + p.annual_freq_cut_1 + "\n")
+    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
+           + str(p.annual_freq_cut_1) + "\n")
 
     # print "\t\t--Running distributed prophet"
     prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
@@ -66,8 +66,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "**************\n**************\n"
 
-    print ("Running MONTHLY_MODELS MOVING AVERAGE on products with FREQ : " + p.annual_freq_cut_3 + " <= X < "
-           + p.annual_freq_cut_2 + "\n")
+    print ("Running MONTHLY_MODELS MOVING AVERAGE on products with FREQ : " + str(p.annual_freq_cut_3) + " <= X < "
+           + str(p.annual_freq_cut_2) + "\n")
 
     ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
