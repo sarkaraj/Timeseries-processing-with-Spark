@@ -196,32 +196,12 @@ if __name__ == "__main__":
         print("Printing prophet_monthly_results_final")
         # prophet_monthly_results_final.show(10)
 
-        print "Writing the MONTHLY MODEL data into HDFS"
+        print ("Writing the MONTHLY MODEL data into HDFS")
         prophet_monthly_results_final \
             .write.mode('append') \
             .format('orc') \
             .option("header", "true") \
             .save(temp_test_location)
-
-    # #############################________________PROPHET__________################################
-    #
-    # print "**************\n**************\n"
-    #
-    # # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    # print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-    # # print "\t\t--Running distributed prophet"
-    # prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-    #
-    # prophet_monthly_results.distinct().show()
-    #
-    # # # print prophet_monthly_results
-    # #
-    # # print "Writing the MONTHLY MODEL data into HDFS"
-    # # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-    # #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
-
-    # print(sc)
-    # print(sqlContext)
 
     raw_dataset_1.unpersist()
 
