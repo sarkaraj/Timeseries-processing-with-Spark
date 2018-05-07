@@ -59,59 +59,59 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
 
 # FOR MODULE TESTING
 
-if __name__ == "__main__":
-    from data_fetch.data_query import get_data_weekly, get_data_monthly
-    from pyspark import SparkContext, SparkConf
-    from pyspark.sql import HiveContext
-    # from run_distributed_arima import _run_dist_arima
-    # from run_distributed_prophet import _run_dist_prophet
-    # from run_distributed_prophet_monthly import _run_dist_prophet_monthly
-    # from run_moving_average import _run_moving_average_weekly, _run_moving_average_monthly
-    from support_func import assign_category
-
-    # from transform_data.spark_dataframe_func import final_select_dataset
-
-    conf = SparkConf().setAppName("CONA_TS_MODEL_VALIDATION_JOB_ID_15")
-    # .setMaster("yarn-client")
-    sc = SparkContext(conf=conf)
-    sqlContext = HiveContext(sparkContext=sc)
-
-    import time
-
-    start_time = time.time()
-
-    print "Setting LOG LEVEL as ERROR"
-    sc.setLogLevel("ERROR")
-
-    # print "Adding Extra paths for several site-packages"
-    # import sys
-    # sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
-    # sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
-
-
-    print "Add jobs.zip to system path"
-    import sys
-
-    sys.path.insert(0, "jobs.zip")
-
-    print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
-    test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
-        .map(lambda x: assign_category(x)) \
-        .filter(lambda x: x != "NOT_CONSIDERED")
-
-    #############################________________PROPHET__________################################
-
-    print "**************\n**************\n"
-
-    # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
-    # print "\t\t--Running distributed prophet"
-    prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
-
-    prophet_monthly_results.distinct().show()
-
-    # # print prophet_monthly_results
-    #
-    # print "Writing the MONTHLY MODEL data into HDFS"
-    # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
-    #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")
+# if __name__ == "__main__":
+#     from data_fetch.data_query import get_data_weekly, get_data_monthly
+#     from pyspark import SparkContext, SparkConf
+#     from pyspark.sql import HiveContext
+#     # from run_distributed_arima import _run_dist_arima
+#     # from run_distributed_prophet import _run_dist_prophet
+#     # from run_distributed_prophet_monthly import _run_dist_prophet_monthly
+#     # from run_moving_average import _run_moving_average_weekly, _run_moving_average_monthly
+#     from support_func import assign_category
+#
+#     # from transform_data.spark_dataframe_func import final_select_dataset
+#
+#     conf = SparkConf().setAppName("CONA_TS_MODEL_VALIDATION_JOB_ID_15")
+#     # .setMaster("yarn-client")
+#     sc = SparkContext(conf=conf)
+#     sqlContext = HiveContext(sparkContext=sc)
+#
+#     import time
+#
+#     start_time = time.time()
+#
+#     print "Setting LOG LEVEL as ERROR"
+#     sc.setLogLevel("ERROR")
+#
+#     # print "Adding Extra paths for several site-packages"
+#     # import sys
+#     # sys.path.append('/home/SSHAdmin/.local/lib/python2.7/site-packages/')
+#     # sys.path.append('/home/SSHAdmin/anaconda/lib/python2.7/site-packages/')
+#
+#
+#     print "Add jobs.zip to system path"
+#     import sys
+#
+#     sys.path.insert(0, "jobs.zip")
+#
+#     print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
+#     test_data_monthly_model = get_data_monthly(sqlContext=sqlContext) \
+#         .map(lambda x: assign_category(x)) \
+#         .filter(lambda x: x != "NOT_CONSIDERED")
+#
+#     #############################________________PROPHET__________################################
+#
+#     print "**************\n**************\n"
+#
+#     # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+#     print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+#     # print "\t\t--Running distributed prophet"
+#     prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext)
+#
+#     prophet_monthly_results.distinct().show()
+#
+#     # # print prophet_monthly_results
+#     #
+#     # print "Writing the MONTHLY MODEL data into HDFS"
+#     # prophet_monthly_results.coalesce(4).write.mode('overwrite').format('orc').option("header", "false").save(
+#     #     "/tmp/pyspark_data/dist_model_monthly_first_run_testing")

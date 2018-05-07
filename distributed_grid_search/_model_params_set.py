@@ -3,7 +3,7 @@ import distributed_grid_search._sarimax as smax
 import itertools
 from transform_data.pandas_support_func import *
 from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
-from properties import *
+from distributed_grid_search.properties import *
 
 def generate_all_param_combo_sarimax():
     param_p = xrange(p.p_max + 1)
@@ -136,6 +136,23 @@ def generate_all_param_combo_prophet_monthly():
 
     return _result
 
+def generate_all_param_combo_sarimax_monthly():
+    param_p = xrange(p.p_max_M + 1)
+    param_q = xrange(p.q_max_M + 1)
+    param_d = xrange(p.d_max_M + 1)
+
+    param_P = xrange(p.P_max_M + 1)
+    param_Q = xrange(p.Q_max_M + 1)
+    param_D = xrange(p.D_max_M + 1)
+
+    pdq = list(itertools.product(param_p, param_d, param_q))
+
+    seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
+
+    all_combo = list(itertools.product(pdq, seasonal_pdq))
+
+    return all_combo
+
 
 def make_single_dict(a):
     b = {}
@@ -216,6 +233,34 @@ def generate_models_prophet_monthly(x, **kwargs):
 
     return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
             generate_all_param_combo_prophet_monthly()]
+
+def generate_models_sarimax_monthly(x, **kwargs):
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
+
+    row_object, category_obj = x
+    customernumber = row_object.customernumber
+    matnr = row_object.matnr
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
+
+
+    # Unpacking the dataset
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    # Obtaining weeekly aggregate
+    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+
+    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
+    #
+    # return [(customernumber, matnr, data_pd_df_week_aggregated, param, category_obj)]
+
+    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
+            generate_all_param_combo_sarimax_monthly()]
 
 
 def generate_all_param_combo_pydlm_monthly():
