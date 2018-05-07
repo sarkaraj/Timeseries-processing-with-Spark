@@ -259,12 +259,9 @@ def generate_models_sarimax_monthly(x, **kwargs):
     # Obtaining weeekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
-    #
-    # return [(customernumber, matnr, data_pd_df_week_aggregated, param, category_obj)]
 
-    return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
-            generate_all_param_combo_sarimax_monthly()]
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj) for pdq, seasonal_pqd
+            in generate_all_param_combo_sarimax()]
 
 
 def generate_all_param_combo_pydlm_monthly():
