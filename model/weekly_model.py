@@ -55,14 +55,14 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
     # test and train data creation
-    # train = prod[
-    #     prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
-    # test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-    # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
-    # output_result = pd.DataFrame()
-    #
-    # # incremental test
-    # while (len(rem_data.ds) >= test_points):
+    train = prod[
+        prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
+    test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
+    rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+    output_result = pd.DataFrame()
+
+    # incremental test
+    while (len(rem_data.ds) >= test_points):
     #
     #     # ARIMA Model Data Transform
     #     train_arima = train.set_index('ds', drop=True)
@@ -124,39 +124,39 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
     #     # pred_test_ci = pred_test.conf_int()
     #
     #     # creating test and train ensembled result
-    #     result_test = test
+        result_test = test
     #     result_test['y_ARIMA'] = np.array(pred_test.predicted_mean)[1:]
     #     result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
     #     # print(pred_test.predicted_mean)
     #
-    #     # prophet
-    #     m = Prophet(weekly_seasonality=False,yearly_seasonality= False,
-    #                  changepoint_prior_scale=1)
-    #
-    #     m.fit(train);
-    #
-    #     # creating pred train and test data frame
-    #     past = m.make_future_dataframe(periods=0, freq='W')
-    #     future = pd.DataFrame(test['ds'])
-    #     pf_train_pred = m.predict(past)
-    #     pf_test_pred = m.predict(future)
-    #     pf_train_pred = pf_train_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([past.index])
-    #     pf_test_pred = pf_test_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([future.index])
-    #
-    #     # ceating test and train emsembled result
-    #     result_test['y_Prophet'] = np.array(pf_test_pred.yhat)
-    #     result_test.loc[(result_test['y_Prophet'] < 0), 'y_Prophet'] = 0
-    #
-    #     # Ansemble
-    #     result_test['y_Ensembled'] = result_test[["y_ARIMA", "y_Prophet"]].mean(axis=1)
-    #
-    #     print('Next Test Starts...')
-    #     train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
-    #     test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
-    #     rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
-    #
-    #     output_result = pd.concat([output_result, result_test], axis=0)
-    #
+        # prophet
+        m = Prophet(weekly_seasonality=False,yearly_seasonality= False,
+                     changepoint_prior_scale=1)
+
+        m.fit(train);
+
+        # creating pred train and test data frame
+        past = m.make_future_dataframe(periods=0, freq='W')
+        future = pd.DataFrame(test['ds'])
+        pf_train_pred = m.predict(past)
+        pf_test_pred = m.predict(future)
+        pf_train_pred = pf_train_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([past.index])
+        pf_test_pred = pf_test_pred[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].set_index([future.index])
+
+        # ceating test and train emsembled result
+        result_test['y_Prophet'] = np.array(pf_test_pred.yhat)
+        result_test.loc[(result_test['y_Prophet'] < 0), 'y_Prophet'] = 0
+
+        # Ansemble
+        # result_test['y_Ensembled'] = result_test[["y_ARIMA", "y_Prophet"]].mean(axis=1)
+
+        print('Next Test Starts...')
+        train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
+        test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
+        rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+
+        output_result = pd.concat([output_result, result_test], axis=0)
+
     # output_result = weekly_ensm_model_error_calc(output_result)
     #
     # #################################
@@ -227,4 +227,4 @@ def weekly_ensm_model(prod, cus_no, mat_no, min_train_days=731, test_points=2, h
     #     # Error plots(comment)
     #     weekly_ensm_model_error_plots(output_result=output_result, dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
     #
-    #     return output_error
+    return output_result

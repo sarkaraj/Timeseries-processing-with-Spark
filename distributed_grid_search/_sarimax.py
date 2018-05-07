@@ -4,7 +4,7 @@ import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import weekly_arima_error_calc
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso
-from properties import SARIMAX_W_MODEL_SELECTION_CRITERIA
+from distributed_grid_search.properties import SARIMAX_W_MODEL_SELECTION_CRITERIA
 
 
 def _get_pred_dict_sarimax(prediction_series):

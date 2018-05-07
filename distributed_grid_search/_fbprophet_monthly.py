@@ -4,7 +4,7 @@ import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import monthly_prophet_model_error_calc
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import *
-from properties import PROPH_M_MODEL_SELECTION_CRITERIA
+from distributed_grid_search.properties import PROPH_M_MODEL_SELECTION_CRITERIA
 
 
 def _get_pred_dict_prophet_m(prediction):

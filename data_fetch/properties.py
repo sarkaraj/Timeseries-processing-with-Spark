@@ -54,5 +54,5 @@ where d.bill_date <= """
 
 _latest_product_criteria_days = 92
 
-if __name__ == "__main__":
-    print _query
+# if __name__ == "__main__":
+#     print _query

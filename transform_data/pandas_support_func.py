@@ -65,25 +65,25 @@ def get_pd_df(data_array, customernumber, matnr, **kwargs):
 
 
 
-if __name__ == "__main__":
-    import pandas as pd
-    from transform_data.data_transform import get_weekly_aggregate
-    import datetime
-
-    now = datetime.datetime.now()
-
-    temp = ['2016-09-09\t1.0', '2016-09-19\t2.0', '2017-10-02\t1.0\t']
-
-    a = [i.split("\t") for i in temp]
-
-    # a = [['2016-09-09', '1.0'], ['2016-09-19', '2.0'], ['2017-10-02', '1.0', '0.0']]
-
-    b = pd.DataFrame(data=a, columns=['date', 'quantity', 'q_indep_p']).fillna(9999).convert_objects(
-        convert_numeric=True)
-    b['customernumber'] = '12345'
-    b['matnr'] = '100'
-
-    df2 = pd.DataFrame({'date': [now.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
-
-    print b.dtypes
-    print get_weekly_aggregate(b)
+# if __name__ == "__main__":
+#     import pandas as pd
+#     from transform_data.data_transform import get_weekly_aggregate
+#     import datetime
+#
+#     now = datetime.datetime.now()
+#
+#     temp = ['2016-09-09\t1.0', '2016-09-19\t2.0', '2017-10-02\t1.0\t']
+#
+#     a = [i.split("\t") for i in temp]
+#
+#     # a = [['2016-09-09', '1.0'], ['2016-09-19', '2.0'], ['2017-10-02', '1.0', '0.0']]
+#
+#     b = pd.DataFrame(data=a, columns=['date', 'quantity', 'q_indep_p']).fillna(9999).convert_objects(
+#         convert_numeric=True)
+#     b['customernumber'] = '12345'
+#     b['matnr'] = '100'
+#
+#     df2 = pd.DataFrame({'date': [now.strftime('%Y-%m-%d')], 'quantity': [0.0], 'q_indep_p': [0.0]})
+#
+#     print b.dtypes
+#     print get_weekly_aggregate(b)

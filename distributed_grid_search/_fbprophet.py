@@ -4,7 +4,7 @@ import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import weekly_prophet_error_calc
 import transform_data.pandas_support_func as pd_func
 from transform_data.holidays import get_holidays_dataframe_pd
-from properties import PROPH_W_MODEL_SELECTION_CRITERIA
+from distributed_grid_search.properties import PROPH_W_MODEL_SELECTION_CRITERIA
 from transform_data.data_transform import gregorian_to_iso
 
 

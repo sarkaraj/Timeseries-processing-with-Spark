@@ -275,11 +275,11 @@ def generate_models_pydlm_monthly(x):
     return [(customernumber, matnr, data_pd_df_week_aggregated, elem, category_obj) for elem in
             generate_all_param_combo_pydlm_monthly()]
 
-if __name__ == '__main__':
-    a = generate_all_param_combo_pydlm_monthly()
-    # print (len(a))
-
-    print (generate_all_param_combo_sarimax())
+# if __name__ == '__main__':
+#     a = generate_all_param_combo_prophet_monthly()
+#     # print (len(a))
+#
+#     print (a)
     # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
     #
     # print param

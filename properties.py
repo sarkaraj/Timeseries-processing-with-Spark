@@ -76,8 +76,8 @@ and katr6 = '3'
 
 
 
-
-if __name__ == "__main__":
-    from data_fetch.support_func import generate_weekly_query
-
-    print generate_weekly_query(_model_bld_date_string_list)
+#
+# if __name__ == "__main__":
+#     from data_fetch.support_func import generate_weekly_query
+#
+#     print generate_weekly_query(_model_bld_date_string_list)

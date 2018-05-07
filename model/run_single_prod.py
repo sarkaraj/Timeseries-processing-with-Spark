@@ -10,6 +10,7 @@ from model.weekly_model import *
 # # from model.moving_average_monthly import *
 from model.monthly_model import *
 from model.plt_data import *
+import time
 
 # loading libs
 import pandas as pd
@@ -45,10 +46,13 @@ prod = cus[cus.matnr == mat_no]
 
 prod = get_weekly_aggregate(inputDF=prod)
 
-result = weekly_ensm_model(prod= prod, cus_no= cus_no, mat_no= mat_no, holidays= holidays,
-                           dir_name = image_dir)
+start_time = time.time()
 
+result = weekly_ensm_model(prod= prod, cus_no= cus_no, mat_no= mat_no, holidays= holidays,
+                           )
 print(result)
+
+print("--- %s seconds ---" % (time.time() - start_time))
 
 # for mat_no in cus.matnr.unique():
 #     prod = cus[cus.matnr == mat_no]
