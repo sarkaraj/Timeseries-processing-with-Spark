@@ -3,6 +3,7 @@ from pyspark.sql.types import *
 
 def final_select_dataset(join_dataframe, sqlContext):
     join_dataframe_return = join_dataframe \
+        .rdd \
         .map(lambda _row: column_selector(_row))
 
     _final_df = sqlContext.createDataFrame(join_dataframe_return, schema=_schema())
