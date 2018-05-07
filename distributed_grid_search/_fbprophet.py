@@ -59,7 +59,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
         prod = prod.reset_index(drop=True)
 
         # Remove outlier
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
 
         # test and train data creation
         train = prod[
@@ -161,7 +161,7 @@ def run_prophet(cus_no, mat_no, prod, param, **kwargs):
         # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
         # Remove outlier
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True)
+        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
 
         # test and train data creation
         train = prod[

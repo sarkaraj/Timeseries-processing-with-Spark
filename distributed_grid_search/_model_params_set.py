@@ -125,6 +125,10 @@ def generate_all_param_combo_prophet_monthly():
                                          PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT,
                                          PROPH_M_SEASONALITY_PRIOR_SCALE_STEP_SIZE)]
 
+    # TODO: Added to test model improvement, can be removed later
+    optional_seeasonality_prior_scale = [{'seasonality_prior_scale': 0.05}]
+    seasonality_prior_scale = seasonality_prior_scale + optional_seeasonality_prior_scale
+
     changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in
                                np.arange(PROPH_M_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT,
                                          PROPH_M_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT,

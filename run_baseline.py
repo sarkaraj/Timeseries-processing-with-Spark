@@ -1,10 +1,10 @@
 from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext, SparkSession, SQLContext
+from pyspark.sql import HiveContext
 from support_func import get_current_date, get_sample_customer_list, obtain_mdl_bld_dt
 from properties import MODEL_BUILDING
-from _weekly_products import build_prediction_weekly
+from _weekly_baseline import build_baseline_prediction_weekly
 import properties as p
-from _monthly_products import build_prediction_monthly
+from _monthly_baseline import build_baseline_prediction_monthly
 
 ####################################################################################################################
 
@@ -12,17 +12,10 @@ from _monthly_products import build_prediction_monthly
 appName = "_".join([MODEL_BUILDING, "CONSOLIDATED", get_current_date()])
 ####################################################################################################################
 
-# conf = SparkConf()
+conf = SparkConf().setAppName(appName)
 
-spark = SparkSession \
-    .builder \
-    .appName(appName) \
-    .enableHiveSupport() \
-    .getOrCreate()
-
-# sc = SparkContext(conf=conf)
-sc = spark.sparkContext
-sqlContext = spark
+sc = SparkContext(conf=conf)
+sqlContext = HiveContext(sparkContext=sc)
 
 import time
 
@@ -33,17 +26,16 @@ import time
 # mdl_bld_date_string = obtain_mdl_bld_dt()
 
 
-print "Setting LOG LEVEL as ERROR"
+print ("Setting LOG LEVEL as ERROR")
 sc.setLogLevel("ERROR")
 
-print "Adding forecaster.zip to system path"
+print ("Adding jobs.zip to system path")
 import sys
-
-sys.path.insert(0, "forecaster.zip")
+sys.path.insert(0, "jobs.zip")
 
 mdl_bld_date_string = ["".join(sys.argv[1])]
 
-print "Importing Sample Customer List"
+print ("Importing Sample Customer List")
 get_sample_customer_list(sqlContext=sqlContext)
 
 for _model_bld_date_string in mdl_bld_date_string:
@@ -51,9 +43,9 @@ for _model_bld_date_string in mdl_bld_date_string:
     print (_model_bld_date_string)
     print("************************************************************************************\n")
 
-    print("Starting Weekly Model building")
+    print("Starting Weekly Baseline Model building")
     start_time = time.time()
-    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    build_baseline_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
 
     print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
@@ -61,13 +53,12 @@ for _model_bld_date_string in mdl_bld_date_string:
         print("Starting Monthly Model building")
         start_time = time.time()
 
-        build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+        build_baseline_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
         print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
 
 # Clearing cache
 sqlContext.clearCache()
-
 
 # Force Stopping SparkContext
 sc.stop()
