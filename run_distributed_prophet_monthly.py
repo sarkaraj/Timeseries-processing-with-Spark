@@ -39,7 +39,7 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
     # # Parallelizing Jobs
     prophet_results_rdd = test_data_parallel \
         .repartition(REPARTITION_STAGE_1) \
-        .map(lambda x: run_prophet_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3],
+        .map(lambda x: run_prophet_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdq=x[2], seasonal_pdq=x[3],
                                            min_train_days=x[4].min_train_days, pdt_cat=x[4].get_product_prop())) \
         .filter(lambda x: x != "MODEL_NOT_VALID")
     # .repartition(REPARTITION_STAGE_1)
