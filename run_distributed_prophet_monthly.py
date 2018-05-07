@@ -36,6 +36,8 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
         lambda x: generate_models_prophet_monthly(x,
                                                   MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))  # # gets 587 * 55 = 32285 rows
 
+    # print(test_data_parallel.collect())
+
     test_data_parallel.cache()
     test_data_parallel.take(1)
 
@@ -45,9 +47,12 @@ def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
         .map(lambda x: run_prophet_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], param=x[3],
                                            min_train_days=x[4].min_train_days, pdt_cat=x[4].get_product_prop())) \
         .filter(lambda x: x != "MODEL_NOT_VALID")
+
     # .repartition(REPARTITION_STAGE_1)
 
     test_data_parallel.unpersist()
+    #
+    # print(prophet_results_rdd.collect())
 
     opt_prophet_results_rdd = prophet_results_rdd \
         .combineByKey(dist_grid_search_create_combiner,
@@ -72,7 +77,7 @@ if __name__ == "__main__":
     from pyspark.sql.types import *
     import properties as p
     from transform_data.data_transform import string_to_gregorian
-    from run_distributed_prophet_monthly import _run_dist_prophet_monthly
+    # from run_distributed_prophet_monthly import _run_dist_prophet_monthly
     from support_func import assign_category
 
     # from data_fetch.data_query import get_data_weekly, get_data_monthly
@@ -129,82 +134,101 @@ if __name__ == "__main__":
         .option("header", "true") \
         .load("/home/rajarshi/Documents/CONA_LINUX/thaddeusSmithRawInvoice")
 
-    raw_dataset_1.cache()
+    # raw_dataset_1.cache()
 
-    file_from = open("/home/rajarshi/Desktop/temporary/thaddeusSmithCustomerList/Incomplete.txt", mode="r")
-    file_to = open("/home/rajarshi/Desktop/temporary/thaddeusSmithCustomerList/Complete.txt", mode="a")
+    # file_from = open("/home/rajarshi/Desktop/temporary/thaddeusSmithCustomerList/Incomplete.txt", mode="r")
+    # file_to = open("/home/rajarshi/Desktop/temporary/thaddeusSmithCustomerList/Complete.txt", mode="a")
 
-    for customernumber in file_from.readlines():
-        customernumber_clean = "".join([elem for elem in customernumber if elem != "\n"])
-        customernumber_complete = str(0) + str(customernumber_clean)
+    # customernumber_clean = "".join([elem for elem in customernumber if elem != "\n"])
+    # customernumber_complete = str(0) + str(customernumber_clean)
 
-        raw_dataset = raw_dataset_1 \
-            .filter(col("customernumber") == customernumber_complete)
+    customernumber_complete = "0500076413"
 
-        file_to.write(customernumber_complete + "\n")
+    raw_dataset = raw_dataset_1 \
+        .filter(col("customernumber") == customernumber_complete)
 
-        # raw_dataset.show(10)
+    # file_to.write(customernumber_complete + "\n")
 
-        filtered_dataset = raw_dataset \
-            .filter(col('quantity') > 0) \
-            .withColumn('b_date', from_unixtime(unix_timestamp(col('bill_date'), "yyyyMMdd")).cast(DateType())) \
-            .withColumn('matnr_data', concat_ws("\t", col('b_date'), col('quantity'), col('q_indep_prc'))) \
-            .groupBy('customernumber', 'matnr') \
-            .agg(collect_list('matnr_data').alias('data'),
-                 max('b_date').alias('max_date'),
-                 min('b_date').alias('min_date'),
-                 count('b_date').alias('row_count')) \
-            .withColumn('temp_curr_date', lit(month_cutoff_date)) \
-            .withColumn('current_date',
-                        from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
-            .withColumn('time_gap_years',
-                        (datediff(col('current_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
-            .withColumn('time_gap_days',
-                        (datediff(col('current_date'), col('min_date')).cast("int")).cast(FloatType())) \
-            .withColumn('pdt_freq_annual', (col('row_count') / col('time_gap_years')).cast(FloatType())) \
-            .filter((datediff(col('current_date'), col('max_date')) <= p_data_fetch._latest_product_criteria_days)) \
-            .drop(col('max_date')) \
-            .drop(col('min_date')) \
-            .drop(col('row_count')) \
-            .drop(col('temp_curr_date')) \
-            .drop(col('current_date'))
+    # raw_dataset.show(10)
 
-        # filtered_dataset.show(10)
+    filtered_dataset = raw_dataset \
+        .filter(col('quantity') > 0) \
+        .withColumn('b_date', from_unixtime(unix_timestamp(col('bill_date'), "yyyyMMdd")).cast(DateType())) \
+        .withColumn('matnr_data', concat_ws("\t", col('b_date'), col('quantity'), col('q_indep_prc'))) \
+        .groupBy('customernumber', 'matnr') \
+        .agg(collect_list('matnr_data').alias('data'),
+             max('b_date').alias('max_date'),
+             min('b_date').alias('min_date'),
+             count('b_date').alias('row_count')) \
+        .withColumn('temp_curr_date', lit(month_cutoff_date)) \
+        .withColumn('current_date',
+                    from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
+        .withColumn('time_gap_years',
+                    (datediff(col('current_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
+        .withColumn('time_gap_days',
+                    (datediff(col('current_date'), col('min_date')).cast("int")).cast(FloatType())) \
+        .withColumn('pdt_freq_annual', (col('row_count') / col('time_gap_years')).cast(FloatType())) \
+        .filter((datediff(col('current_date'), col('max_date')) <= p_data_fetch._latest_product_criteria_days)) \
+        .drop(col('max_date')) \
+        .drop(col('min_date')) \
+        .drop(col('row_count')) \
+        .drop(col('temp_curr_date')) \
+        .drop(col('current_date'))
 
-        assigned_category = filtered_dataset.rdd \
-            .map(lambda x: assign_category(x)) \
-            .filter(lambda x: x != "NOT_CONSIDERED") \
-            .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
+    filtered_dataset.printSchema()
+    filtered_dataset.cache()
 
-        # .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
+    # _products = filtered_dataset\
+    #     .select("matnr")\
+    #     .rdd\
+    #     .map(lambda x: x.matnr)\
+    #     .collect()
+    #
+    # # print(type(_products))
+    # print(len(_products))
 
-        # print(assigned_category.count())
+    # for prod in _products:
+    #     print(prod)
+    #
+    #     file_to = open("/home/rajarshi/Desktop/temporary/thaddeusSmithCustomerList/product_list_raw.txt", mode="a")
 
-        print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
-               + str(p.annual_freq_cut_1) + "\n")
+    assigned_category = filtered_dataset \
+        .filter(col("matnr") == "000000000000151988") \
+        .rdd \
+        .map(lambda x: assign_category(x)) \
+        .filter(lambda x: x != "NOT_CONSIDERED") \
+        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
 
-        print "\t\t--Running distributed prophet"
-        prophet_monthly_results = _run_dist_prophet_monthly(test_data=assigned_category, sqlContext=sqlContext,
-                                                            MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    # .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-        # prophet_monthly_results.show(10)
+    # print(assigned_category.count())
 
-        prophet_monthly_results_final = prophet_monthly_results \
-            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-            .withColumn('month_cutoff_date', lit(month_cutoff_date))
+    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
+           + str(p.annual_freq_cut_1) + "\n")
 
-        print("Printing prophet_monthly_results_final")
-        # prophet_monthly_results_final.show(10)
+    print "\t\t--Running distributed prophet"
+    prophet_monthly_results = _run_dist_prophet_monthly(test_data=assigned_category, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-        print ("Writing the MONTHLY MODEL data into HDFS")
-        prophet_monthly_results_final \
-            .write.mode('append') \
-            .format('orc') \
-            .option("header", "true") \
-            .save(temp_test_location)
-
-    raw_dataset_1.unpersist()
-
-    file_from.close()
-    file_to.close()
+    # # prophet_monthly_results.show(10)
+    #
+    # prophet_monthly_results_final = prophet_monthly_results \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
+    #
+    # print("Printing prophet_monthly_results_final")
+    # # prophet_monthly_results_final.show(10)
+    #
+    # print ("Writing the MONTHLY MODEL data into HDFS")
+    # prophet_monthly_results_final \
+    #     .write.mode('append') \
+    #     .format('orc') \
+    #     .option("header", "true") \
+    #     .save(temp_test_location)
+    #
+    # # file_to.write(prod + "\n")
+    # # file_to.close()
+    #
+    # # raw_dataset_1.unpersist()
+    filtered_dataset.unpersist()
     spark.stop()

@@ -23,30 +23,36 @@ from matplotlib.pylab import rcParams
 rcParams['figure.figsize'] = 15, 6
 
 # data load and transform
-file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
+file_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_000000000000151988/"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\images\\CCBF\\modeling_result"
+image_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_000000000000151988/images"
 
-# holidays
-holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
-holidays.ds = holidays.ds.apply(parser.parse)
-holidays.lower_window = -7
-holidays.upper_window = 7
+# # holidays
+# holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
+# holidays.ds = holidays.ds.apply(parser.parse)
+# holidays.lower_window = -7
+# holidays.upper_window = 7
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "raw_data_FL_ALL_cutoff_dt_05-11-2017.tsv", sep="\t", header=None,
+raw_data = pd.read_csv(file_dir + "invoices_0500076413_000000000000151988.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
-cus_no = 500124803
-mat_no = 115583
+cus_no = 500076413
+mat_no = 151988
 
 cus = raw_data[raw_data.customernumber == cus_no]
 prod = cus[cus.matnr == mat_no]
 
 prod = get_weekly_aggregate(inputDF=prod)
 
-result = weekly_ensm_model(prod= prod, cus_no= cus_no, mat_no= mat_no, holidays= holidays,
-                           dir_name = image_dir)
+# print(prod)
+
+# prod = get_monthly_aggregate(get_weekly_aggregate(inputDF=prod))
+
+# result = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, holidays=holidays,
+#                            dir_name=image_dir)
+
+result = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
 
 print(result)
 
