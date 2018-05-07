@@ -151,7 +151,7 @@ def generate_all_param_combo_sarimax_monthly():
 
     pdq = list(itertools.product(param_p, param_d, param_q))
 
-    seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
+    seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(param_P, param_D, param_Q))]
 
     all_combo = list(itertools.product(pdq, seasonal_pdq))
 
@@ -261,7 +261,7 @@ def generate_models_sarimax_monthly(x, **kwargs):
 
 
     return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj) for pdq, seasonal_pqd
-            in generate_all_param_combo_sarimax()]
+            in generate_all_param_combo_sarimax_monthly()]
 
 
 def generate_all_param_combo_pydlm_monthly():
