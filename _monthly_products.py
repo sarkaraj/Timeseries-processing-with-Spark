@@ -70,7 +70,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
 
     print (
-                "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + p.annual_freq_cut_2 + "<= X < " + p.annual_freq_cut_3 + "\n")
+            "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + str(p.annual_freq_cut_2) + "<= X < " + str(
+        p.annual_freq_cut_3) + "\n")
 
     # print "\t\t--Running distributed prophet"
     arima_monthly_results = _run_dist_arima_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
