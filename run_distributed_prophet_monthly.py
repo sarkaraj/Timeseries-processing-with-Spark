@@ -210,7 +210,7 @@ if __name__ == "__main__":
     prophet_monthly_results = _run_dist_prophet_monthly(test_data=assigned_category, sqlContext=sqlContext,
                                                         MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    # # prophet_monthly_results.show(10)
+    prophet_monthly_results.show(10)
     #
     # prophet_monthly_results_final = prophet_monthly_results \
     #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
