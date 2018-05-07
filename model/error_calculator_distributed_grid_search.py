@@ -113,3 +113,31 @@ def monthly_prophet_model_error_calc(data):
     data['rolling_4month_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
 
     return (data)
+
+def monthly_arima_model_error_calc(data):
+
+    import pandas as pd
+    import numpy as np
+
+    # Calculate total ACTUAL Quantity
+    data['cumsum_quantity'] = data.y.cumsum()
+
+    data['Error_arima'] = np.subtract(data.y_ARIMA, data.y)
+    data['Error_Cumsum_arima'] = data.Error_arima.cumsum() / data.y.cumsum() * 100
+
+    # Calculate Rolling 6-week and 12-week error for Arima
+    data['rolling_3month_error_arima'] = pd.rolling_sum(data['Error_arima'], window=3,
+                                                         min_periods=3)
+    data['rolling_3month_y'] = pd.rolling_sum(data['y'], window=3, min_periods=3)
+    data['rolling_3month_percent_error_arima'] = data['rolling_3month_error_arima'] / data[
+        'rolling_3month_y'] * 100
+    data['rolling_3month_quantity'] = pd.rolling_sum(data['y'], window=3, min_periods=3)
+
+    data['rolling_4month_error_arima'] = pd.rolling_sum(data['Error_arima'], window=4,
+                                                          min_periods=4)
+    data['rolling_4month_y'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+    data['rolling_4month_percent_error_arima'] = data['rolling_4month_error_arima'] / \
+                                                   data['rolling_4month_y'] * 100
+    data['rolling_4month_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
+
+    return (data)

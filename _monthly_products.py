@@ -1,3 +1,14 @@
+from data_fetch.data_query import get_data_monthly
+from pyspark import SparkContext, SparkConf
+from pyspark.sql import HiveContext
+from run_distributed_prophet_monthly import _run_dist_prophet_monthly
+from run_distributed_arima_monthly import _run_dist_arima_monthly
+from run_moving_average import _run_moving_average_monthly
+from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
+from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
+import properties as p
+from pyspark.sql.functions import *
+from transform_data.data_transform import string_to_gregorian
 
 def build_prediction_monthly(sc, sqlContext, **kwargs):
     from data_fetch.data_query import get_data_monthly
@@ -35,20 +46,37 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # print("Printing test_data_monthly_model")
     # print(test_data_monthly_model.take(10))
 
-    #############################________________PROPHET__________################################
+    # #############################________________PROPHET__________################################
+    #
+    # # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+    # print "Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60\n"
+    # # print "\t\t--Running distributed prophet"
+    # prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # prophet_monthly_results_final = prophet_monthly_results \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
+    #
+    # print "Writing the MONTHLY MODEL data into HDFS"
+    # prophet_monthly_results_final \
+    #     .write.mode('append') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(monthly_pdt_cat_456_location)
+
+    #############################________________SARIMAX__________################################
 
     # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
-           + str(p.annual_freq_cut_1) + "\n")
+
+    print (
+                "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + p.annual_freq_cut_2 + "<= X < " + p.annual_freq_cut_3 + "\n")
 
     # print "\t\t--Running distributed prophet"
-    prophet_monthly_results = _run_dist_prophet_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    arima_monthly_results = _run_dist_arima_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                    MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    # print("Printing prophet_monthly_results")
-    # print(prophet_monthly_results.show(10))
-
-    prophet_monthly_results_final = prophet_monthly_results \
+    arima_monthly_results_final = arima_monthly_results \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
         .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
@@ -56,35 +84,35 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # prophet_monthly_results_final.show(10)
 
     print "Writing the MONTHLY MODEL data into HDFS"
-    prophet_monthly_results_final \
+    arima_monthly_results_final \
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(monthly_pdt_cat_456_location)
 
-    ############################________________MOVING AVERAGE__________##########################
+    # ############################________________MOVING AVERAGE__________##########################
+    #
+    # print "**************\n**************\n"
+    #
+    # print "Running MONTHLY_MA_MODELS on products\n"
+    #
+    # ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # ma_monthly_results_df_final = ma_monthly_results_df \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
+    #
+    # print "Writing the MA MONTHLY data into HDFS\n"
+    # ma_monthly_results_df_final \
+    #     .write.mode('append') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(monthly_pdt_cat_8910_location)
+    #
+    # # # Clearing cache
+    # # sqlContext.clearCache()
 
-    print "**************\n**************\n"
-
-    print ("Running MONTHLY_MODELS MOVING AVERAGE on products with FREQ : " + str(p.annual_freq_cut_3) + " <= X < "
-           + str(p.annual_freq_cut_2) + "\n")
-
-    ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    ma_monthly_results_df_final = ma_monthly_results_df \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('month_cutoff_date', lit(month_cutoff_date))
-
-    print "Writing the MA MONTHLY data into HDFS\n"
-    ma_monthly_results_df_final \
-        .write.mode('append') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_8910_location)
-
-    # # Clearing cache
-    # sqlContext.clearCache()
     # test_data_monthly_model.unpersist()
 
     print("************************************************************************************")
