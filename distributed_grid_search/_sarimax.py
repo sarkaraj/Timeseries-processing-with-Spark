@@ -71,7 +71,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
             warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
             mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
-                                            enforce_stationarity=True, enforce_invertibility=True,
+                                            enforce_stationarity=False, enforce_invertibility=False,
                                             measurement_error=False, time_varying_regression=False,
                                             mle_regression=True)
 
@@ -100,7 +100,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # model_prediction
         prod_arima = prod.set_index('ds', drop=True)
         mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
-                                        enforce_stationarity=True, enforce_invertibility=True,
+                                        enforce_stationarity=False, enforce_invertibility=False,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)
 
