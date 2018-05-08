@@ -118,9 +118,21 @@ def _get_last_day_of_previous_month(_date):
     return last_month.strftime("%Y-%m-%d")
 
 
-def get_sample_customer_list(sc, sqlContext):
-    from properties import _query, customer_data_location, comments
+def get_sample_customer_list(sc, sqlContext, **kwargs):
     from data_fetch.custom_customer_list import generate_customer_list_fomatted
+
+    customer_data_location = p.customer_data_location
+
+    if "_model_bld_date_string" in kwargs.keys():
+        _model_bld_date_string = kwargs.get("_model_bld_date_string")
+    else:
+        print("ValueError: No model date has been provided")
+        raise ValueError
+
+    if "comments" in kwargs.keys():
+        comments = kwargs.get("comments")
+    else:
+        comments = p.comments
 
     full_custom_customer_list = generate_customer_list_fomatted()
     custom_schema = StructType(
@@ -128,30 +140,22 @@ def get_sample_customer_list(sc, sqlContext):
     )
 
     _temp_rdd = sc.parallelize(full_custom_customer_list)
-
-    # print(temp_rdd.take(1))
     _custom_customer_list_df = sqlContext.createDataFrame(_temp_rdd, schema=custom_schema)
 
-    # _custom_customer_list_df.show()
-    #
-    # # customer_sample = sqlContext.sql(_query)
     customer_sample = _custom_customer_list_df \
+        .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
         .withColumn("Comments", lit(comments))
 
     customer_list = customer_sample.select(col("customernumber"))
-    customer_list.cache()
 
     customer_list.createOrReplaceTempView("customerdata")
 
-    # customer_list.show()
-    # print(customer_list.count())
-
-    # # TODO: Uncomment this section
-    # customer_sample.coalesce(1) \
-    #     .write.mode('overwrite') \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(customer_data_location)
+    # TODO: Uncomment this section
+    customer_sample.coalesce(1) \
+        .write.mode('overwrite') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(customer_data_location)
 
 
 def obtain_mdl_bld_dt():

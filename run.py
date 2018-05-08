@@ -5,6 +5,7 @@ from properties import MODEL_BUILDING
 from _weekly_products import build_prediction_weekly
 import properties as p
 from _monthly_products import build_prediction_monthly
+import time
 
 ####################################################################################################################
 
@@ -24,7 +25,6 @@ spark = SparkSession \
 sc = spark.sparkContext
 sqlContext = spark
 
-import time
 
 # # # Total Number of executors for the current run
 # total_execs = int(sc._jsc.sc().getExecutorMemoryStatus().size())
@@ -42,32 +42,29 @@ import sys
 sys.path.insert(0, "forecaster.zip")
 
 mdl_bld_date_string = ["".join(sys.argv[1])]
+_model_bld_date_string = mdl_bld_date_string[0]
+
+comments = " ".join(["Consolidated Run. Dated:", str(_model_bld_date_string)])
 
 print "Importing Sample Customer List"
-get_sample_customer_list(sqlContext=sqlContext)
+get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string, comments=comments)
 
-for _model_bld_date_string in mdl_bld_date_string:
-    print("************************************************************************************")
-    print (_model_bld_date_string)
-    print("************************************************************************************\n")
+print("************************************************************************************")
+print (_model_bld_date_string)
+print("************************************************************************************\n")
 
-    print("Starting Weekly Model building")
+print("Starting Weekly Model building")
+start_time = time.time()
+build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+
+print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+
+if p.monthly_dates.get(_model_bld_date_string) == True:
+    print("Starting Monthly Model building")
     start_time = time.time()
-    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
 
-    print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
-    if p.monthly_dates.get(_model_bld_date_string)==True:
-        print("Starting Monthly Model building")
-        start_time = time.time()
-
-        build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-
-
-# Clearing cache
-sqlContext.clearCache()
-
-
-# Force Stopping SparkContext
-sc.stop()
+# # Force Stopping SparkContext
+spark.stop()

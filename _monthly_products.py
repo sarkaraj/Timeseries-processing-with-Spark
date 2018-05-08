@@ -10,9 +10,9 @@ import properties as p
 from pyspark.sql.functions import *
 from transform_data.data_transform import string_to_gregorian
 
+
 def build_prediction_monthly(sc, sqlContext, **kwargs):
     from data_fetch.data_query import get_data_monthly
-
 
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
@@ -31,17 +31,15 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     ###################################______________MONTHLY_____________###############################################
     ####################################################################################################################
 
-
-
-    print "Querying of Hive Table - Obtaining Product Data for Monthly Models"
+    print ("Querying of Hive Table - Obtaining Product Data for Monthly Models")
     test_data_monthly_model = get_data_monthly(sqlContext=sqlContext, month_cutoff_date=month_cutoff_date) \
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
-    # # # Caching Data for this run
-    # test_data_monthly_model.cache()
+    # # Caching Data for this run
+    test_data_monthly_model.cache()
 
     # print("Printing test_data_monthly_model")
     # print(test_data_monthly_model.take(10))
@@ -70,8 +68,8 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
 
     print (
-            "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + str(p.annual_freq_cut_2) + "<= X < " + str(
-        p.annual_freq_cut_3) + "\n")
+            "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < " + str(
+        p.annual_freq_cut_1) + "\n")
 
     # print "\t\t--Running distributed prophet"
     arima_monthly_results = _run_dist_arima_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
@@ -91,30 +89,30 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .option("header", "false") \
         .save(monthly_pdt_cat_456_location)
 
-    # ############################________________MOVING AVERAGE__________##########################
-    #
-    # print "**************\n**************\n"
-    #
-    # print "Running MONTHLY_MA_MODELS on products\n"
-    #
-    # ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-    #                                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-    #
-    # ma_monthly_results_df_final = ma_monthly_results_df \
-    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
-    #
-    # print "Writing the MA MONTHLY data into HDFS\n"
-    # ma_monthly_results_df_final \
-    #     .write.mode('append') \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(monthly_pdt_cat_8910_location)
-    #
-    # # # Clearing cache
-    # # sqlContext.clearCache()
+    ############################________________MOVING AVERAGE__________##########################
 
-    # test_data_monthly_model.unpersist()
+    print ("**************\n**************\n")
+
+    print ("Running MONTHLY_MODELS MOVING AVERAGE FOR CATEGORY VIII, IX, X")
+
+    ma_monthly_results_df = _run_moving_average_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    ma_monthly_results_df_final = ma_monthly_results_df \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+
+    print "Writing the MA MONTHLY data into HDFS\n"
+    ma_monthly_results_df_final \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_8910_location)
+
+    # # Clearing cache
+    # sqlContext.clearCache()
+
+    test_data_monthly_model.unpersist()
 
     print("************************************************************************************")
 
