@@ -28,20 +28,20 @@ def _run_dist_arima_monthly(test_data, sqlContext, **kwargs):
         .filter(lambda x: x != "MODEL_NOT_VALID")
     # .repartition(REPARTITION_STAGE_1)
 
-    print(arima_results_rdd.take(1))
-    return 1
+    # print(arima_results_rdd.take(1))
+    # return 1
 
-    # opt_arima_results_rdd = arima_results_rdd \
-    #     .combineByKey(dist_grid_search_create_combiner,
-    #                   dist_grid_search_merge_value,
-    #                   dist_grid_search_merge_combiner,
-    #                   numPartitions=REPARTITION_STAGE_2)
-    #
-    # opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima(line))
-    #
-    # opt_arima_results_df = sqlContext.createDataFrame(opt_arima_results_mapped, schema=arima_output_schema())
-    #
-    # return opt_arima_results_df
+    opt_arima_results_rdd = arima_results_rdd \
+        .combineByKey(dist_grid_search_create_combiner,
+                      dist_grid_search_merge_value,
+                      dist_grid_search_merge_combiner,
+                      numPartitions=REPARTITION_STAGE_2)
+
+    opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima(line))
+
+    opt_arima_results_df = sqlContext.createDataFrame(opt_arima_results_mapped, schema=arima_output_schema())
+
+    return opt_arima_results_df
 
 
 # FOR MODULE TESTING
