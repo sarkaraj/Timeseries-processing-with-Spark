@@ -72,12 +72,12 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # ARIMA Model Data Transform
         train_arima = train.set_index('ds', drop=True)
         test_arima = test.set_index('ds', drop=True)
-        print(test_arima)
+        # print(test_arima)
 
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
         mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
-                                        enforce_invertibility=True,
+                                        enforce_invertibility=False, enforce_stationarity=False,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)
 
@@ -105,7 +105,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     # model_prediction
     prod_arima = prod.set_index('ds', drop=True)
     mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
-                                    enforce_invertibility=True,
+                                    enforce_invertibility=False, enforce_stationarity=False,
                                     measurement_error=False, time_varying_regression=False,
                                     mle_regression=True)
 
