@@ -72,6 +72,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # ARIMA Model Data Transform
         train_arima = train.set_index('ds', drop=True)
         test_arima = test.set_index('ds', drop=True)
+        print(test_arima)
 
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
