@@ -140,4 +140,5 @@ def monthly_arima_model_error_calc(data):
                                                    data['rolling_4month_y'] * 100
     data['rolling_4month_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
 
+    data.replace([float('inf'), -float('inf')], np.nan)
     return (data)
