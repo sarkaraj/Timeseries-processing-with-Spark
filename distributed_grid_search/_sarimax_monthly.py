@@ -129,7 +129,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         _output_pred = _get_pred_dict_sarimax_m(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
 
         # print(_output_pred)
-        print(output_result)
+        # print(output_result)
         output_result = monthly_arima_model_error_calc(output_result)
         # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 

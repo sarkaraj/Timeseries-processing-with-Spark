@@ -1,7 +1,9 @@
-def weekly_arima_error_calc(data):
+def weekly_arima_error_calc(_data):
 
     import pandas as pd
     import numpy as np
+
+    data = _data.copy()
 
     # Calculate total ACTUAL Quantity
     data['cumsum_quantity'] = data.y.cumsum()
@@ -56,12 +58,15 @@ def weekly_arima_error_calc(data):
     # data['rolling_12week_percent_error_prophet'] = data['rolling_12week_error_prophet'] / \
     #                                                         data['rolling_12week_y'] * 100
 
+    data = data.replace([-np.inf, np.inf], np.nan)
     return data
 
 
-def weekly_prophet_error_calc(data):
+def weekly_prophet_error_calc(_data):
     import pandas as pd
     import numpy as np
+
+    data = _data.copy()
 
     # Calculate total ACTUAL Quantity
     data['cumsum_quantity'] = data.y.cumsum()
@@ -84,12 +89,15 @@ def weekly_prophet_error_calc(data):
                                                             data['rolling_12week_y'] * 100
     data['rolling_12week_quantity'] = pd.rolling_sum(data['y'], window=12, min_periods=12)
 
+    data = data.replace([-np.inf, np.inf], np.nan)
     return data
 
-def monthly_prophet_model_error_calc(data):
+def monthly_prophet_model_error_calc(_data):
 
     import pandas as pd
     import numpy as np
+
+    data = _data.copy()
 
     # Calculate total ACTUAL Quantity
     data['cumsum_quantity'] = data.y.cumsum()
@@ -112,6 +120,7 @@ def monthly_prophet_model_error_calc(data):
                                                    data['rolling_4month_y'] * 100
     data['rolling_4month_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
 
+    data = data.replace([-np.inf, np.inf], np.nan)
     return (data)
 
 def monthly_arima_model_error_calc(_data):

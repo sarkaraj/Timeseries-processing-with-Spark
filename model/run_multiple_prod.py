@@ -75,6 +75,9 @@ def generate_param():
 # data transformation to weekly and monthly aggregate
 raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
                        sep="\t", header=0, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
+
+print(max(raw_data.date))
+print(min(raw_data.date))
 cus_no = 500059071
 mat_no = 102279
 
