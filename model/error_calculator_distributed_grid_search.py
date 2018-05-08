@@ -114,10 +114,12 @@ def monthly_prophet_model_error_calc(data):
 
     return (data)
 
-def monthly_arima_model_error_calc(data):
+def monthly_arima_model_error_calc(_data):
 
     import pandas as pd
     import numpy as np
+
+    data = _data.copy()
 
     # Calculate total ACTUAL Quantity
     data['cumsum_quantity'] = data.y.cumsum()
@@ -140,5 +142,5 @@ def monthly_arima_model_error_calc(data):
                                                    data['rolling_4month_y'] * 100
     data['rolling_4month_quantity'] = pd.rolling_sum(data['y'], window=4, min_periods=4)
 
-    data.replace([float('inf'), -float('inf')], np.nan)
+    data = data.replace([-np.inf, np.inf], np.nan)
     return (data)

@@ -73,9 +73,15 @@ def generate_param():
     return _result
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "prblm_data.tsv",
+raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
                        sep="\t", header=0, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
-data_weekly = get_weekly_aggregate(inputDF=raw_data)
+cus_no = 500059071
+mat_no = 102279
+
+cus_test = raw_data[raw_data.customernumber == cus_no]
+prod_test = cus_test[cus_test.matnr == mat_no]
+
+data_weekly = get_weekly_aggregate(inputDF=prod_test)
 data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 
 # weekly_data = data_weekly.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
