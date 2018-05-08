@@ -152,7 +152,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
 
     # TODO: Uncomment this section
     customer_sample.coalesce(1) \
-        .write.mode('overwrite') \
+        .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(customer_data_location)
