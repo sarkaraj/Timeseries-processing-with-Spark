@@ -6,19 +6,19 @@ from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggr
 from distributed_grid_search.properties import *
 
 def generate_all_param_combo_sarimax():
-    param_p = xrange(p.p_max + 1)
-    param_q = xrange(p.q_max + 1)
-    param_d = xrange(p.d_max + 1)
-
-    param_P = xrange(p.P_max + 1)
-    param_Q = xrange(p.Q_max + 1)
-    param_D = xrange(p.D_max + 1)
-
-    pdq = list(itertools.product(param_p, param_d, param_q))
-
-    seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
-
-    # all_combo = list(itertools.product(pdq, seasonal_pdq))
+    # param_p = xrange(p.p_max + 1)
+    # param_q = xrange(p.q_max + 1)
+    # param_d = xrange(p.d_max + 1)
+    #
+    # param_P = xrange(p.P_max + 1)
+    # param_Q = xrange(p.Q_max + 1)
+    # param_D = xrange(p.D_max + 1)
+    #
+    # pdq = list(itertools.product(param_p, param_d, param_q))
+    #
+    # seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
+    #
+    # # all_combo = list(itertools.product(pdq, seasonal_pdq))
 
     all_combo = [((0, 1, 1), (0, 1, 0, 52)),
                  ((0, 0, 1), (1, 1, 0, 52)),
@@ -141,19 +141,34 @@ def generate_all_param_combo_prophet_monthly():
     return _result
 
 def generate_all_param_combo_sarimax_monthly():
-    param_p = xrange(p.p_max_M + 1)
-    param_q = xrange(p.q_max_M + 1)
-    param_d = xrange(p.d_max_M + 1)
+    # param_p = xrange(p.p_max_M + 1)
+    # param_q = xrange(p.q_max_M + 1)
+    # param_d = xrange(p.d_max_M + 1)
+    #
+    # param_P = xrange(p.P_max_M + 1)
+    # param_Q = xrange(p.Q_max_M + 1)
+    # param_D = xrange(p.D_max_M + 1)
+    #
+    # pdq = list(itertools.product(param_p, param_d, param_q))
+    #
+    # seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(param_P, param_D, param_Q))]
 
-    param_P = xrange(p.P_max_M + 1)
-    param_Q = xrange(p.Q_max_M + 1)
-    param_D = xrange(p.D_max_M + 1)
+    # all_combo = list(itertools.product(pdq, seasonal_pdq))
 
-    pdq = list(itertools.product(param_p, param_d, param_q))
-
-    seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(param_P, param_D, param_Q))]
-
-    all_combo = list(itertools.product(pdq, seasonal_pdq))
+    all_combo = [((0, 1, 1), (0, 1, 0, 12)),
+                 ((0, 0, 1), (1, 1, 0, 12)),
+                 ((1, 0, 0), (1, 0, 0, 12)),
+                 ((1, 0, 0), (0, 1, 0, 12)),
+                 ((1, 1, 1), (0, 1, 0, 12)),
+                 ((1, 0, 1), (0, 0, 0, 12)),
+                 ((1, 1, 1), (1, 0, 0, 12)),
+                 ((1, 0, 0), (0, 0, 0, 12)),
+                 ((1, 1, 1), (0, 0, 0, 12)),
+                 ((0, 1, 1), (0, 0, 0, 12)),
+                 ((1, 1, 0), (0, 1, 0, 12)),
+                 ((0, 1, 0), (1, 0, 0, 12)),
+                 ((1, 1, 0), (0, 0, 0, 12)),
+                 ((1, 1, 0), (1, 0, 0, 12))]
 
     return all_combo
 

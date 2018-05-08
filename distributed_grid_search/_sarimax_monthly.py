@@ -3,18 +3,28 @@ from model.error_calculator import *
 import distributed_grid_search.properties as p_model
 from model.error_calculator_distributed_grid_search import monthly_arima_model_error_calc
 import transform_data.pandas_support_func as pd_func
-from transform_data.data_transform import gregorian_to_iso
+from transform_data.data_transform import gregorian_to_iso, string_to_gregorian
 from transform_data.data_transform import get_monthly_aggregate_per_product
 from distributed_grid_search.properties import SARIMAX_M_MODEL_SELECTION_CRITERIA
 
 
 def _get_pred_dict_sarimax_m(prediction_series):
     import pandas as pd
+    from dateutil import parser
     prediction_df_temp = prediction_series[1:].to_frame()
+    prediction_df_temp.index = prediction_df_temp.index.map(lambda x: string_to_gregorian(str(x)+"-15"))
+    print("prediction_df_temp.index 1")
+    print(prediction_df_temp.index)
+    # prediction_df_temp.index = prediction_df_temp.index.apply(parser.parse)
     prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
+    print("prediction_df_temp.index 2")
+    print(prediction_df_temp.index)
+
     pred = prediction_df_temp.to_dict(orient='index')
+    print(pred)
     _final = {(gregorian_to_iso(key.split("-"))[1], gregorian_to_iso(key.split("-"))[0]): float(pred.get(key).get(0))
               for key in pred.keys()}
+    print(_final)
     return _final
 
 
@@ -72,7 +82,12 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # ARIMA Model Data Transform
         train_arima = train.set_index('ds', drop=True)
         test_arima = test.set_index('ds', drop=True)
-        # print(test_arima)
+
+        train_arima.index = pd.period_range(start= min(train_arima.index),end= max(train_arima.index),freq= 'M')
+        test_arima.index = pd.period_range(start=min(test_arima.index), end=max(test_arima.index), freq='M')
+        print(train_arima.index)
+
+        print(test_arima)
 
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
@@ -86,9 +101,10 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         ##########################################################################
 
         # forecast test
-        pred_test = results.get_prediction(start=pd.to_datetime(np.amax(train_arima.index)),
-                                           end=pd.to_datetime(np.amax(test_arima.index)), dynamic=True)
+        pred_test = results.get_prediction(start=(np.amax(train_arima.index)),
+                                           end=(np.amax(test_arima.index)), dynamic=True)
 
+        # print(pred_test.predicted_mean)
         # pred_test_ci = pred_test.conf_int()
 
         # creating test and train ensembled result
@@ -104,17 +120,20 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
     # model_prediction
     prod_arima = prod.set_index('ds', drop=True)
+    prod_arima.index = pd.period_range(start=min(prod_arima.index), end=max(prod_arima.index), freq='M')
     mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
                                     enforce_invertibility=False, enforce_stationarity=False,
                                     measurement_error=False, time_varying_regression=False,
                                     mle_regression=True)
 
     results_arima = mod.fit(disp=False)
-    pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
-                                       end=len(prod_arima.y) + pred_points - 1, dynamic=True)
+    pred_arima = results_arima.get_prediction(start= max(prod_arima.index),
+                                       end= max(prod_arima.index) + pred_points - 1, dynamic=True)
 
+    # print(pred_arima.predicted_mean)
     _output_pred = _get_pred_dict_sarimax_m(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
 
+    print(_output_pred)
     output_result = monthly_arima_model_error_calc(output_result)
     # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 

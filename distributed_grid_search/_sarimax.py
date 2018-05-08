@@ -25,17 +25,17 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     import statsmodels.api as sm
     from dateutil import parser
 
-    if(kwargs.has_key('min_train_days')):
+    if('min_train_days' in kwargs.keys()):
         min_train_days=kwargs.get('min_train_days')
     else:
         min_train_days = p_model.min_train_days
 
-    if(kwargs.has_key('test_points')):
+    if('test_points' in kwargs.keys()):
         test_points=kwargs.get('test_points')
     else:
         test_points = p_model.test_points
 
-    if (kwargs.has_key('pred_points')):
+    if ('pred_points' in kwargs.keys()):
         pred_points = kwargs.get('pred_points')
     else:
         pred_points = p_model.pred_points
@@ -84,6 +84,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                                end=pd.to_datetime(np.amax(test_arima.index)), dynamic=True)
 
             # pred_test_ci = pred_test.conf_int()
+            # print(pred_test.predicted_mean)
 
             # creating test and train ensembled result
             result_test = test
@@ -107,6 +108,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
                                            end=len(prod_arima.y) + pred_points - 1, dynamic=True)
 
+        # print(pred_arima.predicted_mean)
         _output_pred = _get_pred_dict_sarimax(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
 
         output_result = weekly_arima_error_calc(output_result)
