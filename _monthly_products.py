@@ -81,15 +81,15 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
         .withColumn('month_cutoff_date', lit(month_cutoff_date))
 
-    print("Printing prophet_monthly_results_final")
-    # prophet_monthly_results_final.show(10)
+    print("Printing arima_monthly_results_final")
+    arima_monthly_results_final.show(10)
 
-    print "Writing the MONTHLY MODEL data into HDFS"
-    arima_monthly_results_final \
-        .write.mode('append') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_456_location)
+    # print "Writing the MONTHLY MODEL data into HDFS"
+    # arima_monthly_results_final \
+    #     .write.mode('append') \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(monthly_pdt_cat_456_location)
 
     # ############################________________MOVING AVERAGE__________##########################
     #

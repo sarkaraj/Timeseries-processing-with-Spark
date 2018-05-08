@@ -23,7 +23,7 @@ from matplotlib.pylab import rcParams
 rcParams['figure.figsize'] = 15, 6
 
 # data load and transform
-file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
+file_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_000000000000151988/"
 
 # image save folder
 image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\just_images\\"
@@ -73,7 +73,7 @@ def generate_param():
     return _result
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "prblm_data.tsv",
+raw_data = pd.read_csv(file_dir + "invoices_0500076413_000000000000151988.tsv",
                        sep="\t", header=0, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 data_weekly = get_weekly_aggregate(inputDF=raw_data)
 data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)

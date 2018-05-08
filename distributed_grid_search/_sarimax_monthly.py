@@ -11,20 +11,15 @@ from distributed_grid_search.properties import SARIMAX_M_MODEL_SELECTION_CRITERI
 def _get_pred_dict_sarimax_m(prediction_series):
     import pandas as pd
     from dateutil import parser
+
     prediction_df_temp = prediction_series[1:].to_frame()
     prediction_df_temp.index = prediction_df_temp.index.map(lambda x: string_to_gregorian(str(x)+"-15"))
-    print("prediction_df_temp.index 1")
-    print(prediction_df_temp.index)
-    # prediction_df_temp.index = prediction_df_temp.index.apply(parser.parse)
     prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
-    print("prediction_df_temp.index 2")
-    print(prediction_df_temp.index)
 
+    # pred is of the form {'2018-04-15': {0: 0.723894290308531}}
     pred = prediction_df_temp.to_dict(orient='index')
-    print(pred)
-    _final = {(gregorian_to_iso(key.split("-"))[1], gregorian_to_iso(key.split("-"))[0]): float(pred.get(key).get(0))
+    _final = {(int(key.split("-")[1]), int(key.split("-")[0])): float(pred.get(key).get(0))
               for key in pred.keys()}
-    print(_final)
     return _final
 
 
