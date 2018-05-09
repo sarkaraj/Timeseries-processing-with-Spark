@@ -135,7 +135,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         comments = p.comments
 
     if "module" in kwargs.keys():
-        module = kwargs.keys("module")
+        module = kwargs.get("module")
         append_to_folder_name = "".join(["/", "module", "=", module])
     else:
         print("ValueError: No module date has been provided")
