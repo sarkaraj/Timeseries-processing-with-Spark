@@ -10,7 +10,7 @@ import time
 ####################################################################################################################
 
 # Getting Current Date Time for AppName
-appName = "_".join([MODEL_BUILDING, "CONSOLIDATED", get_current_date()])
+appName = "_".join([MODEL_BUILDING, "MONTHLY", get_current_date()])
 ####################################################################################################################
 
 # conf = SparkConf()
@@ -25,14 +25,6 @@ spark = SparkSession \
 sc = spark.sparkContext
 sqlContext = spark
 
-
-# # # Total Number of executors for the current run
-# total_execs = int(sc._jsc.sc().getExecutorMemoryStatus().size())
-
-# # # model building date to be obtained as external argument
-# mdl_bld_date_string = obtain_mdl_bld_dt()
-
-
 print "Setting LOG LEVEL as ERROR"
 sc.setLogLevel("ERROR")
 
@@ -44,28 +36,20 @@ sys.path.insert(0, "forecaster.zip")
 mdl_bld_date_string = ["".join(sys.argv[1])]
 _model_bld_date_string = mdl_bld_date_string[0]
 
-comments = " ".join(["Consolidated Run. Dated:", str(_model_bld_date_string)])
+comments = " ".join(["Monthly-Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()])
 
-print "Importing Sample Customer List"
+print "Importing Customer List"
 get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string, comments=comments,
-                         module="consolidated")
+                         module="monthly")
 
 print("************************************************************************************")
 print (_model_bld_date_string)
 print("************************************************************************************\n")
-
-print("Starting Weekly Model building")
+print("Starting Monthly Model building")
 start_time = time.time()
-build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
 
-print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
-
-if p.monthly_dates.get(_model_bld_date_string) == True:
-    print("Starting Monthly Model building")
-    start_time = time.time()
-
-    build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-    print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+build_prediction_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+print("Time taken for running MONTHLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
 # # Force Stopping SparkContext
 spark.stop()

@@ -4,7 +4,7 @@
 #for date_string in '2017-07-23' '2017-07-30' '2017-08-06' '2017-08-13' '2017-08-20' '2017-08-27'
 #  '2018-04-08'
 
-for date_string in '2018-04-01'
+for date_string in '2018-05-06'
 {
 echo $date_string
 spark-submit \
@@ -12,9 +12,9 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 32 \
---driver-memory 5G \
---executor-memory 2G \
+--num-executors 10 \
+--driver-memory 3G \
+--executor-memory 5G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
@@ -22,7 +22,7 @@ spark-submit \
 --conf spark.speculation.quantile=0.9 \
 --conf spark.speculation.interval=18000 \
 --py-files ~/cso_predictor_m/forecaster.zip \
-~/cso_predictor_m/_monthly_products.py \
+~/cso_predictor_m/run_monthly.py \
 $date_string
 }
 exit 0

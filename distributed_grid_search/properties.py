@@ -1,21 +1,20 @@
 ################WEEKLY################
-min_train_days=365
-test_points=2
-pred_points=2
-
+min_train_days = 365
+test_points = 2
+pred_points = 2
 
 ################MONTHLY################
-test_points_monthly=1
-pred_points_monthly=2
+test_points_monthly = 1
+pred_points_monthly = 2
 
 ################
 p_max = 2
 d_max = 2
 q_max = 2
 
-P_max=1
-Q_max=1
-D_max=1
+P_max = 1
+Q_max = 1
+D_max = 1
 
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
@@ -43,20 +42,19 @@ PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_max_12'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 
-p_max_M=2
-d_max_M=2
-q_max_M=2
+p_max_M = 1
+d_max_M = 1
+q_max_M = 1
 
-P_max_M=1
-Q_max_M=1
-D_max_M=1
+P_max_M = 1
+Q_max_M = 1
+D_max_M = 1
 
 #################
 ################Monthly################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
 SARIMAX_M_MODEL_SELECTION_CRITERIA = 'mre_max_4'
-
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 #  PROPHET MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT is PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT / 10.0

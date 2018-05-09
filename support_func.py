@@ -134,6 +134,13 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
     else:
         comments = p.comments
 
+    if "module" in kwargs.keys():
+        module = kwargs.keys("module")
+        append_to_folder_name = "".join(["/", "module", "=", module])
+    else:
+        print("ValueError: No module date has been provided")
+        raise ValueError
+
     full_custom_customer_list = generate_customer_list_fomatted()
     custom_schema = StructType(
         [StructField("customernumber", StringType(), True)]
@@ -155,7 +162,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
-        .save(customer_data_location)
+        .save(customer_data_location + append_to_folder_name)
 
 
 def obtain_mdl_bld_dt():
