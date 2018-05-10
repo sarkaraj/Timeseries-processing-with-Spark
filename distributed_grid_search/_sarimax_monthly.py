@@ -123,7 +123,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         results_arima = mod.fit(disp=False)
         pred_arima = results_arima.get_prediction(start= max(prod_arima.index),
-                                           end= max(prod_arima.index) + pred_points - 1, dynamic=True)
+                                           end= max(prod_arima.index) + pred_points, dynamic=True)
 
         # print(pred_arima.predicted_mean)
         _output_pred = _get_pred_dict_sarimax_m(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
