@@ -1,7 +1,7 @@
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from model.weekly_model_ver_1 import weekly_ensm_model
-from transform_data.data_transform import get_weekly_aggregate
+from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
 from transform_data.pandas_support_func import *
 import properties as p
 
@@ -130,8 +130,67 @@ def raw_data_to_weekly_aggregate(row_object_cat, **kwargs):
 
     return (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
 
+def raw_data_to_monthly_aggregate(row_object_cat, **kwargs):
+    '''
+    Returns a tuple with monthly aggregated data
+    :param row_object_cat: tuple of row object and category object
+    :param kwargs: get model building date to add the last point to series
+    :return: tuple
+    '''
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
 
+    row_object, category_obj = row_object_cat
+    customernumber = row_object.customernumber
+    matnr = row_object.matnr
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 
+    # Unpacking the dataset
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    # Obtaining weekly aggregate
+    data_pd_df_month_aggregated = get_monthly_aggregate(data_pd_df)
+
+    return (customernumber, matnr, data_pd_df_month_aggregated, category_obj)
+
+def filter_white_noise(x):
+    '''
+    re-assign category to filter white noise time series to cat 7
+    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
+    :return: (customernumber, matnr, data_pd_df_week_aggregated, revised_product_cat)
+    '''
+    from statsmodels.stats import diagnostic as diag
+    import numpy as np
+
+    customernumber = x[0]
+    matnr = x[1]
+    aggregated_data = x[2] # could be monthly / weekly aggregate base on product category
+    revised_product_cat_obj = x[3]
+
+    x = np.array(aggregated_data['quantity']).astype(float)
+
+    if x[3].category in ("I", "II", "III", "IV", "V", "VI"):
+        try:
+            lj_box_test = diag.acorr_ljungbox(x, lags=10, boxpierce=False)
+
+            min_p_val = min(lj_box_test[1])
+
+            if min_p_val > 0.05:
+                # ts_type = "White-Noise"
+                if x[3].category in ("I", "II", "III"):
+                    revised_product_cat_obj = p.cat_7
+                elif x[3].category in ("IV", "V", "VI"):
+                    revised_product_cat_obj = p.cat_8
+        except ValueError:
+            print("Test Failed!")
+        return (customernumber, matnr, aggregated_data, revised_product_cat_obj)
+    elif x[3].category in ("VII", "VIII", "IX", "X"):
+        return x
 
 
 

@@ -66,7 +66,7 @@ for cus_no in raw_data.customernumber.unique():
 
             # print(prod.head())
 
-            x = np.array(prod['y'])
+            x = np.array(prod['y']).astype(float)
 
             try:
                 lj_box_test = diag.acorr_ljungbox(x, lags=104, boxpierce=False)

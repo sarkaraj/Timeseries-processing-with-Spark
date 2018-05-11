@@ -76,7 +76,7 @@ def _run_dist_arima(test_data, sqlContext, **kwargs):
     # from pyspark.sql.types import *
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('I', 'II', 'III'))
+        .filter(lambda x: x[3].category in ('I', 'II', 'III'))
 
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
 

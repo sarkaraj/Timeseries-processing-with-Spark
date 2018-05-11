@@ -9,7 +9,7 @@ from support_func import assign_category, get_current_date, _get_last_day_of_pre
 from properties import MODEL_BUILDING, monthly_pdt_cat_456_location, monthly_pdt_cat_8910_location
 from pyspark.sql.functions import *
 from transform_data.data_transform import string_to_gregorian
-from support_func import get_current_date, get_sample_customer_list
+from support_func import get_current_date, get_sample_customer_list, raw_data_to_monthly_aggregate, filter_white_noise
 import properties as p
 
 
@@ -38,7 +38,9 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
+        .map(lambda x: raw_data_to_monthly_aggregate(x, MODEL_BLD_CURRENT_DATE= MODEL_BLD_CURRENT_DATE))\
+        .map(lambda x: filter_white_noise(x))\
+        .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
     # # Caching Data for this run
     test_data_monthly_model.cache()
