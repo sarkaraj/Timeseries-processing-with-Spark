@@ -102,6 +102,38 @@ def assign_category(row_object):
     else:
         return "NOT_CONSIDERED"
 
+def raw_data_to_weekly_aggregate(row_object_cat, **kwargs):
+    '''
+    Returns a tuple with weekly aggregated data
+    :param row_object_cat: tuple of row object and category object
+    :param kwargs: get model building date to add the last point to series
+    :return: tuple
+    '''
+    if 'sep' in kwargs.keys():
+        sep = kwargs.get('sep')
+    else:
+        sep = "\t"
+
+    row_object, category_obj = row_object_cat
+    customernumber = row_object.customernumber
+    matnr = row_object.matnr
+    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
+
+    # Unpacking the dataset
+    # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    # Obtaining weekly aggregate
+    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+
+    return (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
+
+
+
+
+
 
 def get_current_date():
     import datetime
