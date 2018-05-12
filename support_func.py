@@ -178,7 +178,7 @@ def filter_white_noise(x):
         try:
             lj_box_test = diag.acorr_ljungbox(ts_data, lags=10, boxpierce=False)
 
-            min_p_val = min(lj_box_test[1])
+            min_p_val = np.nanmin(lj_box_test[1])
 
             if min_p_val > 0.05:
                 # ts_type = "White-Noise"
