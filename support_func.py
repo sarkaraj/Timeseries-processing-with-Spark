@@ -172,11 +172,11 @@ def filter_white_noise(x):
     aggregated_data = x[2] # could be monthly / weekly aggregate base on product category
     revised_product_cat_obj = x[3]
 
-    x = np.array(aggregated_data['quantity']).astype(float)
+    ts_data = np.array(aggregated_data['quantity']).astype(float)
 
     if x[3].category in ("I", "II", "III", "IV", "V", "VI"):
         try:
-            lj_box_test = diag.acorr_ljungbox(x, lags=10, boxpierce=False)
+            lj_box_test = diag.acorr_ljungbox(ts_data, lags=10, boxpierce=False)
 
             min_p_val = min(lj_box_test[1])
 
