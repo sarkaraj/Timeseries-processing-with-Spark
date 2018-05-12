@@ -267,15 +267,15 @@ def obtain_mdl_bld_dt():
             mdl_bld_date_string = list(args.mdl_bld_date_string)
             return mdl_bld_date_string
     except AttributeError:
-        print "No valid model build date has been passed as argument.\n Using Model Build Date from properties.py file."
+        print ("No valid model build date has been passed as argument.\n Using Model Build Date from properties.py file.")
         mdl_bld_date_string = p._model_bld_date_string_list
-        print "\n\n"
+        print ("\n\n")
         return mdl_bld_date_string
 
 
-if __name__ == "__main__":
-    import datetime as dt
-
-    now = dt.datetime.now()
-    print _get_last_day_of_previous_month(now)
-    print type(_get_last_day_of_previous_month(now))
+# if __name__ == "__main__":
+#     import datetime as dt
+#
+#     now = dt.datetime.now()
+#     print _get_last_day_of_previous_month(now)
+#     print type(_get_last_day_of_previous_month(now))

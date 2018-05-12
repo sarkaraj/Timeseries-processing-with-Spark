@@ -38,7 +38,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .map(lambda x: raw_data_to_monthly_aggregate(x, MODEL_BLD_CURRENT_DATE= MODEL_BLD_CURRENT_DATE))\
+        .map(lambda x: raw_data_to_monthly_aggregate(row_object_cat= x, MODEL_BLD_CURRENT_DATE= MODEL_BLD_CURRENT_DATE))\
         .map(lambda x: filter_white_noise(x))\
         .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
@@ -86,7 +86,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     # print("Printing arima_monthly_results_final")
     # arima_monthly_results_final.show(10)
 
-    print "Writing the MONTHLY MODEL data into HDFS"
+    print ("Writing the MONTHLY MODEL data into HDFS")
     arima_monthly_results_final \
         .write.mode('append') \
         .format('orc') \

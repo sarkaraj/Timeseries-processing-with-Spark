@@ -264,26 +264,30 @@ def generate_models_prophet_monthly(x, **kwargs):
 
 
 def generate_models_sarimax_monthly(x, **kwargs):
-    if 'sep' in kwargs.keys():
-        sep = kwargs.get('sep')
-    else:
-        sep = "\t"
+    # if 'sep' in kwargs.keys():
+    #     sep = kwargs.get('sep')
+    # else:
+    #     sep = "\t"
+    #
+    # row_object, category_obj = x
+    # customernumber = row_object.customernumber
+    # matnr = row_object.matnr
+    # MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
+    #
+    # # Unpacking the dataset
+    # # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    # data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    # data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+    #                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # # Obtaining weeekly aggregate
+    # data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+    customernumber = x[0]
+    matnr = x[1]
+    data_pd_df_month_aggregated = x[2]
+    revised_cat_object = x[3]
 
-    row_object, category_obj = x
-    customernumber = row_object.customernumber
-    matnr = row_object.matnr
-    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
-
-    # Unpacking the dataset
-    # Extracting only the 0th and 1st element since faced discrepancies in dataset
-    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
-                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    # Obtaining weeekly aggregate
-    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
-
-    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj) for pdq, seasonal_pqd
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_month_aggregated, revised_cat_object) for pdq, seasonal_pqd
             in generate_all_param_combo_sarimax_monthly()]
 
 

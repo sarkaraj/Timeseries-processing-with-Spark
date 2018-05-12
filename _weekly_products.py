@@ -30,7 +30,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     #############################________________DATA_ACQUISITION__________#####################################
 
-    print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
+    print ("Querying of Hive Table - Obtaining Product Data for Weekly Models")
     test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
         .rdd \
         .map(lambda x: assign_category(x)) \
@@ -138,7 +138,7 @@ if __name__ == "__main__":
     from pyspark.sql import HiveContext, SparkSession
 
     ###################################################################################################################
-    print "Add jobs.zip to system path"
+    print ("Add jobs.zip to system path")
     import sys
 
     sys.path.insert(0, "forecaster.zip")
@@ -183,12 +183,12 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    print "Setting LOG LEVEL as ERROR"
+    print ("Setting LOG LEVEL as ERROR")
     sc.setLogLevel("ERROR")
 
     mdl_bld_date_string = "".join(sys.argv[1])
 
-    print "Importing Sample Customer List"
+    print ("Importing Sample Customer List")
     get_sample_customer_list(sc=sc, sqlContext=sqlContext)
 
     _model_bld_date_string = mdl_bld_date_string

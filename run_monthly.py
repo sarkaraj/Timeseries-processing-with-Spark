@@ -25,10 +25,10 @@ spark = SparkSession \
 sc = spark.sparkContext
 sqlContext = spark
 
-print "Setting LOG LEVEL as ERROR"
+print ("Setting LOG LEVEL as ERROR")
 sc.setLogLevel("ERROR")
 
-print "Adding forecaster.zip to system path"
+print ("Adding forecaster.zip to system path")
 import sys
 
 sys.path.insert(0, "forecaster.zip")
@@ -38,7 +38,7 @@ _model_bld_date_string = mdl_bld_date_string[0]
 
 comments = " ".join(["Monthly-Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()])
 
-print "Importing Customer List"
+print ("Importing Customer List")
 get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string, comments=comments,
                          module="monthly")
 
