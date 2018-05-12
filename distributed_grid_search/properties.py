@@ -42,9 +42,9 @@ PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_max_12'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 
-p_max_M = 1
-d_max_M = 1
-q_max_M = 1
+p_max_M = 2
+d_max_M = 2
+q_max_M = 2
 
 P_max_M = 1
 Q_max_M = 1

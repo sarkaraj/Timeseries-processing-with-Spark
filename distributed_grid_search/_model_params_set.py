@@ -8,34 +8,34 @@ import numpy as np
 
 
 def generate_all_param_combo_sarimax():
-    # param_p = range(p.p_max + 1)
-    # param_q = range(p.q_max + 1)
-    # param_d = range(p.d_max + 1)
-    #
-    # param_P = range(p.P_max + 1)
-    # param_Q = range(p.Q_max + 1)
-    # param_D = range(p.D_max + 1)
-    #
-    # pdq = list(itertools.product(param_p, param_d, param_q))
-    #
-    # seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
-    #
-    # all_combo = list(itertools.product(pdq, seasonal_pdq))
+    param_p = range(p.p_max + 1)
+    param_q = range(p.q_max + 1)
+    param_d = range(p.d_max + 1)
 
-    all_combo = [((0, 1, 1), (0, 1, 0, 52)),
-                 ((0, 0, 1), (1, 1, 0, 52)),
-                 ((1, 0, 0), (1, 0, 0, 52)),
-                 ((1, 0, 0), (0, 1, 0, 52)),
-                 ((1, 1, 1), (0, 1, 0, 52)),
-                 ((1, 0, 1), (0, 0, 0, 52)),
-                 ((1, 1, 1), (1, 0, 0, 52)),
-                 ((1, 0, 0), (0, 0, 0, 52)),
-                 ((1, 1, 1), (0, 0, 0, 52)),
-                 ((0, 1, 1), (0, 0, 0, 52)),
-                 ((1, 1, 0), (0, 1, 0, 52)),
-                 ((0, 1, 0), (1, 0, 0, 52)),
-                 ((1, 1, 0), (0, 0, 0, 52)),
-                 ((1, 1, 0), (1, 0, 0, 52))]
+    param_P = range(p.P_max + 1)
+    param_Q = range(p.Q_max + 1)
+    param_D = range(p.D_max + 1)
+
+    pdq = list(itertools.product(param_p, param_d, param_q))
+
+    seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
+
+    all_combo = list(itertools.product(pdq, seasonal_pdq))
+
+    # all_combo = [((0, 1, 1), (0, 1, 0, 52)),
+    #              ((0, 0, 1), (1, 1, 0, 52)),
+    #              ((1, 0, 0), (1, 0, 0, 52)),
+    #              ((1, 0, 0), (0, 1, 0, 52)),
+    #              ((1, 1, 1), (0, 1, 0, 52)),
+    #              ((1, 0, 1), (0, 0, 0, 52)),
+    #              ((1, 1, 1), (1, 0, 0, 52)),
+    #              ((1, 0, 0), (0, 0, 0, 52)),
+    #              ((1, 1, 1), (0, 0, 0, 52)),
+    #              ((0, 1, 1), (0, 0, 0, 52)),
+    #              ((1, 1, 0), (0, 1, 0, 52)),
+    #              ((0, 1, 0), (1, 0, 0, 52)),
+    #              ((1, 1, 0), (0, 0, 0, 52)),
+    #              ((1, 1, 0), (1, 0, 0, 52))]
 
     return all_combo
 
