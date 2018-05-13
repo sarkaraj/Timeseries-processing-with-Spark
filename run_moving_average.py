@@ -59,7 +59,7 @@ def _run_moving_average_monthly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # is of datetime.date type
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('VIII', 'IX', 'X')) \
+        .filter(lambda x: x[3].category in ('VIII', 'IX', 'X')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_monthly_results_rdd = test_data_input \
