@@ -68,30 +68,30 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
     #     .save(monthly_pdt_cat_456_location)
 
     #############################________________SARIMAX__________################################
-    #
-    # # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
-    #
-    # print (
-    #         "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < " + str(
-    #     p.annual_freq_cut_1) + "\n")
-    #
-    # # print "\t\t--Running distributed prophet"
-    # arima_monthly_results = _run_dist_arima_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
-    #                                                 MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-    #
-    # arima_monthly_results_final = arima_monthly_results \
-    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-    #     .withColumn('month_cutoff_date', lit(month_cutoff_date))
-    #
-    # # print("Printing arima_monthly_results_final")
-    # # arima_monthly_results_final.show(10)
-    #
-    # print ("Writing the MONTHLY MODEL data into HDFS")
-    # arima_monthly_results_final \
-    #     .write.mode('append') \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(monthly_pdt_cat_456_location)
+
+    # Running MONTHLY_MODELS PROPHET on products with FREQ : 20 <= X < 60
+
+    print (
+            "Running MONTHLY_MODELS SARIMAX on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < " + str(
+        p.annual_freq_cut_1) + "\n")
+
+    # print "\t\t--Running distributed prophet"
+    arima_monthly_results = _run_dist_arima_monthly(test_data=test_data_monthly_model, sqlContext=sqlContext,
+                                                    MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+    arima_monthly_results_final = arima_monthly_results \
+        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+
+    # print("Printing arima_monthly_results_final")
+    # arima_monthly_results_final.show(10)
+
+    print ("Writing the MONTHLY MODEL data into HDFS")
+    arima_monthly_results_final \
+        .write.mode('append') \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_456_location)
 
     ############################________________MOVING AVERAGE__________##########################
 
