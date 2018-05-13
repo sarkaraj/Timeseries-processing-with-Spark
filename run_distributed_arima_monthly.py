@@ -12,7 +12,7 @@ def _run_dist_arima_monthly(test_data, sqlContext, **kwargs):
     # ###################
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
+        .filter(lambda x: x[3].category in ('IV', 'V', 'VI'))
 
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
