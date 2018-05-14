@@ -81,14 +81,15 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     arima_monthly_results_final = arima_monthly_results \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))\
+        .withColumn('job_run_date', lit(get_current_date()))
 
     # print("Printing arima_monthly_results_final")
     # arima_monthly_results_final.show(10)
 
     print ("Writing the MONTHLY MODEL data into HDFS")
     arima_monthly_results_final \
-        .write.mode('append') \
+        .write.mode('overwrite') \
         .format('orc') \
         .option("header", "false") \
         .save(monthly_pdt_cat_456_location)
@@ -104,11 +105,12 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     ma_monthly_results_df_final = ma_monthly_results_df \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('month_cutoff_date', lit(month_cutoff_date))
+        .withColumn('month_cutoff_date', lit(month_cutoff_date))\
+        .withColumn('job_run_date', lit(get_current_date()))
 
     print "Writing the MA MONTHLY data into HDFS\n"
     ma_monthly_results_df_final \
-        .write.mode('append') \
+        .write.mode('overwrite') \
         .format('orc') \
         .option("header", "false") \
         .save(monthly_pdt_cat_8910_location)
