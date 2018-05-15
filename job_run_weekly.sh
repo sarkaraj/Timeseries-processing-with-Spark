@@ -12,10 +12,10 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 32 \
---driver-memory 5G \
---executor-memory 2G \
---executor-cores 2 \
+--num-executors 15 \
+--driver-memory 10G \
+--executor-memory 3G \
+--executor-cores 3 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
 --conf spark.speculation.multiplier=1.5 \
