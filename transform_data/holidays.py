@@ -73,3 +73,9 @@ def get_holidays_dataframe_pd(_list=holidays_list):
     holidays.upper_window = 7
 
     return holidays
+
+
+if __name__ == "__main__":
+    # print(get_holidays_dataframe_pd(_list=holidays_list))
+    df = get_holidays_dataframe_pd(_list=holidays_list)
+    print(df["holiday"].unique())
