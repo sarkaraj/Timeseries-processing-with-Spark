@@ -40,7 +40,8 @@ if __name__ == "__main__":
     comments = " ".join(["Consolidated Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()])
 
     if check_if_first_sunday_of_month(date_string=_model_bld_date_string):
-        print "Importing Sample Customer List1"
+        print ("Consolidated Run")
+        print ("Importing Sample Customer List")
         get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
                                  comments=comments,
                                  module="consolidated")
@@ -50,7 +51,8 @@ if __name__ == "__main__":
         run_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
         print("************************************************************************************\n")
     else:
-        print "Importing Sample Customer List2"
+        print ("Weekly Run")
+        print ("Importing Sample Customer List")
         get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
                                  comments=comments,
                                  module="weekly")
