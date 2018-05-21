@@ -41,14 +41,21 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # customer_data_location = "/CONA_CSO/CCBC_Consolidated/customer_data"
 # comments = "Thaddeus Smith Route"
 
+#
+# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_8910"
+# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
+# comments = "Thaddeus Smith Route"
 
-weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_8910"
-customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
+
+weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
+customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
 comments = "Thaddeus Smith Route"
-
 
 
 # weekly_pdt_cat_123_location = "/CONA_CSO/CCBF/weekly_pdt_cat_123"
