@@ -5,6 +5,7 @@ from model.error_calculator_distributed_grid_search import weekly_arima_error_ca
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso
 from distributed_grid_search.properties import SARIMAX_W_MODEL_SELECTION_CRITERIA
+from transform_data.holidays import *
 
 
 def _get_pred_dict_sarimax(prediction_series):
@@ -55,6 +56,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         # Remove outlier
         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
+        prod = generate_sarimax_holiday_input_data(ts_data=prod)
 
         # test and train data creation
         train = prod[
@@ -68,9 +70,15 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
             train_arima = train.set_index('ds', drop=True)
             test_arima = test.set_index('ds', drop=True)
 
+            endog_train = train_arima.loc[:,'y']
+            exog_train = sm.add_constant(train_arima.drop('y', axis = 1))
+
+            endog_test = test_arima.loc[:, 'y']
+            exog_test = sm.add_constant(test_arima.drop('y', axis=1))
+
             warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
-            mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
+            mod = sm.tsa.statespace.SARIMAX(endog=endog_train,exog=exog_train, order=pdq, seasonal_order=seasonal_pdq,
                                             enforce_stationarity=False, enforce_invertibility=False,
                                             measurement_error=False, time_varying_regression=False,
                                             mle_regression=True)
