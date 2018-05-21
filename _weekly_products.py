@@ -96,8 +96,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     arima_results = arima_results_to_disk \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))\
-        .withColumn('job_run_date', lit(get_current_date()))
+        .withColumn('week_cutoff_date', lit(week_cutoff_date))
 
     print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
     arima_results \
@@ -117,8 +116,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     ma_weekly_results_df_final = ma_weekly_results_df \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))\
-        .withColumn('job_run_date', lit(get_current_date()))
+        .withColumn('week_cutoff_date', lit(week_cutoff_date))
 
     print ("\t--Writing the MA WEEKLY data into HDFS\n")
     ma_weekly_results_df_final \
