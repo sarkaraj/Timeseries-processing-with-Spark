@@ -291,12 +291,13 @@ def string_to_gregorian(dt_str, sep='-', **kwargs):
 
 def check_if_first_sunday_of_month(date_string):
     import calendar
+    import __builtin__
     _date = string_to_gregorian(date_string)
     _month = _date.month
     _year = _date.year
 
     sundays = [week[-1] for week in calendar.monthcalendar(year=_year, month=_month) if week[-1] != 0]
-    first_sunday_of_month = min(sundays)
+    first_sunday_of_month = __builtin__.min(sundays)
     return first_sunday_of_month == _date.day
 
 # if __name__ == "__main__":
