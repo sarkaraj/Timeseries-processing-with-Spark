@@ -11,7 +11,6 @@ def model_fit(row_object):
     matnr = row_object.matnr
     # pdt_freq_annual = row_object.pdt_freq_annual
 
-
     # Unpacking the dataset
     data_array = [row.split("\t") for row in row_object.data]
     data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr)
@@ -71,29 +70,29 @@ def assign_category(row_object):
     if (row_object.pdt_freq_annual >= p.annual_freq_cut_1 and row_object.pdt_freq_annual < float(
             p.annual_freq_cut_MAX)):
         if (
-                            row_object.time_gap_days > p.cat_1.time_gap_days_lower and row_object.time_gap_days < p.cat_1.time_gap_days_upper and row_object.time_gap_years >= p.cat_1.time_gap_years):
+                row_object.time_gap_days > p.cat_1.time_gap_days_lower and row_object.time_gap_days < p.cat_1.time_gap_days_upper and row_object.time_gap_years >= p.cat_1.time_gap_years):
             return row_object, p.cat_1
         elif (
-                            row_object.time_gap_days > p.cat_2.time_gap_days_lower and row_object.time_gap_days <= p.cat_2.time_gap_days_upper and row_object.time_gap_years >= p.cat_2.time_gap_years):
+                row_object.time_gap_days > p.cat_2.time_gap_days_lower and row_object.time_gap_days <= p.cat_2.time_gap_days_upper and row_object.time_gap_years >= p.cat_2.time_gap_years):
             return row_object, p.cat_2
         elif (
-                            row_object.time_gap_days > p.cat_3.time_gap_days_lower and row_object.time_gap_days <= p.cat_3.time_gap_days_upper and row_object.time_gap_years >= p.cat_3.time_gap_years):
+                row_object.time_gap_days > p.cat_3.time_gap_days_lower and row_object.time_gap_days <= p.cat_3.time_gap_days_upper and row_object.time_gap_years >= p.cat_3.time_gap_years):
             return row_object, p.cat_3
         elif (
-                        row_object.time_gap_days > p.cat_7.time_gap_days_lower and row_object.time_gap_days <= p.cat_7.time_gap_days_upper):
+                row_object.time_gap_days > p.cat_7.time_gap_days_lower and row_object.time_gap_days <= p.cat_7.time_gap_days_upper):
             return row_object, p.cat_7
     elif (row_object.pdt_freq_annual >= p.annual_freq_cut_2 and row_object.pdt_freq_annual < p.annual_freq_cut_1):
         if (
-                            row_object.time_gap_days > p.cat_4.time_gap_days_lower and row_object.time_gap_days < p.cat_4.time_gap_days_upper and row_object.time_gap_years >= p.cat_4.time_gap_years):
+                row_object.time_gap_days > p.cat_4.time_gap_days_lower and row_object.time_gap_days < p.cat_4.time_gap_days_upper and row_object.time_gap_years >= p.cat_4.time_gap_years):
             return row_object, p.cat_4
         elif (
-                            row_object.time_gap_days > p.cat_5.time_gap_days_lower and row_object.time_gap_days <= p.cat_5.time_gap_days_upper and row_object.time_gap_years >= p.cat_5.time_gap_years):
+                row_object.time_gap_days > p.cat_5.time_gap_days_lower and row_object.time_gap_days <= p.cat_5.time_gap_days_upper and row_object.time_gap_years >= p.cat_5.time_gap_years):
             return row_object, p.cat_5
         elif (
-                            row_object.time_gap_days > p.cat_6.time_gap_days_lower and row_object.time_gap_days <= p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
+                row_object.time_gap_days > p.cat_6.time_gap_days_lower and row_object.time_gap_days <= p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
             return row_object, p.cat_6
         elif (
-                        row_object.time_gap_days > p.cat_8.time_gap_days_lower and row_object.time_gap_days <= p.cat_8.time_gap_days_upper):
+                row_object.time_gap_days > p.cat_8.time_gap_days_lower and row_object.time_gap_days <= p.cat_8.time_gap_days_upper):
             return row_object, p.cat_8
     elif (row_object.pdt_freq_annual >= p.annual_freq_cut_3 and row_object.pdt_freq_annual < p.annual_freq_cut_2):
         return row_object, p.cat_9
@@ -101,6 +100,7 @@ def assign_category(row_object):
         return row_object, p.cat_10
     else:
         return "NOT_CONSIDERED"
+
 
 def raw_data_to_weekly_aggregate(row_object_cat, **kwargs):
     '''
@@ -128,7 +128,8 @@ def raw_data_to_weekly_aggregate(row_object_cat, **kwargs):
     # Obtaining weekly aggregate
     data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    return (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
+    return customernumber, matnr, data_pd_df_week_aggregated, category_obj
+
 
 def raw_data_to_monthly_aggregate(row_object_cat, **kwargs):
     '''
@@ -156,7 +157,8 @@ def raw_data_to_monthly_aggregate(row_object_cat, **kwargs):
     # Obtaining weekly aggregate
     data_pd_df_month_aggregated = get_monthly_aggregate(data_pd_df)
 
-    return (customernumber, matnr, data_pd_df_month_aggregated, category_obj)
+    return customernumber, matnr, data_pd_df_month_aggregated, category_obj
+
 
 def filter_white_noise(x):
     '''
@@ -169,7 +171,7 @@ def filter_white_noise(x):
 
     customernumber = x[0]
     matnr = x[1]
-    aggregated_data = x[2] # could be monthly / weekly aggregate base on product category
+    aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
     revised_product_cat_obj = x[3]
 
     ts_data = np.array(aggregated_data['quantity']).astype(float)
@@ -188,10 +190,9 @@ def filter_white_noise(x):
                     revised_product_cat_obj = p.cat_8
         except ValueError:
             print("Test Failed!")
-        return (customernumber, matnr, aggregated_data, revised_product_cat_obj)
+        return customernumber, matnr, aggregated_data, revised_product_cat_obj
     elif x[3].category in ("VII", "VIII", "IX", "X"):
         return x
-
 
 
 def get_current_date():
@@ -248,7 +249,6 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
 
     customer_list.createOrReplaceTempView("customerdata")
 
-    # TODO: Uncomment this section
     customer_sample.coalesce(1) \
         .write.mode('append') \
         .format('orc') \
@@ -267,11 +267,11 @@ def obtain_mdl_bld_dt():
             mdl_bld_date_string = list(args.mdl_bld_date_string)
             return mdl_bld_date_string
     except AttributeError:
-        print ("No valid model build date has been passed as argument.\n Using Model Build Date from properties.py file.")
+        print (
+            "No valid model build date has been passed as argument.\n Using Model Build Date from properties.py file.")
         mdl_bld_date_string = p._model_bld_date_string_list
         print ("\n\n")
         return mdl_bld_date_string
-
 
 # if __name__ == "__main__":
 #     import datetime as dt

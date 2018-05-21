@@ -35,7 +35,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat = x, MODEL_BLD_CURRENT_DATE = MODEL_BLD_CURRENT_DATE))\
+        .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
         .map(lambda x: filter_white_noise(x))\
         .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
 
@@ -49,50 +49,6 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     print ("\t--Running distributed ARIMA")
     arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    # print("\t--Temporary writing arima results to disk")
-    # arima_results_to_disk \
-    #     .write.mode('overwrite') \
-    #     .format('orc') \
-    #     .option("header", "true") \
-    #     .save("/tmp/arima_weekly_temp_write")
-    #
-    # print("\t--Temporary write complete\n\n")
-    #
-    # print "\t--Running distributed PROPHET"
-    # prophet_results_to_disk = _run_dist_prophet(test_data=test_data_weekly_models, sqlContext=sqlContext,
-    #                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-    #
-    # print("\t--Temporary writing arima results to disk")
-    # prophet_results_to_disk \
-    #     .write.mode('overwrite') \
-    #     .format('orc') \
-    #     .option("header", "true") \
-    #     .save("/tmp/prophet_weekly_temp_write")
-    #
-    # print("\t--Temporary write complete\n\n")
-    #
-    # print("ARIMA: Loading temporary written data onto memory\n")
-    # arima_results = sqlContext.read.option("header", "true") \
-    #     .format('orc') \
-    #     .load("/tmp/arima_weekly_temp_write")
-    #
-    # print("PROPHET: Loading temporary written data onto memory\n")
-    # prophet_results = sqlContext.read.option("header", "true") \
-    #     .format('orc') \
-    #     .load("/tmp/prophet_weekly_temp_write")
-    #
-    # print "\t--Joining the ARIMA + PROPHET Results on same customernumber and matnr"
-    # cond = [arima_results.customernumber_arima == prophet_results.customernumber_prophet,
-    #         arima_results.mat_no_arima == prophet_results.mat_no_prophet]
-    #
-    # prophet_arima_join_df = prophet_results \
-    #     .join(arima_results, on=cond, how='outer')
-    #
-    # prophet_arima_join_df_select_cols = final_select_dataset(prophet_arima_join_df, sqlContext=sqlContext)
-    #
-    #
-    # prophet_arima_join_df_final = prophet_arima_join_df_select_cols \
 
     arima_results = arima_results_to_disk \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \

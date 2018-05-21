@@ -6,6 +6,7 @@ import distributed_grid_search.properties as p_model
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso
 
+
 def add_days(current_date):
     import datetime
     delta = datetime.timedelta(days=7)
@@ -13,16 +14,18 @@ def add_days(current_date):
 
     return new_date
 
+
 def _get_pred_dict_MA_w(prediction):
     prediction_df_temp = prediction.set_index('ds', drop=True)
     prediction_df_temp.index = prediction_df_temp.index.map(lambda x: x.strftime('%Y-%m-%d'))
     pred = prediction_df_temp.to_dict(orient='index')
-    _final = {(gregorian_to_iso(key.split("-"))[1], gregorian_to_iso(key.split("-"))[0]): float(pred.get(key).get('yhat'))
-              for key in pred.keys()}
+    _final = {
+        (gregorian_to_iso(key.split("-"))[1], gregorian_to_iso(key.split("-"))[0]): float(pred.get(key).get('yhat'))
+        for key in pred.keys()}
     return _final
 
-def moving_average_model_weekly(prod, cus_no, mat_no, baseline = False, **kwargs):
 
+def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
     # always define min_train_days when used for baseline
 
     import pandas as pd
@@ -63,10 +66,10 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline = False, **kwargs
     if len(prod.y) >= 26:
         if ('dir_name' in kwargs.keys()):
             dir_name = kwargs.get('dir_name')
-            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size= 12, sigma= 2.5
+            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=12, sigma=2.5
                                       , dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
         else:
-            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size= 12, sigma= 2.5)
+            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=12, sigma=2.5)
 
         # save plot
         if ('dir_name' in kwargs.keys()):
@@ -83,7 +86,7 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline = False, **kwargs
         pred_df = pred_df.drop('rolling_mean', axis=1)
         pred_df = pd.concat([pred_df, pred_temp], axis=0, ignore_index=True)
 
-    #forecast
+    # forecast
     pred = np.array(pred_df['y'].iloc[-pred_points:]).tolist()
     ds = np.array([prod['ds'].iloc[-1]])
 
@@ -93,7 +96,7 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline = False, **kwargs
     final_pred = _get_pred_dict_MA_w(pd.DataFrame({'ds': ds, 'yhat': pred}))
 
     (output_result, rmse, mape) = weekly_moving_average_error_calc(data=prod, weekly_window=weekly_window,
-                                                                   baseline = baseline, min_train_days = min_train_days)
+                                                                   baseline=baseline, min_train_days=min_train_days)
 
     output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
                                        np.nanmedian(np.absolute(np.array(output_result.rolling_6week_percent_error))),
@@ -119,6 +122,7 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline = False, **kwargs
 
     # return cus_no, mat_no, output_error_dict, pred, _pdt_cat
     return cus_no, mat_no, output_error_dict, final_pred, _pdt_cat
+
 
 if __name__ == "__main__":
     import pandas as pd
@@ -156,4 +160,4 @@ if __name__ == "__main__":
     temp_d = pd.DataFrame({'ds': ds, 'yhat': [1, 2, 3]})
     print (temp_d)
     print (_get_pred_dict_MA_w(temp_d))
-    print (gregorian_to_iso([2017,10,18]))
+    print (gregorian_to_iso([2017, 10, 18]))
