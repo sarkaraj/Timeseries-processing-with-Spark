@@ -7,49 +7,55 @@ import properties as p
 # from _monthly_products import build_prediction_monthly
 import time
 
-####################################################################################################################
 
-# Getting Current Date Time for AppName
-appName = "_".join([MODEL_BUILDING, "WEEKLY", get_current_date()])
-####################################################################################################################
+def run_weekly(sc, sqlContext, _model_bld_date_string):
+    print("************************************************************************************")
+    print (_model_bld_date_string)
+    print("************************************************************************************\n")
+    print("Starting Weekly Model building")
+    start_time = time.time()
 
-# conf = SparkConf()
+    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
-spark = SparkSession \
-    .builder \
-    .appName(appName) \
-    .enableHiveSupport() \
-    .getOrCreate()
 
-# sc = SparkContext(conf=conf)
-sc = spark.sparkContext
-sqlContext = spark
+if __name__ == "__main__":
+    ####################################################################################################################
 
-print ("Setting LOG LEVEL as ERROR")
-sc.setLogLevel("ERROR")
+    # Getting Current Date Time for AppName
+    appName = "_".join([MODEL_BUILDING, "WEEKLY", get_current_date()])
+    ####################################################################################################################
 
-print ("Adding forecaster.zip to system path")
-import sys
+    # conf = SparkConf()
 
-sys.path.insert(0, "forecaster.zip")
+    spark = SparkSession \
+        .builder \
+        .appName(appName) \
+        .enableHiveSupport() \
+        .getOrCreate()
 
-mdl_bld_date_string = ["".join(sys.argv[1])]
-_model_bld_date_string = mdl_bld_date_string[0]
+    sc = spark.sparkContext
+    sqlContext = spark
 
-comments = " ".join(["Weekly-Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()])
+    print ("Setting LOG LEVEL as ERROR")
+    sc.setLogLevel("ERROR")
 
-print ("Importing Customer List")
-get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string, comments=comments,
-                         module="weekly")
+    print ("Adding forecaster.zip to system path")
+    import sys
 
-print("************************************************************************************")
-print (_model_bld_date_string)
-print("************************************************************************************\n")
-print("Starting Weekly Model building")
-start_time = time.time()
+    sys.path.insert(0, "forecaster.zip")
 
-build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
+    mdl_bld_date_string = ["".join(sys.argv[1])]
+    _model_bld_date_string = mdl_bld_date_string[0]
 
-# # Force Stopping SparkContext
-spark.stop()
+    comments = " ".join(["Weekly-Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()])
+
+    print ("Importing Customer List")
+    get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+                             comments=comments,
+                             module="weekly")
+
+    run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+
+    # Stopping SparkContext
+    spark.stop()

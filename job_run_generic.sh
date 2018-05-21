@@ -1,30 +1,27 @@
 #!/bin/bash
 
-#for date_string in '2017-08-06' '2017-08-13' '2017-08-20' '2017-08-27' '2017-09-03' '2017-09-10' '2017-09-17' '2017-09-24' '2017-10-01' '2017-10-08' '2017-10-15' '2017-10-22' '2017-10-29' '2017-11-05' '2017-11-12' '2017-11-19' '2017-11-26' '2017-12-03' '2017-12-10' '2017-12-17' '2017-12-24' '2017-12-31'
-#for date_string in '2017-07-23' '2017-07-30' '2017-08-06' '2017-08-13' '2017-08-20' '2017-08-27'
-#  '2018-04-08'
+model_bld_date=$(date +'%Y-%m-%d')
 
-for date_string in '2018-04-01' '2018-04-08' '2018-04-15' '2018-04-22' '2018-04-29' '2018-05-06'
-{
-echo $date_string
+echo $model_bld_date
+
 spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 32 \
+--num-executors 20 \
 --driver-memory 5G \
---executor-memory 2G \
---executor-cores 1 \
+--executor-memory 10G \
+--executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
 --conf spark.speculation.multiplier=1.5 \
 --conf spark.speculation.quantile=0.9 \
 --conf spark.speculation.interval=18000 \
---py-files ~/cso_predictor_c/forecaster.zip \
-~/cso_predictor_c/run.py \
-$date_string
-}
+--py-files ~/cso_predictor_prod/forecaster.zip \
+~/cso_predictor_prod/run.py \
+$model_bld_date
+
 exit 0
 
 

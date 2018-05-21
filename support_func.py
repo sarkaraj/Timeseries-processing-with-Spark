@@ -273,6 +273,32 @@ def obtain_mdl_bld_dt():
         print ("\n\n")
         return mdl_bld_date_string
 
+
+def string_to_gregorian(dt_str, sep='-', **kwargs):
+    from datetime import date
+    x = dt_str.split(sep)
+    if isinstance(x[0], int) and isinstance(x[1], int) and isinstance(x[2], int):
+        year = x[0]
+        month = x[1]
+        day = x[2]
+    else:
+        year = int(x[0])
+        month = int(x[1])
+        day = int(x[2])
+
+    return date(year=year, month=month, day=day)
+
+
+def check_if_first_sunday_of_month(date_string):
+    import calendar
+    _date = string_to_gregorian(date_string)
+    _month = _date.month
+    _year = _date.year
+
+    sundays = [week[-1] for week in calendar.monthcalendar(year=_year, month=_month) if week[-1] != 0]
+    first_sunday_of_month = min(sundays)
+    return first_sunday_of_month == _date.day
+
 # if __name__ == "__main__":
 #     import datetime as dt
 #

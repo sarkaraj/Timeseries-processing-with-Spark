@@ -72,22 +72,6 @@ comments = "Thaddeus Smith Route"
 
 
 
-# _query = """
-# select kunnr customernumber, name1 name, lot_gc_latitude latitude, lot_gc_longitud longitude
-# from mdm.customer
-# where katr6='3' and regio='FL'
-# limit 200"""
-
-_query = """
-select kunnr customernumber, salesofficedesc 
-from mdm.customer 
-where salesofficedesc LIKE 'Cleveland%' 
-and vkorg = '4200' 
-and katr6 = '3'
-limit 50
-"""
-
-
 if __name__ == "__main__":
     from data_fetch.support_func import generate_weekly_query
 
