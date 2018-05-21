@@ -8,59 +8,64 @@ import numpy as np
 
 
 def generate_all_param_combo_sarimax():
-    # param_p = range(p.p_max + 1)
-    # param_q = range(p.q_max + 1)
-    # param_d = range(p.d_max + 1)
-    #
-    # param_P = range(p.P_max + 1)
-    # param_Q = range(p.Q_max + 1)
-    # param_D = range(p.D_max + 1)
-    #
-    # pdq = list(itertools.product(param_p, param_d, param_q))
-    #
-    # seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
-    #
-    # all_combo = list(itertools.product(pdq, seasonal_pdq))
+    param_p = range(p.p_max + 1)
+    param_q = range(p.q_max + 1)
+    param_d = range(p.d_max + 1)
 
-    all_combo = [((0, 1, 1), (0, 1, 0, 52)),
-                 ((0, 0, 1), (1, 1, 0, 52)),
-                 ((1, 0, 0), (1, 0, 0, 52)),
-                 ((1, 0, 0), (0, 1, 0, 52)),
-                 ((1, 1, 1), (0, 1, 0, 52)),
-                 ((1, 0, 1), (0, 0, 0, 52)),
-                 ((1, 1, 1), (1, 0, 0, 52)),
-                 ((1, 0, 0), (0, 0, 0, 52)),
-                 ((1, 1, 1), (0, 0, 0, 52)),
-                 ((0, 1, 1), (0, 0, 0, 52)),
-                 ((1, 1, 0), (0, 1, 0, 52)),
-                 ((0, 1, 0), (1, 0, 0, 52)),
-                 ((1, 1, 0), (0, 0, 0, 52)),
-                 ((1, 1, 0), (1, 0, 0, 52))]
+    param_P = range(p.P_max + 1)
+    param_Q = range(p.Q_max + 1)
+    param_D = range(p.D_max + 1)
+
+    pdq = list(itertools.product(param_p, param_d, param_q))
+
+    seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
+
+    all_combo = list(itertools.product(pdq, seasonal_pdq))
+
+    # all_combo = [((0, 1, 1), (0, 1, 0, 52)),
+    #              ((0, 0, 1), (1, 1, 0, 52)),
+    #              ((1, 0, 0), (1, 0, 0, 52)),
+    #              ((1, 0, 0), (0, 1, 0, 52)),
+    #              ((1, 1, 1), (0, 1, 0, 52)),
+    #              ((1, 0, 1), (0, 0, 0, 52)),
+    #              ((1, 1, 1), (1, 0, 0, 52)),
+    #              ((1, 0, 0), (0, 0, 0, 52)),
+    #              ((1, 1, 1), (0, 0, 0, 52)),
+    #              ((0, 1, 1), (0, 0, 0, 52)),
+    #              ((1, 1, 0), (0, 1, 0, 52)),
+    #              ((0, 1, 0), (1, 0, 0, 52)),
+    #              ((1, 1, 0), (0, 0, 0, 52)),
+    #              ((1, 1, 0), (1, 0, 0, 52))]
 
     return all_combo
 
 
 def generate_models_sarimax(x, **kwargs):
-    if 'sep' in kwargs.keys():
-        sep = kwargs.get('sep')
-    else:
-        sep = "\t"
+    # if 'sep' in kwargs.keys():
+    #     sep = kwargs.get('sep')
+    # else:
+    #     sep = "\t"
 
-    row_object, category_obj = x
-    customernumber = row_object.customernumber
-    matnr = row_object.matnr
-    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
+    # row_object, category_obj = x
+    # customernumber = row_object.customernumber
+    # matnr = row_object.matnr
+    # MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
+    #
+    # # Unpacking the dataset
+    # # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    # data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    # data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+    #                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # # Obtaining weeekly aggregate
+    # data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
 
-    # Unpacking the dataset
-    # Extracting only the 0th and 1st element since faced discrepancies in dataset
-    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
-                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    customernumber = x[0]
+    matnr = x[1]
+    data_pd_df_week_aggregated = x[2]
+    revised_cat_object = x[3]
 
-    # Obtaining weeekly aggregate
-    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
-
-    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj) for pdq, seasonal_pqd
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, revised_cat_object) for pdq, seasonal_pqd
             in generate_all_param_combo_sarimax()]
 
 
@@ -259,26 +264,30 @@ def generate_models_prophet_monthly(x, **kwargs):
 
 
 def generate_models_sarimax_monthly(x, **kwargs):
-    if 'sep' in kwargs.keys():
-        sep = kwargs.get('sep')
-    else:
-        sep = "\t"
+    # if 'sep' in kwargs.keys():
+    #     sep = kwargs.get('sep')
+    # else:
+    #     sep = "\t"
+    #
+    # row_object, category_obj = x
+    # customernumber = row_object.customernumber
+    # matnr = row_object.matnr
+    # MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
+    #
+    # # Unpacking the dataset
+    # # Extracting only the 0th and 1st element since faced discrepancies in dataset
+    # data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
+    # data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
+    #                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # # Obtaining weeekly aggregate
+    # data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
+    customernumber = x[0]
+    matnr = x[1]
+    data_pd_df_month_aggregated = x[2]
+    revised_cat_object = x[3]
 
-    row_object, category_obj = x
-    customernumber = row_object.customernumber
-    matnr = row_object.matnr
-    MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # # is of type datetime.date
-
-    # Unpacking the dataset
-    # Extracting only the 0th and 1st element since faced discrepancies in dataset
-    data_array = [[row.split(sep)[0], row.split(sep)[1]] for row in row_object.data]
-    data_pd_df = get_pd_df(data_array=data_array, customernumber=customernumber, matnr=matnr,
-                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    # Obtaining weeekly aggregate
-    data_pd_df_week_aggregated = get_weekly_aggregate(data_pd_df)
-
-    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, category_obj) for pdq, seasonal_pqd
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_month_aggregated, revised_cat_object) for pdq, seasonal_pqd
             in generate_all_param_combo_sarimax_monthly()]
 
 

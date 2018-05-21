@@ -6,7 +6,7 @@ from support_func import assign_category, get_current_date
 from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
 from pyspark.sql.functions import *
 from transform_data.data_transform import string_to_gregorian
-from support_func import get_current_date, get_sample_customer_list
+from support_func import get_current_date, get_sample_customer_list, raw_data_to_weekly_aggregate, filter_white_noise
 import properties as p
 
 def build_prediction_weekly(sc, sqlContext, **kwargs):
@@ -30,12 +30,14 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     #############################________________DATA_ACQUISITION__________#####################################
 
-    print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
+    print ("Querying of Hive Table - Obtaining Product Data for Weekly Models")
     test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .filter(lambda x: x[1].category in ('I', 'II', 'III', 'VII'))
+        .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
+        .map(lambda x: filter_white_noise(x))\
+        .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
 
     # # Caching Data for current run
     test_data_weekly_models.cache()
@@ -48,57 +50,13 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    # print("\t--Temporary writing arima results to disk")
-    # arima_results_to_disk \
-    #     .write.mode('overwrite') \
-    #     .format('orc') \
-    #     .option("header", "true") \
-    #     .save("/tmp/arima_weekly_temp_write")
-    #
-    # print("\t--Temporary write complete\n\n")
-    #
-    # print "\t--Running distributed PROPHET"
-    # prophet_results_to_disk = _run_dist_prophet(test_data=test_data_weekly_models, sqlContext=sqlContext,
-    #                                     MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-    #
-    # print("\t--Temporary writing arima results to disk")
-    # prophet_results_to_disk \
-    #     .write.mode('overwrite') \
-    #     .format('orc') \
-    #     .option("header", "true") \
-    #     .save("/tmp/prophet_weekly_temp_write")
-    #
-    # print("\t--Temporary write complete\n\n")
-    #
-    # print("ARIMA: Loading temporary written data onto memory\n")
-    # arima_results = sqlContext.read.option("header", "true") \
-    #     .format('orc') \
-    #     .load("/tmp/arima_weekly_temp_write")
-    #
-    # print("PROPHET: Loading temporary written data onto memory\n")
-    # prophet_results = sqlContext.read.option("header", "true") \
-    #     .format('orc') \
-    #     .load("/tmp/prophet_weekly_temp_write")
-    #
-    # print "\t--Joining the ARIMA + PROPHET Results on same customernumber and matnr"
-    # cond = [arima_results.customernumber_arima == prophet_results.customernumber_prophet,
-    #         arima_results.mat_no_arima == prophet_results.mat_no_prophet]
-    #
-    # prophet_arima_join_df = prophet_results \
-    #     .join(arima_results, on=cond, how='outer')
-    #
-    # prophet_arima_join_df_select_cols = final_select_dataset(prophet_arima_join_df, sqlContext=sqlContext)
-    #
-    #
-    # prophet_arima_join_df_final = prophet_arima_join_df_select_cols \
-
     arima_results = arima_results_to_disk \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
         .withColumn('week_cutoff_date', lit(week_cutoff_date))
 
     print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
     arima_results \
-        .write.mode('append') \
+        .write.mode('overwrite') \
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_123_location)
@@ -118,7 +76,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the MA WEEKLY data into HDFS\n")
     ma_weekly_results_df_final \
-        .write.mode('append') \
+        .write.mode('overwrite') \
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
@@ -136,7 +94,7 @@ if __name__ == "__main__":
     from pyspark.sql import HiveContext, SparkSession
 
     ###################################################################################################################
-    print "Add jobs.zip to system path"
+    print ("Add jobs.zip to system path")
     import sys
 
     sys.path.insert(0, "forecaster.zip")
@@ -181,12 +139,12 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    print "Setting LOG LEVEL as ERROR"
+    print ("Setting LOG LEVEL as ERROR")
     sc.setLogLevel("ERROR")
 
     mdl_bld_date_string = "".join(sys.argv[1])
 
-    print "Importing Sample Customer List"
+    print ("Importing Sample Customer List")
     get_sample_customer_list(sc=sc, sqlContext=sqlContext)
 
     _model_bld_date_string = mdl_bld_date_string
