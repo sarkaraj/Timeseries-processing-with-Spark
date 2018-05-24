@@ -89,7 +89,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print ("Writing the MONTHLY MODEL data into HDFS")
     arima_monthly_results_final \
-        .write.mode('overwrite') \
+        .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(monthly_pdt_cat_456_location)
@@ -110,7 +110,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Writing the MA MONTHLY data into HDFS\n"
     ma_monthly_results_df_final \
-        .write.mode('overwrite') \
+        .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(monthly_pdt_cat_8910_location)

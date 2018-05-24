@@ -5,7 +5,7 @@ from model.weekly_model import *
 # # from model.moving_average import *
 # from distributed_grid_search._model_params_set import *
 # from distributed_grid_search._pydlm_monthly import *
-# # from distributed_grid_search._fbprophet import *
+from distributed_grid_search._sarimax import *
 # from distributed_grid_search._pydlm_monthly import *
 # # from model.moving_average_monthly import *
 from model.monthly_model import *
@@ -23,10 +23,10 @@ from matplotlib.pylab import rcParams
 rcParams['figure.figsize'] = 15, 6
 
 # data load and transform
-file_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_000000000000151988/"
+file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_000000000000151988/images"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\just_images\\"
 
 # # holidays
 # holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
@@ -35,10 +35,10 @@ image_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_00000000000015
 # holidays.upper_window = 7
 
 # data transformation to weekly and monthly aggregate
-raw_data = pd.read_csv(file_dir + "invoices_0500076413_000000000000151988.tsv", sep="\t", header=None,
+raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
-cus_no = 500076413
-mat_no = 151988
+cus_no = 500059071
+mat_no = 102279
 
 cus = raw_data[raw_data.customernumber == cus_no]
 prod = cus[cus.matnr == mat_no]
@@ -52,7 +52,9 @@ prod = get_weekly_aggregate(inputDF=prod)
 # result = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, holidays=holidays,
 #                            dir_name=image_dir)
 
-result = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
+# result = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
+
+result = sarimax(cus_no= cus_no, mat_no= mat_no,pdq = (2,0,0), seasonal_pdq= (0,0,0,52), prod= prod)
 
 print(result)
 

@@ -101,7 +101,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
     arima_results \
-        .write.mode('overwrite') \
+        .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_123_location)
@@ -122,7 +122,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the MA WEEKLY data into HDFS\n")
     ma_weekly_results_df_final \
-        .write.mode('overwrite') \
+        .write.mode('append') \
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
