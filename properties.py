@@ -12,7 +12,7 @@ annual_freq_cut_3 = 12.0
 REPARTITION_STAGE_1 = 70
 REPARTITION_STAGE_2 = 70
 
-WRITE_MODE = "append"
+WRITE_MODE = "overwrite"
 # _model_bld_date_string_list = ['2017-09-03', '2017-09-10', '2017-09-17', '2017-09-24', '2017-10-01', '2017-10-08',
 #                           '2017-10-15', '2017-10-22', '2017-10-29', '2017-11-05']
 
