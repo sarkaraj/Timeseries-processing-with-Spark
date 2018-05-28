@@ -4,6 +4,7 @@ from model.weekly_model_ver_1 import weekly_ensm_model
 from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
 from transform_data.pandas_support_func import *
 import properties as p
+import datetime
 
 
 def model_fit(row_object):
@@ -289,16 +290,38 @@ def string_to_gregorian(dt_str, sep='-', **kwargs):
     return date(year=year, month=month, day=day)
 
 
-def check_if_first_sunday_of_month(date_string):
+def check_if_first_sunday_of_month(_date):
     import calendar
     import __builtin__
-    _date = string_to_gregorian(date_string)
+    # _date = string_to_gregorian(date_string)
     _month = _date.month
     _year = _date.year
 
     sundays = [week[-1] for week in calendar.monthcalendar(year=_year, month=_month) if week[-1] != 0]
     first_sunday_of_month = __builtin__.min(sundays)
     return first_sunday_of_month == _date.day
+
+
+def get_current_or_next_sunday(d, weekday=6):
+    # import datetime
+
+    if d.weekday() == 6:
+        # Checking if current day is Sunday or not. If sunday then return date as it is
+        return d
+    else:
+        # If not sunday send next sunday
+        days_ahead = weekday - d.weekday()
+        if days_ahead <= 0:
+            days_ahead += 7
+        return d + datetime.timedelta(days_ahead)
+
+
+def date_check(date_string, **kwargs):
+    _date = string_to_gregorian(dt_str=date_string)
+    _model_bld_dt = get_current_or_next_sunday(d=_date)
+    monthly_sunday_flag = check_if_first_sunday_of_month(_model_bld_dt)
+    return _model_bld_dt.strftime("%Y-%m-%d"), monthly_sunday_flag
+
 
 # if __name__ == "__main__":
 #     import datetime as dt
