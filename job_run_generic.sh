@@ -21,7 +21,7 @@ spark-submit \
 --conf spark.sql.shuffle.partitions=70 \
 --py-files ~/cso_predictor_prod/forecaster.zip \
 ~/cso_predictor_prod/run.py \
-'2018-05-20'
+$model_bld_date
 
 # $model_bld_date
 
