@@ -43,22 +43,22 @@ if __name__ == "__main__":
     if if_first_sunday_of_month:
         print ("Consolidated Run")
         print ("Importing Sample Customer List")
-        # get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-        #                          comments=comments,
-        #                          module="consolidated")
-        #
-        # run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        # print("************************************************************************************\n")
-        # run_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        # print("************************************************************************************\n")
+        get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+                                 comments=comments,
+                                 module="consolidated")
+
+        run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+        print("************************************************************************************\n")
+        run_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+        print("************************************************************************************\n")
     else:
         print ("Weekly Run")
         print ("Importing Sample Customer List")
-        # get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-        #                          comments=comments,
-        #                          module="weekly")
-        # run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        # print("************************************************************************************\n")
+        get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+                                 comments=comments,
+                                 module="weekly")
+        run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+        print("************************************************************************************\n")
 
     # Stopping SparkContext
     spark.stop()
