@@ -96,7 +96,10 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
-        mod = sm.tsa.statespace.SARIMAX(endog=endog_train,exog=exog_train, order=pdq, seasonal_order=seasonal_pdq,
+        mod = sm.tsa.statespace.SARIMAX(endog=endog_train,
+                                        # exog=exog_train,
+                                        order=pdq, seasonal_order=seasonal_pdq,
+                                        # trend= [1,0,1],
                                         enforce_stationarity=False, enforce_invertibility=False,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)
@@ -111,7 +114,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # forecast test
         pred_test = results.get_prediction(start=pd.to_datetime(np.amax(train_arima.index)),
                                            end=pd.to_datetime(np.amax(test_arima.index)),
-                                           exog = exog_test.values.astype('float'),
+                                           # exog = exog_test.values.astype('float'),
                                            dynamic=True)
 
         # pred_test_ci = pred_test.conf_int()

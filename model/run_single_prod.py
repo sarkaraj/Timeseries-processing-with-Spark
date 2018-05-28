@@ -37,8 +37,8 @@ image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\just_images
 # data transformation to weekly and monthly aggregate
 raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
-cus_no = 500059071
-mat_no = 102279
+cus_no = 500074960
+mat_no = 123371
 
 cus = raw_data[raw_data.customernumber == cus_no]
 prod = cus[cus.matnr == mat_no]
@@ -54,7 +54,7 @@ prod = get_weekly_aggregate(inputDF=prod)
 
 # result = monthly_prophet_model(prod=prod, cus_no=cus_no, mat_no=mat_no)
 
-result = sarimax(cus_no= cus_no, mat_no= mat_no,pdq = (2,0,0), seasonal_pdq= (0,0,0,52), prod= prod)
+result = sarimax(cus_no= cus_no, mat_no= mat_no,pdq = (4,0,1), seasonal_pdq= (1,0,0,52), prod= prod)
 
 print(result)
 
