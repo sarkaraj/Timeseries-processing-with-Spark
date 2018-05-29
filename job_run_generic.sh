@@ -2,7 +2,7 @@
 
 model_bld_date=$(date +'%Y-%m-%d')
 
-echo $model_bld_date
+# echo $model_bld_date
 
 spark-submit \
 --verbose \
@@ -10,8 +10,8 @@ spark-submit \
 --deploy-mode client \
 --queue tsmdl \
 --num-executors 20 \
---driver-memory 5G \
---executor-memory 10G \
+--driver-memory 3G \
+--executor-memory 5G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
@@ -21,7 +21,7 @@ spark-submit \
 --conf spark.sql.shuffle.partitions=70 \
 --py-files ~/cso_predictor_prod/forecaster.zip \
 ~/cso_predictor_prod/run.py \
-$model_bld_date
+'2018-05-27'
 
 # $model_bld_date
 
