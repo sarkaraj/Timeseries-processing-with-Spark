@@ -7,27 +7,40 @@ from distributed_grid_search.properties import *
 import numpy as np
 
 
-def generate_all_param_combo_sarimax(category):
+def generate_all_param_combo_sarimax(**kwargs):
+    from math import ceil
+
     param_p = range(p.p_max + 1)
     param_q = range(p.q_max + 1)
     param_d = range(p.d_max + 1)
 
-    if category == "I":
+    if "category" in kwargs.keys():
+        category = kwargs.get("category")
+
+        if category == "I":
+            param_P = range(p.P_max + 1)
+            param_Q = range(p.Q_max + 1)
+            param_D = range(p.D_max + 1)
+
+        else:
+            param_P = [0]
+            param_Q = [0]
+            param_D = [0]
+    else:
         param_P = range(p.P_max + 1)
         param_Q = range(p.Q_max + 1)
         param_D = range(p.D_max + 1)
-
-    else:
-        param_P = [0]
-        param_Q = [0]
-        param_D = [0]
 
     pdq = list(itertools.product(param_p, param_d, param_q))
 
     seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
 
     all_combo = list(itertools.product(pdq, seasonal_pdq))
-    return all_combo
+
+    sample_size = int(ceil(float(len(all_combo)) * (float(p.GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY) / 100.0)))
+    sampled_combo = np.random.choice(all_combo, size=sample_size, replace=False)
+
+    return list(sampled_combo)
 
 
 def generate_models_sarimax(x, **kwargs):
@@ -56,7 +69,7 @@ def generate_models_sarimax(x, **kwargs):
     revised_cat_object = x[3]
 
     return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, revised_cat_object) for pdq, seasonal_pqd
-            in generate_all_param_combo_sarimax(category=revised_cat_object.category)]
+            in generate_all_param_combo_sarimax()]
 
 
 def generate_all_param_combo_prophet():
