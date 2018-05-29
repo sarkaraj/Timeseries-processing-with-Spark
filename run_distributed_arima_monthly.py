@@ -23,7 +23,7 @@ def _run_dist_arima_monthly(test_data, sqlContext, **kwargs):
     # # Parallelizing Jobs
     arima_results_rdd = test_data_parallel \
         .repartition(REPARTITION_STAGE_1) \
-        .map(lambda x: sarimax_monthly(cus_no=x[0], mat_no=x[1], pdq=x[2], trend = x[3], seasonal_pdq=x[4], prod=x[5],
+        .map(lambda x: sarimax_monthly(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq = x[3], trend=x[4], prod=x[5],
                                min_train_days=x[6].min_train_days, pdt_cat=x[6].get_product_prop())) \
         .filter(lambda x: x != "MODEL_NOT_VALID")
     # .repartition(REPARTITION_STAGE_1)
