@@ -160,19 +160,12 @@ def generate_all_param_combo_sarimax_monthly():
     param_Q = range(p.Q_max_M + 1)
     param_D = range(p.D_max_M + 1)
 
-    trend_c = range(p.c_max_M +1)
-    trend_c_t = range(p.c_t_max_M +1)
-    trend_c_tsqaure = range(p.c_tsquare_max_M +1)
-
     pdq = list(itertools.product(param_p, param_d, param_q))
 
     seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(param_P, param_D, param_Q))]
 
-    trend = [[x[0], x[1], x[2]] for x in list(itertools.product(trend_c, trend_c_t, trend_c_tsqaure))]
-
-    all_combo = list(itertools.product(pdq, seasonal_pdq, trend))
-
-
+    all_combo = list(itertools.product(pdq, seasonal_pdq))
+    #
     # all_combo = [((0, 1, 1), (0, 1, 0, 12)),
     #              ((0, 0, 1), (1, 1, 0, 12)),
     #              ((1, 0, 0), (1, 0, 0, 12)),
@@ -294,7 +287,7 @@ def generate_models_sarimax_monthly(x, **kwargs):
     data_pd_df_month_aggregated = x[2]
     revised_cat_object = x[3]
 
-    return [(customernumber, matnr, pdq, seasonal_pqd, trend, data_pd_df_month_aggregated, revised_cat_object) for pdq, seasonal_pqd, trend
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_month_aggregated, revised_cat_object) for pdq, seasonal_pqd
             in generate_all_param_combo_sarimax_monthly()]
 
 

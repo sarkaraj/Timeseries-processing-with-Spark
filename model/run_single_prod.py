@@ -37,8 +37,8 @@ image_dir = "/home/rajarshi/Desktop/temporary/invoices_0500076413_00000000000015
 # data transformation to weekly and monthly aggregate
 raw_data = pd.read_csv(file_dir + "invoices_0500076413_000000000000151988.tsv", sep="\t", header=None,
                        names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
-cus_no = 500056927
-mat_no = 101728
+cus_no = 500076413
+mat_no = 151988
 
 cus = raw_data[raw_data.customernumber == cus_no]
 prod = cus[cus.matnr == mat_no]
