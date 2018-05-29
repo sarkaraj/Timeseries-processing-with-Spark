@@ -87,8 +87,9 @@ def map_for_output_arima(line):
 
     pdq = line[1][1][3]
     seasonal_pdq = line[1][1][4]
-    _pdt_cat = line[1][1][5]
-    _opt_param_arima = {'pdq': pdq, 'seasonal_pdq': seasonal_pdq}
+    trend = line[1][1][5]
+    _pdt_cat = line[1][1][6]
+    _opt_param_arima = {'pdq': pdq, 'seasonal_pdq': seasonal_pdq, 'trend': trend}
 
     _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
 

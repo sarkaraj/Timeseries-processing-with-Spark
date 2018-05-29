@@ -159,7 +159,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
         _criteria = output_error_dict.get(SARIMAX_M_MODEL_SELECTION_CRITERIA)
         pdt_category = kwargs.get('pdt_cat')
         _result = (
-        (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
+        (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq),list(trend), pdt_category))
         # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
         return _result
