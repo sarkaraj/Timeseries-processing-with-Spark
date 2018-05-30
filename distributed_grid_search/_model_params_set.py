@@ -38,9 +38,10 @@ def generate_all_param_combo_sarimax(**kwargs):
     all_combo = list(itertools.product(pdq, seasonal_pdq))
 
     sample_size = int(ceil(float(len(all_combo)) * (float(p.GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY) / 100.0)))
-    sampled_combo = np.random.choice(all_combo, size=sample_size, replace=False)
+    index_of_samples = np.random.choice(range(len(all_combo)), size=sample_size, replace=False)
+    sampled_combo = [all_combo[elem] for elem in index_of_samples]
 
-    return list(sampled_combo)
+    return sampled_combo
 
 
 def generate_models_sarimax(x, **kwargs):
@@ -340,26 +341,5 @@ def generate_models_pydlm_monthly(x):
 
 
 if __name__ == '__main__':
-    a = generate_all_param_combo_pydlm_monthly()
-    # print (len(a))
 
     print (generate_all_param_combo_sarimax())
-    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
-    #
-    # print param
-    # print param.get('changepoint_prior_scale')
-    # print type(param.get('changepoint_prior_scale'))
-    # print param.get('yearly_seasonality')
-    # print type(param.get('yearly_seasonality'))
-    # print param.get('seasonality_prior_scale')
-    # print type(param.get('seasonality_prior_scale'))
-    #
-    # # print [(1, elem)for elem in generate_all_param_combo_prophet_monthly()]
-    # for i in a:
-    #     print i
-    #     print i.get('changepoint_prior_scale')
-    #     print type(i.get('changepoint_prior_scale'))
-    #     print i.get('yearly_seasonality')
-    #     print type(i.get('yearly_seasonality'))
-    #     print i.get('seasonality_prior_scale')
-    #     print type(i.get('seasonality_prior_scale'))
