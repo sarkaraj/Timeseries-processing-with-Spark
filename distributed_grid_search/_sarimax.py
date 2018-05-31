@@ -56,6 +56,18 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # Remove outlier
         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
 
+        # AIC Test
+        prod_aic_test = prod.set_index('ds', drop=True)
+        warnings.filterwarnings("ignore")  # specify to ignore warning messages
+
+        mod_aic_test = sm.tsa.statespace.SARIMAX(prod_aic_test, order=pdq, seasonal_order=seasonal_pdq,
+                                                 enforce_invertibility=False, enforce_stationarity=False,
+                                                 measurement_error=False, time_varying_regression=False,
+                                                 mle_regression=True)
+
+        result_aic_test = mod_aic_test.fit(disp=False)
+        aic = result_aic_test.aic
+
         # test and train data creation
         train = prod[
             prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
@@ -114,7 +126,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         output_result = weekly_arima_error_calc(output_result)
         # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 
-        output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_ARIMA, output_result.y),
+        output_error = pd.DataFrame(data=[[cus_no, mat_no, aic, rmse_calculator(output_result.y_ARIMA, output_result.y),
                                            mape_calculator(output_result.y_ARIMA, output_result.y),
                                            np.nanmedian(
                                                np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
@@ -135,7 +147,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                            output_result['Error_Cumsum_arima'].iloc[-1],
                                            output_result['cumsum_quantity'].iloc[-1],
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                                    columns=['cus_no', 'mat_no', 'rmse', 'mape',
+                                    columns=['cus_no', 'mat_no', 'aic', 'rmse', 'mape',
                                              'wre_med_6', 'wre_max_6', 'wre_mean_6','quantity_mean_6',
                                              'wre_med_12', 'wre_max_12', 'wre_mean_12','quantity_mean_12',
                                              'cum_error', 'cum_quantity',

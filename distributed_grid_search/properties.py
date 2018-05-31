@@ -1,6 +1,6 @@
 ################WEEKLY################
 min_train_days = 365
-test_points = 4
+test_points = 2
 pred_points = 2
 
 ################MONTHLY################
@@ -20,7 +20,7 @@ D_max = 1
 ################WEEKLY################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-SARIMAX_W_MODEL_SELECTION_CRITERIA = 'wre_mean_12'
+SARIMAX_W_MODEL_SELECTION_CRITERIA = 'aic'
 
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
