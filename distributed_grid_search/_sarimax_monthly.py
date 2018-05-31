@@ -66,6 +66,18 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
         # Remove outlier
         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=6, sigma=2.5)
 
+        #AIC Test
+        prod_aic_test = prod.set_index('ds', drop = True)
+        warnings.filterwarnings("ignore")  # specify to ignore warning messages
+
+        mod_aic_test = sm.tsa.statespace.SARIMAX(prod_aic_test, order=pdq, seasonal_order=seasonal_pdq, trend=trend,
+                                        enforce_invertibility=False, enforce_stationarity=False,
+                                        measurement_error=False, time_varying_regression=False,
+                                        mle_regression=True)
+
+        result_aic_test = mod_aic_test.fit(disp=False)
+        aic = result_aic_test.aic
+
         # test and train data creation
         train = prod[
             prod.ds <= (
@@ -99,6 +111,15 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
             # forecast test
             pred_test = results.get_prediction(start=(np.amax(train_arima.index)),
                                                end=(np.amax(test_arima.index)), dynamic=True)
+            # # plot the fit
+            # #########################
+            # pred_train = results.get_prediction(start= np.amin(np.array(train_arima.index)),
+            #                                     dynamic=False)
+            #
+            # result_train = train
+            # result_train['y_ARIMA'] = np.array(pred_train.predicted_mean)
+            # #########################
+
 
             # print(pred_test.predicted_mean)
             # pred_test_ci = pred_test.conf_int()
@@ -113,6 +134,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
             # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
 
             output_result = pd.concat([output_result, result_test], axis=0)
+
 
         # model_prediction
         prod_arima = prod.set_index('ds', drop=True)
@@ -135,7 +157,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
         # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 
         output_error = pd.DataFrame(
-            data=[[cus_no, mat_no, rmse_calculator(output_result.y_ARIMA, output_result.y),
+            data=[[cus_no, mat_no, aic, rmse_calculator(output_result.y_ARIMA, output_result.y),
                    mape_calculator(output_result.y_ARIMA, output_result.y),
                    np.nanmedian(np.absolute(np.array(output_result.rolling_3month_percent_error_arima))),
                    np.nanmax(
@@ -150,7 +172,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
                    output_result['Error_Cumsum_arima'].iloc[-1],
                    output_result['cumsum_quantity'].iloc[-1],
                    ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 30)]],
-            columns=['cus_no', 'mat_no', 'rmse', 'mape',
+            columns=['cus_no', 'mat_no', 'aic', 'rmse', 'mape',
                      'mre_med_3', 'mre_max_3', 'mre_mean_3', 'quantity_mean_3',
                      'mre_med_4', 'mre_max_4', 'mre_mean_4', 'quantity_mean_4',
                      'cum_error', 'cum_quantity', 'period_days'])
