@@ -23,7 +23,7 @@ def _get_pred_dict_sarimax_m(prediction_series):
     return _final
 
 
-def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
+def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     import pandas as pd
     import numpy as np
     from dateutil import parser
@@ -49,7 +49,6 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
     try:
         pdq = pdq
         seasonal_pdq = seasonal_pdq
-        trend = trend
 
         # data transform
         prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -87,7 +86,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
 
             warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
-            mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq, trend = trend,
+            mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
                                             enforce_invertibility=False, enforce_stationarity=False,
                                             measurement_error=False, time_varying_regression=False,
                                             mle_regression=True)
@@ -117,7 +116,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
         # model_prediction
         prod_arima = prod.set_index('ds', drop=True)
         prod_arima.index = pd.period_range(start=min(prod_arima.index), end=max(prod_arima.index), freq='M')
-        mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq, trend = trend,
+        mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
                                         enforce_invertibility=False, enforce_stationarity=False,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)

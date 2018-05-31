@@ -78,17 +78,14 @@ raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
 
 print(max(raw_data.date))
 print(min(raw_data.date))
-cus_no = 500057580
-mat_no = 133129
-
-raw_data.quantity = raw_data.quantity.apply(float)
-raw_data = raw_data.loc[raw_data['quantity'] >= 0]
+cus_no = 500059071
+mat_no = 102279
 
 cus_test = raw_data[raw_data.customernumber == cus_no]
 prod_test = cus_test[cus_test.matnr == mat_no]
 
-# data_weekly = get_weekly_aggregate(inputDF=prod_test)
-# data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
+data_weekly = get_weekly_aggregate(inputDF=prod_test)
+data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 
 # weekly_data = data_weekly.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
 
@@ -96,32 +93,27 @@ prod_test = cus_test[cus_test.matnr == mat_no]
 
 # data_weekly.head()
 
-# data_monthly = get_monthly_aggregate(inputDF=raw_data)
-# data_monthly.dt_week = data_monthly.dt_week.apply(str).apply(parser.parse)
-# print (data_monthly.head())
+data_monthly = get_monthly_aggregate(inputDF=raw_data)
+data_monthly.dt_week = data_monthly.dt_week.apply(str).apply(parser.parse)
+print (data_monthly.head())
 
 # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
 # loop to run for all product, all customer
 final_data_df = pd.DataFrame()
-for cus_no in raw_data.customernumber.unique():
-    cus = raw_data[raw_data.customernumber == cus_no]
+for cus_no in data_weekly.customernumber.unique():
+    cus = data_weekly[data_weekly.customernumber == cus_no]
     for mat_no in cus.matnr.unique():
         prod = cus[cus.matnr == mat_no]
-        prod['quantity'] = prod['quantity'].apply(float)
-        prod = prod.loc[prod['quantity'] >= 0]
-        # prod = prod.loc[prod['quantity'] >= 0]
-
-        print(prod.head())
-        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        # prod.ds = prod.ds.apply(str).apply(parser.parse)
-        # prod.y = prod.y.apply(float)
-        # prod = prod.sort_values('ds')
-        # prod = prod.reset_index(drop=True)
+        prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+        prod.ds = prod.ds.apply(str).apply(parser.parse)
+        prod.y = prod.y.apply(float)
+        prod = prod.sort_values('ds')
+        prod = prod.reset_index(drop=True)
 
         # plot_weekly_data(data=prod, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
-        monthly_data = get_monthly_aggregate(prod)
-        print(monthly_data.head())
+        monthly_data = get_monthly_aggregate_per_product(prod)
+        print(monthly_data)
 
         # plot_monthly_data(data=monthly_data, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
@@ -143,8 +135,8 @@ for cus_no in raw_data.customernumber.unique():
         # prod_output = res[1][1]
 
         for elem in generate_all_param_combo_sarimax_monthly():
-            output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=elem[0],
-                                     seasonal_pdq= elem[1], trend=elem[2])
+            output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=prod, pdq=elem[0],
+                                     seasonal_pdq= elem[1])
             print(elem)
             print(output)
 
