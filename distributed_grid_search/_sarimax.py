@@ -57,6 +57,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
 
         # AIC Test
+        ####################################
         prod_aic_test = prod.set_index('ds', drop=True)
         warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
@@ -67,6 +68,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         result_aic_test = mod_aic_test.fit(disp=False)
         aic = result_aic_test.aic
+        ####################################
 
         # test and train data creation
         train = prod[
