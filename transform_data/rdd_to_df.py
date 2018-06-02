@@ -72,6 +72,7 @@ def arima_output_schema():
 
     return schema
 
+
 def map_for_output_arima(line):
     customernumber, mat_no = line[0]
 
@@ -92,6 +93,7 @@ def map_for_output_arima(line):
     _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
 
     return _result
+
 
 def map_for_output_arima_monthly(line):
     customernumber, mat_no = line[0]
