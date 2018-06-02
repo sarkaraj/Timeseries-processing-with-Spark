@@ -1,7 +1,7 @@
 def _run_dist_arima_monthly(test_data, sqlContext, **kwargs):
     # LIBRARY IMPORTS
     from distributed_grid_search._model_params_set import generate_models_sarimax_monthly
-    from transform_data.rdd_to_df import map_for_output_arima, arima_output_schema
+    from transform_data.rdd_to_df import map_for_output_arima_monthly, arima_output_schema
 
     from support_func import dist_grid_search_create_combiner, dist_grid_search_merge_value, \
         dist_grid_search_merge_combiner
@@ -37,7 +37,7 @@ def _run_dist_arima_monthly(test_data, sqlContext, **kwargs):
                       dist_grid_search_merge_combiner,
                       numPartitions=REPARTITION_STAGE_2)
 
-    opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima(line))
+    opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima_monthly(line))
 
     opt_arima_results_df = sqlContext.createDataFrame(opt_arima_results_mapped, schema=arima_output_schema())
 

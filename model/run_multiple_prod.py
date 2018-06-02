@@ -79,8 +79,8 @@ raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
 
 print(max(raw_data.date))
 print(min(raw_data.date))
-cus_no = 500269279
-mat_no = 129295
+cus_no = 500068482
+mat_no = 134929
 
 raw_data.quantity = raw_data.quantity.apply(float)
 raw_data = raw_data.loc[raw_data['quantity'] >= 0]
@@ -143,20 +143,23 @@ print(monthly_data)
         # res = run_prophet_monthly(cus_no= cus_no, mat_no= mat_no, prod=prod, param= param, min_train_days= 731)
         # prod_output = res[1][1]
 #
-for elem in generate_all_param_combo_sarimax_monthly():
-    print(elem)
-    output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=elem[0],
-                                                       seasonal_pdq= elem[1], trend=elem[2])
-    print("elem")
-    print(elem)
-    print("output")
-    print(output)
+# for elem in generate_all_param_combo_sarimax_monthly():
+#     print(elem)
+#     output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=elem[0],
+#                                                        seasonal_pdq= elem[1], trend=elem[2])
 
-    if (output not in ["MODEL_NOT_VALID"]):
-        three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
-                          x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
-                          x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
-                          xlable= "Date", ylable= "Quantity", title= str(elem), dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=(2,0,1), seasonal_pdq= (1,0,0,12), trend=[0,0,1]
+                         ,enforce_stationarity = False, enforce_invertibility = False, measurement_error = True, hamilton_representation = False)
+# print("elem")
+# print(elem)
+# print("output")
+# print(output)
+
+if (output not in ["MODEL_NOT_VALID"]):
+    three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
+                      x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
+                      x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
+                      xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
 
 
