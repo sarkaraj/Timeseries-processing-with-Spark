@@ -23,7 +23,7 @@ def _get_pred_dict_sarimax_m(prediction_series):
     return _final
 
 
-def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
+def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
     import pandas as pd
     import numpy as np
     from dateutil import parser
@@ -49,6 +49,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     try:
         pdq = pdq
         seasonal_pdq = seasonal_pdq
+        trend = trend
 
         # data transform
         prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
@@ -80,13 +81,10 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             train_arima.index = pd.period_range(start= min(train_arima.index),end= max(train_arima.index),freq= 'M')
             test_arima.index = pd.period_range(start=min(test_arima.index), end=max(test_arima.index), freq='M')
-            # print(train_arima.index)
-            #
-            # print(test_arima)
 
             warnings.filterwarnings("ignore")  # specify to ignore warning messages
 
-            mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
+            mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq, trend = trend,
                                             enforce_invertibility=False, enforce_stationarity=False,
                                             measurement_error=False, time_varying_regression=False,
                                             mle_regression=True)
@@ -98,9 +96,14 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
             # forecast test
             pred_test = results.get_prediction(start=(np.amax(train_arima.index)),
                                                end=(np.amax(test_arima.index)), dynamic=True)
-
-            # print(pred_test.predicted_mean)
-            # pred_test_ci = pred_test.conf_int()
+            # # plot the fit
+            # #########################
+            # pred_train = results.get_prediction(start= np.amin(np.array(train_arima.index)),
+            #                                     dynamic=False)
+            #
+            # result_train = train
+            # result_train['y_ARIMA'] = np.array(pred_train.predicted_mean)
+            # #########################
 
             # creating test and train ensembled result
             result_test = test
@@ -113,10 +116,11 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             output_result = pd.concat([output_result, result_test], axis=0)
 
+
         # model_prediction
         prod_arima = prod.set_index('ds', drop=True)
         prod_arima.index = pd.period_range(start=min(prod_arima.index), end=max(prod_arima.index), freq='M')
-        mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
+        mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq, trend = trend,
                                         enforce_invertibility=False, enforce_stationarity=False,
                                         measurement_error=False, time_varying_regression=False,
                                         mle_regression=True)
@@ -128,8 +132,6 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # print(pred_arima.predicted_mean)
         _output_pred = _get_pred_dict_sarimax_m(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
 
-        # print(_output_pred)
-        # print(output_result)
         output_result = monthly_arima_model_error_calc(output_result)
         # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 
@@ -158,7 +160,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         _criteria = output_error_dict.get(SARIMAX_M_MODEL_SELECTION_CRITERIA)
         pdt_category = kwargs.get('pdt_cat')
         _result = (
-        (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
+        (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq),list(trend), pdt_category))
         # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
 
         return _result

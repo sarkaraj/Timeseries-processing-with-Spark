@@ -11,6 +11,7 @@ from distributed_grid_search._model_params_set import *
 from distributed_grid_search.properties import *
 from distributed_grid_search._sarimax_monthly import *
 from distributed_grid_search._sarimax import *
+from model.save_images import *
 
 import numpy as np
 import pandas as pd
@@ -26,7 +27,7 @@ rcParams['figure.figsize'] = 15, 6
 file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\monthly_prophet\\just_images\\"
+image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\thadeus\\monthly_trend_analysis\\"
 
 # holidays
 # holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
@@ -78,14 +79,17 @@ raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
 
 print(max(raw_data.date))
 print(min(raw_data.date))
-cus_no = 500059071
-mat_no = 102279
+cus_no = 500068482
+mat_no = 134929
+
+raw_data.quantity = raw_data.quantity.apply(float)
+raw_data = raw_data.loc[raw_data['quantity'] >= 0]
 
 cus_test = raw_data[raw_data.customernumber == cus_no]
 prod_test = cus_test[cus_test.matnr == mat_no]
 
-data_weekly = get_weekly_aggregate(inputDF=prod_test)
-data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
+# data_weekly = get_weekly_aggregate(inputDF=prod_test)
+# data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 
 # weekly_data = data_weekly.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
 
@@ -93,27 +97,32 @@ data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 
 # data_weekly.head()
 
-data_monthly = get_monthly_aggregate(inputDF=raw_data)
-data_monthly.dt_week = data_monthly.dt_week.apply(str).apply(parser.parse)
-print (data_monthly.head())
+# data_monthly = get_monthly_aggregate(inputDF=raw_data)
+# data_monthly.dt_week = data_monthly.dt_week.apply(str).apply(parser.parse)
+# print (data_monthly.head())
 
 # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
 # loop to run for all product, all customer
-final_data_df = pd.DataFrame()
-for cus_no in data_weekly.customernumber.unique():
-    cus = data_weekly[data_weekly.customernumber == cus_no]
-    for mat_no in cus.matnr.unique():
-        prod = cus[cus.matnr == mat_no]
-        prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        prod.ds = prod.ds.apply(str).apply(parser.parse)
-        prod.y = prod.y.apply(float)
-        prod = prod.sort_values('ds')
-        prod = prod.reset_index(drop=True)
+# final_data_df = pd.DataFrame()
+# for cus_no in raw_data.customernumber.unique():
+#     cus = raw_data[raw_data.customernumber == cus_no]
+#     for mat_no in cus.matnr.unique():
+#         prod = cus[cus.matnr == mat_no]
+#         prod['quantity'] = prod['quantity'].apply(float)
+#         prod = prod.loc[prod['quantity'] >= 0]
+#         # prod = prod.loc[prod['quantity'] >= 0]
+#
+#         print(prod.head())
+        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+        # prod.ds = prod.ds.apply(str).apply(parser.parse)
+        # prod.y = prod.y.apply(float)
+        # prod = prod.sort_values('ds')
+        # prod = prod.reset_index(drop=True)
 
         # plot_weekly_data(data=prod, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
-        monthly_data = get_monthly_aggregate_per_product(prod)
-        print(monthly_data)
+monthly_data = get_monthly_aggregate(prod_test)
+print(monthly_data)
 
         # plot_monthly_data(data=monthly_data, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
@@ -133,12 +142,26 @@ for cus_no in data_weekly.customernumber.unique():
         # prod_output = moving_average_model_monthly(prod = prod, cus_no= cus_no, mat_no=mat_no)
         # res = run_prophet_monthly(cus_no= cus_no, mat_no= mat_no, prod=prod, param= param, min_train_days= 731)
         # prod_output = res[1][1]
+#
+# for elem in generate_all_param_combo_sarimax_monthly():
+#     print(elem)
+#     output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=elem[0],
+#                                                        seasonal_pdq= elem[1], trend=elem[2])
 
-        for elem in generate_all_param_combo_sarimax_monthly():
-            output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=prod, pdq=elem[0],
-                                     seasonal_pdq= elem[1])
-            print(elem)
-            print(output)
+output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=(2,0,1), seasonal_pdq= (1,0,0,12), trend=[0,0,1]
+                         ,enforce_stationarity = False, enforce_invertibility = False, measurement_error = True, hamilton_representation = False)
+# print("elem")
+# print(elem)
+# print("output")
+# print(output)
+
+if (output not in ["MODEL_NOT_VALID"]):
+    three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
+                      x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
+                      x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
+                      xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+
+
 
             # final_data_df = pd.concat([final_data_df, output[1][1]], axis=0)
 
