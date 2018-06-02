@@ -42,6 +42,13 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # customer_data_location = "/CONA_CSO/CCBC_Consolidated/customer_data"
 # comments = "Thaddeus Smith Route"
 
+#
+# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_8910"
+# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
+# comments = "Thaddeus Smith Route"
 
 # weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
 # weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
@@ -50,13 +57,23 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
 # comments = "Thaddeus Smith Route"
 
-weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
-customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
-comments = "Thaddeus Smith Route"
+# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
+# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
+# comments = "Thaddeus Smith Route"
 
+container = "csoproduction"
+storage_account = "conapocv2standardsa.blob.core.windows.net"
+PREFIX = "wasb://" + "@".join([container, storage_account])
+
+weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
+customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
+comments = ""
 
 
 # weekly_pdt_cat_123_location = "/CONA_CSO/CCBF/weekly_pdt_cat_123"
@@ -78,22 +95,6 @@ comments = "Thaddeus Smith Route"
 # monthly_pdt_cat_8910_location = "/CONA_CSO/model_eda/monthly_pdt_cat_8910"
 # customer_data_location="/CONA_CSO/model_eda/customer_data"
 
-
-
-# _query = """
-# select kunnr customernumber, name1 name, lot_gc_latitude latitude, lot_gc_longitud longitude
-# from mdm.customer
-# where katr6='3' and regio='FL'
-# limit 200"""
-
-_query = """
-select kunnr customernumber, salesofficedesc 
-from mdm.customer 
-where salesofficedesc LIKE 'Cleveland%' 
-and vkorg = '4200' 
-and katr6 = '3'
-limit 50
-"""
 
 
 if __name__ == "__main__":

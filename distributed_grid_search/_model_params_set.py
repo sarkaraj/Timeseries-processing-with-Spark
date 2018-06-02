@@ -7,14 +7,29 @@ from distributed_grid_search.properties import *
 import numpy as np
 
 
-def generate_all_param_combo_sarimax():
+def generate_all_param_combo_sarimax(**kwargs):
+    from math import ceil
+
     param_p = range(p.p_max + 1)
     param_q = range(p.q_max + 1)
     param_d = range(p.d_max + 1)
 
-    param_P = range(p.P_max + 1)
-    param_Q = range(p.Q_max + 1)
-    param_D = range(p.D_max + 1)
+    if "category" in kwargs.keys():
+        category = kwargs.get("category")
+
+        if category == "I":
+            param_P = range(p.P_max + 1)
+            param_Q = range(p.Q_max + 1)
+            param_D = range(p.D_max + 1)
+
+        else:
+            param_P = [0]
+            param_Q = [0]
+            param_D = [0]
+    else:
+        param_P = range(p.P_max + 1)
+        param_Q = range(p.Q_max + 1)
+        param_D = range(p.D_max + 1)
 
     pdq = list(itertools.product(param_p, param_d, param_q))
 
@@ -22,22 +37,14 @@ def generate_all_param_combo_sarimax():
 
     all_combo = list(itertools.product(pdq, seasonal_pdq))
 
-    # all_combo = [((0, 1, 1), (0, 1, 0, 52)),
-    #              ((0, 0, 1), (1, 1, 0, 52)),
-    #              ((1, 0, 0), (1, 0, 0, 52)),
-    #              ((1, 0, 0), (0, 1, 0, 52)),
-    #              ((1, 1, 1), (0, 1, 0, 52)),
-    #              ((1, 0, 1), (0, 0, 0, 52)),
-    #              ((1, 1, 1), (1, 0, 0, 52)),
-    #              ((1, 0, 0), (0, 0, 0, 52)),
-    #              ((1, 1, 1), (0, 0, 0, 52)),
-    #              ((0, 1, 1), (0, 0, 0, 52)),
-    #              ((1, 1, 0), (0, 1, 0, 52)),
-    #              ((0, 1, 0), (1, 0, 0, 52)),
-    #              ((1, 1, 0), (0, 0, 0, 52)),
-    #              ((1, 1, 0), (1, 0, 0, 52))]
+    if p.ENABLE_SAMPLING:
+        sample_size = int(ceil(float(len(all_combo)) * (float(p.GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY) / 100.0)))
+        index_of_samples = np.random.choice(range(len(all_combo)), size=sample_size, replace=False)
+        sampled_combo = [all_combo[elem] for elem in index_of_samples]
 
-    return all_combo
+        return sampled_combo
+    else:
+        return all_combo
 
 
 def generate_models_sarimax(x, **kwargs):
@@ -151,14 +158,27 @@ def generate_all_param_combo_prophet_monthly():
     return _result
 
 
-def generate_all_param_combo_sarimax_monthly():
+def generate_all_param_combo_sarimax_monthly(**kwargs):
     param_p = range(p.p_max_M + 1)
     param_q = range(p.q_max_M + 1)
     param_d = range(p.d_max_M + 1)
 
-    param_P = range(p.P_max_M + 1)
-    param_Q = range(p.Q_max_M + 1)
-    param_D = range(p.D_max_M + 1)
+    if "category" in kwargs.keys():
+        category = kwargs.get("category")
+
+        if category == "IV":
+            param_P = range(p.P_max_M + 1)
+            param_Q = range(p.Q_max_M + 1)
+            param_D = range(p.D_max_M + 1)
+        else:
+            param_P = [0]
+            param_Q = [0]
+            param_D = [0]
+    else:
+        param_P = range(p.P_max_M + 1)
+        param_Q = range(p.Q_max_M + 1)
+        param_D = range(p.D_max_M + 1)
+
 
     trend_c = range(p.c_max_M +1)
     trend_c_t = range(p.c_t_max_M +1)
@@ -167,27 +187,10 @@ def generate_all_param_combo_sarimax_monthly():
     pdq = list(itertools.product(param_p, param_d, param_q))
 
     seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(param_P, param_D, param_Q))]
-
+    
     trend = [[x[0], x[1], x[2]] for x in list(itertools.product(trend_c, trend_c_t, trend_c_tsqaure))]
 
     all_combo = list(itertools.product(pdq, seasonal_pdq, trend))
-
-
-    # all_combo = [((0, 1, 1), (0, 1, 0, 12)),
-    #              ((0, 0, 1), (1, 1, 0, 12)),
-    #              ((1, 0, 0), (1, 0, 0, 12)),
-    #              ((1, 0, 0), (0, 1, 0, 12)),
-    #              ((1, 1, 1), (0, 1, 0, 12)),
-    #              ((1, 0, 1), (0, 0, 0, 12)),
-    #              ((1, 1, 1), (1, 0, 0, 12)),
-    #              ((1, 0, 0), (0, 0, 0, 12)),
-    #              ((1, 1, 1), (0, 0, 0, 12)),
-    #              ((0, 1, 1), (0, 0, 0, 12)),
-    #              ((1, 1, 0), (0, 1, 0, 12)),
-    #              ((0, 1, 0), (1, 0, 0, 12)),
-    #              ((1, 1, 0), (0, 0, 0, 12)),
-    #              ((1, 1, 0), (1, 0, 0, 12))]
-
     return all_combo
 
 
@@ -354,26 +357,5 @@ def generate_models_pydlm_monthly(x):
 
 
 if __name__ == '__main__':
-    a = generate_all_param_combo_pydlm_monthly()
-    # print (len(a))
 
     print (generate_all_param_combo_sarimax())
-    # param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
-    #
-    # print param
-    # print param.get('changepoint_prior_scale')
-    # print type(param.get('changepoint_prior_scale'))
-    # print param.get('yearly_seasonality')
-    # print type(param.get('yearly_seasonality'))
-    # print param.get('seasonality_prior_scale')
-    # print type(param.get('seasonality_prior_scale'))
-    #
-    # # print [(1, elem)for elem in generate_all_param_combo_prophet_monthly()]
-    # for i in a:
-    #     print i
-    #     print i.get('changepoint_prior_scale')
-    #     print type(i.get('changepoint_prior_scale'))
-    #     print i.get('yearly_seasonality')
-    #     print type(i.get('yearly_seasonality'))
-    #     print i.get('seasonality_prior_scale')
-    #     print type(i.get('seasonality_prior_scale'))

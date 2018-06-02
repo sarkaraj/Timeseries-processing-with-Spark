@@ -16,6 +16,9 @@ P_max = 1
 Q_max = 1
 D_max = 1
 
+ENABLE_SAMPLING = False
+GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY = 25
+
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
