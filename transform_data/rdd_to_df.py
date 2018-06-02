@@ -72,6 +72,26 @@ def arima_output_schema():
 
     return schema
 
+def map_for_output_arima(line):
+    customernumber, mat_no = line[0]
+
+    _error_arima = line[1][1][1]
+
+    _req_error_arima_param = {key: float(_error_arima.get(key)) for key in _error_arima.keys() if
+                              key not in ('mat_no', 'cus_no')}
+
+    _pred_arima_temp = line[1][1][2]
+    _pred_arima = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): _pred_arima_temp.get(key) for key in
+                   _pred_arima_temp.keys()}
+
+    pdq = line[1][1][3]
+    seasonal_pdq = line[1][1][4]
+    _pdt_cat = line[1][1][5]
+    _opt_param_arima = {'pdq': pdq, 'seasonal_pdq': seasonal_pdq}
+
+    _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
+
+    return _result
 
 def map_for_output_arima_monthly(line):
     customernumber, mat_no = line[0]
