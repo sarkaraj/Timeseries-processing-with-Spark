@@ -37,11 +37,14 @@ def generate_all_param_combo_sarimax(**kwargs):
 
     all_combo = list(itertools.product(pdq, seasonal_pdq))
 
-    sample_size = int(ceil(float(len(all_combo)) * (float(p.GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY) / 100.0)))
-    index_of_samples = np.random.choice(range(len(all_combo)), size=sample_size, replace=False)
-    sampled_combo = [all_combo[elem] for elem in index_of_samples]
+    if p.ENABLE_SAMPLING:
+        sample_size = int(ceil(float(len(all_combo)) * (float(p.GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY) / 100.0)))
+        index_of_samples = np.random.choice(range(len(all_combo)), size=sample_size, replace=False)
+        sampled_combo = [all_combo[elem] for elem in index_of_samples]
 
-    return sampled_combo
+        return sampled_combo
+    else:
+        return all_combo
 
 
 def generate_models_sarimax(x, **kwargs):
@@ -155,19 +158,27 @@ def generate_all_param_combo_prophet_monthly():
     return _result
 
 
-def generate_all_param_combo_sarimax_monthly(category):
+def generate_all_param_combo_sarimax_monthly(**kwargs):
     param_p = range(p.p_max_M + 1)
     param_q = range(p.q_max_M + 1)
     param_d = range(p.d_max_M + 1)
 
-    if category == "IV":
+    if "category" in kwargs.keys():
+        category = kwargs.get("category")
+
+        if category == "IV":
+            param_P = range(p.P_max_M + 1)
+            param_Q = range(p.Q_max_M + 1)
+            param_D = range(p.D_max_M + 1)
+        else:
+            param_P = [0]
+            param_Q = [0]
+            param_D = [0]
+    else:
         param_P = range(p.P_max_M + 1)
         param_Q = range(p.Q_max_M + 1)
         param_D = range(p.D_max_M + 1)
-    else:
-        param_P = [0]
-        param_Q = [0]
-        param_D = [0]
+
 
     pdq = list(itertools.product(param_p, param_d, param_q))
 
@@ -282,7 +293,7 @@ def generate_models_sarimax_monthly(x, **kwargs):
     revised_cat_object = x[3]
 
     return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_month_aggregated, revised_cat_object) for pdq, seasonal_pqd
-            in generate_all_param_combo_sarimax_monthly(revised_cat_object.category)]
+            in generate_all_param_combo_sarimax_monthly()]
 
 
 def generate_all_param_combo_pydlm_monthly():
