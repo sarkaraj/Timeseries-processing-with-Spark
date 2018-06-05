@@ -35,35 +35,24 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # weekly_pdt_cat_123_location_baseline = "/CONA_CSO/CCBF/model_eda/weekly_pdt_cat_123_baseline"
 # monthly_pdt_cat_456_location_baseline = "/CONA_CSO/CCBF/model_eda/monthly_pdt_cat_456_baseline"
 
-
-# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/weekly_pdt_cat_123"
-# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/weekly_pdt_cat_7"
-# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/monthly_pdt_cat_456"
-# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/monthly_pdt_cat_8910"
-# customer_data_location = "/CONA_CSO/CCBC_Consolidated/customer_data"
+# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
+# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
 # comments = "Thaddeus Smith Route"
 
-#
-# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
-# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
-# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_456"
-# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_8910"
-# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
-# comments = "Thaddeus Smith Route"
+container = "csotestenv"
+storage_account = "conapocv2standardsa.blob.core.windows.net"
+PREFIX = "wasb://" + "@".join([container, storage_account])
 
-# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_123"
-# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/weekly_pdt_cat_7"
-# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_456"
-# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/monthly_pdt_cat_8910"
-# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
-# comments = "Thaddeus Smith Route"
+weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
+customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
+comments = ""
 
-weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
-customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
-comments = "Thaddeus Smith Route"
 
 # TODO: uncomment the below portion of code for production and comment out above locations
 # container = "csoproduction"
@@ -98,8 +87,8 @@ comments = "Thaddeus Smith Route"
 # customer_data_location="/CONA_CSO/model_eda/customer_data"
 
 
-
 if __name__ == "__main__":
-    from data_fetch.support_func import generate_weekly_query
-
-    print (generate_weekly_query(_model_bld_date_string_list))
+    print(weekly_pdt_cat_123_location)
+    print(weekly_pdt_cat_7_location)
+    print(monthly_pdt_cat_456_location)
+    print(monthly_pdt_cat_8910_location)
