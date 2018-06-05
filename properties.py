@@ -12,7 +12,8 @@ annual_freq_cut_3 = 12.0
 REPARTITION_STAGE_1 = 70
 REPARTITION_STAGE_2 = 70
 
-WRITE_MODE = "append"
+# TODO: change it to append for production
+WRITE_MODE = "overwrite"
 # _model_bld_date_string_list = ['2017-09-03', '2017-09-10', '2017-09-17', '2017-09-24', '2017-10-01', '2017-10-08',
 #                           '2017-10-15', '2017-10-22', '2017-10-29', '2017-11-05']
 
@@ -64,7 +65,7 @@ monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Rout
 customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
 comments = "Thaddeus Smith Route"
 
-# TODO
+# TODO: uncomment the below portion of code for production and comment out above locations
 # container = "csoproduction"
 # storage_account = "conapocv2standardsa.blob.core.windows.net"
 # PREFIX = "wasb://" + "@".join([container, storage_account])
