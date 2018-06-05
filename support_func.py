@@ -3,6 +3,7 @@ from pyspark.sql.types import *
 from model.weekly_model_ver_1 import weekly_ensm_model
 from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
 from transform_data.pandas_support_func import *
+from model.ma_outlier import *
 import properties as p
 import datetime
 
@@ -160,22 +161,60 @@ def raw_data_to_monthly_aggregate(row_object_cat, **kwargs):
 
     return customernumber, matnr, data_pd_df_month_aggregated, category_obj
 
+def remove_outlier(x):
+    '''
+    removes the outlier based on moving average method. Before that changes the names of selected columns:
+    dt_week to ds and quantity to y
+    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
+    :return: (customernumber, matnr, data_pd_df_cleaned_week_aggregated, category_obj)
+    '''
+    from dateutil import parser
+
+    customernumber = x[0]
+    matnr = x[1]
+    aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
+    category_obj = x[3]
+
+    aggregated_data = aggregated_data[['dt_week', 'quantity']]
+    aggregated_data = aggregated_data.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+
+    aggregated_data.ds = aggregated_data.ds.apply(str).apply(parser.parse)
+    aggregated_data.y = aggregated_data.y.apply(float)
+    aggregated_data = aggregated_data.sort_values('ds')
+    aggregated_data = aggregated_data.reset_index(drop=True)
+    # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+
+    # Remove outlier
+    # weekly category
+    if category_obj.category in ("I", "II", "III"):
+        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True, sigma=2.5)
+        return customernumber, matnr, cleaned_weekly_agg_data, category_obj
+    # Monthly category
+    elif category_obj.category in ("IV", "V", "VI"):
+        cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
+                                                  window_size=6, sigma=2.5)
+        return customernumber, matnr, cleaned_monthly_agg_data, category_obj
+    # for the remaining categories no transformation as of yet
+    else:
+        return x
+
+
 
 def filter_white_noise(x):
     '''
     re-assign category to filter white noise time series to cat 7
-    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
-    :return: (customernumber, matnr, data_pd_df_week_aggregated, revised_product_cat)
+    :param x: tuple (customernumber, matnr, data_pd_df_cleaned_weekly/monthly_aggregated, category_obj)
+    :return: (customernumber, matnr, data_pd_df_cleaned_weekly/monthly_aggregated, revised_product_cat)
     '''
     from statsmodels.stats import diagnostic as diag
     import numpy as np
 
     customernumber = x[0]
     matnr = x[1]
-    aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
+    cleaned_aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
     revised_product_cat_obj = x[3]
 
-    ts_data = np.array(aggregated_data['quantity']).astype(float)
+    ts_data = np.array(cleaned_aggregated_data['y']).astype(float)
 
     if x[3].category in ("I", "II", "III", "IV", "V", "VI"):
         try:
@@ -191,7 +230,7 @@ def filter_white_noise(x):
                     revised_product_cat_obj = p.cat_8
         except ValueError:
             print("Test Failed!")
-        return customernumber, matnr, aggregated_data, revised_product_cat_obj
+        return customernumber, matnr, cleaned_aggregated_data, revised_product_cat_obj
     elif x[3].category in ("VII", "VIII", "IX", "X"):
         return x
 

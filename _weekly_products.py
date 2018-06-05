@@ -6,7 +6,7 @@ from support_func import assign_category, get_current_date
 from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
 from pyspark.sql.functions import *
 from transform_data.data_transform import string_to_gregorian
-from support_func import get_current_date, get_sample_customer_list, raw_data_to_weekly_aggregate, filter_white_noise
+from support_func import get_current_date, get_sample_customer_list, raw_data_to_weekly_aggregate, filter_white_noise, remove_outlier
 import properties as p
 
 def build_prediction_weekly(sc, sqlContext, **kwargs):
@@ -36,6 +36,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
+        .map(lambda x: remove_outlier(x)) \
         .map(lambda x: filter_white_noise(x))\
         .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
 

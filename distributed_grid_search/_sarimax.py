@@ -45,16 +45,16 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         seasonal_pdq = seasonal_pdq
 
         # data transform
-        prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        prod = prod[['ds', 'y']]
-        prod.ds = prod.ds.apply(str).apply(parser.parse)
-        prod.y = prod.y.apply(float)
-        prod = prod.sort_values('ds')
-        prod = prod.reset_index(drop=True)
-        # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
-
-        # Remove outlier
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
+        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+        # prod = prod[['ds', 'y']]
+        # prod.ds = prod.ds.apply(str).apply(parser.parse)
+        # prod.y = prod.y.apply(float)
+        # prod = prod.sort_values('ds')
+        # prod = prod.reset_index(drop=True)
+        # # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+        #
+        # # Remove outlier
+        # prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
 
         # test and train data creation
         train = prod[

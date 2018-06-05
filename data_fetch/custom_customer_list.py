@@ -109,7 +109,8 @@ _customer_list = """
 
 def generate_customer_list_fomatted(customer_list=_customer_list, string_to_append="0"):
     result_list = [["".join([string_to_append + str(elem)])] for elem in customer_list.split("\n") if len(elem) > 0]
-    return result_list
+    # TODO
+    return result_list[:5]
 
 
 if __name__ == "__main__":

@@ -51,20 +51,20 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
         seasonal_pdq = seasonal_pdq
         trend = trend
 
-        # data transform
-        prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        prod = prod[['ds', 'y']]
-        prod.ds = prod.ds.apply(str).apply(parser.parse)
-        prod.y = prod.y.apply(float)
-        prod = prod.sort_values('ds')
-        prod = prod.reset_index(drop=True)
-        # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
-
-        # Aggregated monthly data
-        # prod = get_monthly_aggregate_per_product(prod)
-
-        # Remove outlier
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=6, sigma=2.5)
+        # # data transform
+        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+        # prod = prod[['ds', 'y']]
+        # prod.ds = prod.ds.apply(str).apply(parser.parse)
+        # prod.y = prod.y.apply(float)
+        # prod = prod.sort_values('ds')
+        # prod = prod.reset_index(drop=True)
+        # # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+        #
+        # # Aggregated monthly data
+        # # prod = get_monthly_aggregate_per_product(prod)
+        #
+        # # Remove outlier
+        # prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=6, sigma=2.5)
 
         # test and train data creation
         train = prod[

@@ -57,23 +57,24 @@ MODEL_TESTING = "CONA_TS_MODEL_TEST"
 # customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route/customer_data"
 # comments = "Thaddeus Smith Route"
 
-# weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
-# weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
-# monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
-# monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
-# customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
-# comments = "Thaddeus Smith Route"
+weekly_pdt_cat_123_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/monthly_pdt_cat_8910"
+customer_data_location = "/CONA_CSO/CCBC_Consolidated/Thaddeus_Smith_Route_testing/customer_data"
+comments = "Thaddeus Smith Route"
 
-container = "csoproduction"
-storage_account = "conapocv2standardsa.blob.core.windows.net"
-PREFIX = "wasb://" + "@".join([container, storage_account])
-
-weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
-customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
-comments = ""
+# TODO
+# container = "csoproduction"
+# storage_account = "conapocv2standardsa.blob.core.windows.net"
+# PREFIX = "wasb://" + "@".join([container, storage_account])
+#
+# weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
+# weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
+# monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
+# monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
+# customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
+# comments = ""
 
 
 # weekly_pdt_cat_123_location = "/CONA_CSO/CCBF/weekly_pdt_cat_123"
