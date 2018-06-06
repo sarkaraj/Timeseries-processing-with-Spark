@@ -109,7 +109,6 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                            end=len(prod_arima.y) + pred_points - 1, dynamic=True)
 
         # print(pred_arima.predicted_mean)
-        print(type(pred_arima.prediscted_mean))
         _output_pred = _get_pred_dict_sarimax(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
 
         output_result = weekly_arima_error_calc(output_result)
