@@ -11,7 +11,8 @@ spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
---num-executors 5 \
+--queue tsmdl \
+--num-executors 15 \
 --driver-memory 5G \
 --executor-memory 2G \
 --executor-cores 2 \

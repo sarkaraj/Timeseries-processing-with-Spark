@@ -153,13 +153,13 @@ output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=(2
 # print("elem")
 # print(elem)
 # print("output")
-# print(output)
+print(output)
 
-if (output not in ["MODEL_NOT_VALID"]):
-    three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
-                      x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
-                      x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
-                      xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+# if (output not in ["MODEL_NOT_VALID"]):
+#     three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
+#                       x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
+#                       x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
+#                       xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
 
 
