@@ -250,7 +250,7 @@ def _get_last_day_of_previous_month(_date):
 
 
 def get_sample_customer_list(sc, sqlContext, **kwargs):
-    from data_fetch.custom_customer_list import generate_customer_list_fomatted
+    from properties import test_delivery_routes
 
     customer_data_location = p.customer_data_location
 
@@ -272,13 +272,13 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         print("ValueError: No module date has been provided")
         raise ValueError
 
-    full_custom_customer_list = generate_customer_list_fomatted()
-    custom_schema = StructType(
-        [StructField("customernumber", StringType(), True)]
-    )
-
-    _temp_rdd = sc.parallelize(full_custom_customer_list)
-    _custom_customer_list_df = sqlContext.createDataFrame(_temp_rdd, schema=custom_schema)
+    _custom_customer_list_df = sqlContext.read \
+        .format("csv") \
+        .option("delimiter", "\t") \
+        .option("header", "false") \
+        .load(test_delivery_routes) \
+        .withColumn("customernumber", concat_ws("", lit("0"), col("_c0"))) \
+        .select(col("customernumber"))
 
     customer_sample = _custom_customer_list_df \
         .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
