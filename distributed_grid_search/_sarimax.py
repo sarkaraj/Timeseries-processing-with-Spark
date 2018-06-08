@@ -85,7 +85,6 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
         #################################################################
 
-
         #################################################################
         # Cross validation step: looping through all the test data points step by step through redefining the
         # train and test set iteratively
