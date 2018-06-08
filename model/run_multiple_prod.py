@@ -88,6 +88,8 @@ raw_data = raw_data.loc[raw_data['quantity'] >= 0]
 cus_test = raw_data[raw_data.customernumber == cus_no]
 prod_test = cus_test[cus_test.matnr == mat_no]
 
+print(prod_test.sort_values('date'))
+
 # data_weekly = get_weekly_aggregate(inputDF=prod_test)
 # data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
 
@@ -148,18 +150,18 @@ print(monthly_data)
 #     output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=elem[0],
 #                                                        seasonal_pdq= elem[1], trend=elem[2])
 
-output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=(2,0,1), seasonal_pdq= (1,0,0,12), trend=[0,0,1]
-                         ,enforce_stationarity = False, enforce_invertibility = False, measurement_error = True, hamilton_representation = False)
+# output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=(2,0,1), seasonal_pdq= (1,0,0,12), trend=[0,0,1]
+#                          ,enforce_stationarity = False, enforce_invertibility = False, measurement_error = True, hamilton_representation = False)
 # print("elem")
 # print(elem)
 # print("output")
 # print(output)
 
-if (output not in ["MODEL_NOT_VALID"]):
-    three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
-                      x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
-                      x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
-                      xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+# if (output not in ["MODEL_NOT_VALID"]):
+#     three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
+#                       x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
+#                       x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
+#                       xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
 
 

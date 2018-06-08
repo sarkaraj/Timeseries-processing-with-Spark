@@ -18,20 +18,36 @@ def _get_pred_dict_sarimax(prediction_series):
 
 
 def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
+    """
+    function performs fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
+    performs CV, calculates CV error and makes future prediction.
+    :param cus_no: customer number
+    :param mat_no: material number
+    :param pdq: pdq parameter tuple(e.g. (1,0,1))
+    :param seasonal_pdq: seasonal pdq(e.g. (1,1,0,52)
+    :param prod: time series data frame for a material for the given customer
+        (structure:- ds: date(datetime), y: quantity(float))
+    :param kwargs:
+        min_train_days: minimum training period for the CV to start for the remain test data
+        test_points: number of points ahead to make prediction for the each CV step
+        pred_points: future prediction points
+        pdt_cat: Product category object
+    :return: ((cus_no, mat_no),
+    (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
+    """
     import pandas as pd
     import numpy as np
-    # import numpy.linalg.linalg.LinAlgError
     import warnings
     import statsmodels.api as sm
     from dateutil import parser
 
-    if('min_train_days' in kwargs.keys()):
-        min_train_days=kwargs.get('min_train_days')
+    if ('min_train_days' in kwargs.keys()):
+        min_train_days = kwargs.get('min_train_days')
     else:
         min_train_days = p_model.min_train_days
 
-    if('test_points' in kwargs.keys()):
-        test_points=kwargs.get('test_points')
+    if ('test_points' in kwargs.keys()):
+        test_points = kwargs.get('test_points')
     else:
         test_points = p_model.test_points
 
@@ -44,60 +60,78 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         pdq = pdq
         seasonal_pdq = seasonal_pdq
 
+        ###############################################################
+        # # Uncomment this part of the code to run it locally
+        ###############################################################
         # data transform
-        prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        prod = prod[['ds', 'y']]
-        prod.ds = prod.ds.apply(str).apply(parser.parse)
-        prod.y = prod.y.apply(float)
-        prod = prod.sort_values('ds')
-        prod = prod.reset_index(drop=True)
-        # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+        # prod = prod[['ds', 'y']]
+        # prod.ds = prod.ds.apply(str).apply(parser.parse)
+        # prod.y = prod.y.apply(float)
+        # prod = prod.sort_values('ds')
+        # prod = prod.reset_index(drop=True)
+        # # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+        #
+        # # Remove outlier
+        # prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
+        ################################################################
 
-        # Remove outlier
-        prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
-
-        # test and train data creation
-        train = prod[
-            prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days - min_train_days))]
+        ################################################################
+        # First split of test and train data
+        ################################################################
+        train = prod[prod.ds <= (np.amax(prod.ds) - pd.DateOffset(days=(np.amax(prod.ds) - np.amin(prod.ds)).days
+                                                                       - min_train_days))]
         test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
         # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
-        output_result = pd.DataFrame()
+        #################################################################
 
+        #################################################################
+        # Cross validation step: looping through all the test data points step by step through redefining the
+        # train and test set iteratively
+        #################################################################
+        output_result = pd.DataFrame()  # Data frame to store actual and predicted quantities for cross validation set
         while (len(test) > 0):
-            # ARIMA Model Data Transform
+            # Changing the index to date column to make it model consumable
             train_arima = train.set_index('ds', drop=True)
             test_arima = test.set_index('ds', drop=True)
 
+            ##########################################################################
+            # Model fitting
+            ##########################################################################
             warnings.filterwarnings("ignore")  # specify to ignore warning messages
-
             mod = sm.tsa.statespace.SARIMAX(train_arima, order=pdq, seasonal_order=seasonal_pdq,
                                             enforce_stationarity=False, enforce_invertibility=False,
                                             measurement_error=False, time_varying_regression=False,
                                             mle_regression=True)
 
             results = mod.fit(disp=False)
-
             ##########################################################################
 
-            # forecast test
+            ##########################################################################
+            # generating forecast for test data points
+            ##########################################################################
             pred_test = results.get_prediction(start=pd.to_datetime(np.amax(train_arima.index)),
                                                end=pd.to_datetime(np.amax(test_arima.index)), dynamic=True)
 
-            # pred_test_ci = pred_test.conf_int()
-            # print(pred_test.predicted_mean)
-
-            # creating test and train ensembled result
             result_test = test
             result_test['y_ARIMA'] = np.array(pred_test.predicted_mean)[1:]
             result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
+            ##########################################################################
 
+            ##########################################################################
+            # recreating test and train data set for next step of CV
+            ##########################################################################
             train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
             test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
             # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
+            ##########################################################################
 
+            # appending the cross validation results at each step
             output_result = pd.concat([output_result, result_test], axis=0)
 
-        # model_prediction
+        ##############################################################################
+        # Model building on complete data set to generate out of sample prediction
+        ##############################################################################
         prod_arima = prod.set_index('ds', drop=True)
         mod = sm.tsa.statespace.SARIMAX(prod_arima, order=pdq, seasonal_order=seasonal_pdq,
                                         enforce_stationarity=False, enforce_invertibility=False,
@@ -106,13 +140,18 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
         results_arima = mod.fit(disp=False)
         pred_arima = results_arima.get_prediction(start=pd.to_datetime(np.amax(prod_arima.index)),
-                                           end=len(prod_arima.y) + pred_points - 1, dynamic=True)
+                                                  end=len(prod_arima.y) + pred_points - 1, dynamic=True)
 
-        # print(pred_arima.predicted_mean)
-        _output_pred = _get_pred_dict_sarimax(pred_arima.predicted_mean)  # # get a dict {(weekNum,year):pred_val}
+        # making out of sample predictions
+        pred_out_sample = pred_arima.predicted_mean
+        pred_out_sample[pred_out_sample < 0] = 0
+        _output_pred = _get_pred_dict_sarimax(pred_out_sample)  # # get a dict {(weekNum,year):pred_val}
+        ###############################################################################
 
+        ###############################################################################
+        # Error calculation
+        ###############################################################################
         output_result = weekly_arima_error_calc(output_result)
-        # output_result_dict = output_result[['ds','y','y_ARIMA']].to_dict(orient='index')
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_ARIMA, output_result.y),
                                            mape_calculator(output_result.y_ARIMA, output_result.y),
@@ -136,17 +175,21 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
                                            output_result['cumsum_quantity'].iloc[-1],
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
                                     columns=['cus_no', 'mat_no', 'rmse', 'mape',
-                                             'wre_med_6', 'wre_max_6', 'wre_mean_6','quantity_mean_6',
-                                             'wre_med_12', 'wre_max_12', 'wre_mean_12','quantity_mean_12',
+                                             'wre_med_6', 'wre_max_6', 'wre_mean_6', 'quantity_mean_6',
+                                             'wre_med_12', 'wre_max_12', 'wre_mean_12', 'quantity_mean_12',
                                              'cum_error', 'cum_quantity',
                                              'period_days'])
+        ##############################################################################
 
+        ##############################################################################
+        # Output Preparation
+        ##############################################################################
         output_error_dict = pd_func.extract_elems_from_dict(output_error.to_dict(orient='index'))
         _criteria = output_error_dict.get(SARIMAX_W_MODEL_SELECTION_CRITERIA)
         pdt_category = kwargs.get('pdt_cat')
         _result = (
-        (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
-        # _result = ((cus_no, mat_no), (_criteria, output_error_dict, output_result_dict, pdq, seasonal_pdq))
+            (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
+        ##############################################################################
 
         return _result
 

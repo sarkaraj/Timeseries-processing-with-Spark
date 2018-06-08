@@ -9,9 +9,9 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 32 \
+--num-executors 50 \
 --driver-memory 3G \
---executor-memory 7G \
+--executor-memory 4G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
@@ -26,23 +26,3 @@ $model_bld_date
 # $model_bld_date
 
 exit 0
-
-
-
-# spark-submit \
-# --master yarn \
-# --deploy-mode client \
-# --supervise \
-# --queue tsmdl \
-# --driver-memory 10G \
-# --executor-memory 4G \
-# --num-executors 30 \
-# --executor-cores 1 \
-# --conf spark.dynamicAllocation.enabled=false \
-# --conf spark.speculation=true \
-# --conf spark.speculation.multiplier=3 \
-# --conf spark.speculation.quantile=0.9 \
-# --conf spark.speculation.interval=900000 \
-# --py-files ~/cso_predictor/forecaster.zip \
-# ~/cso_predictor/_monthly_products.py \
-# $date_string

@@ -4,7 +4,7 @@
 #for date_string in '2017-07-23' '2017-07-30' '2017-08-06' '2017-08-13' '2017-08-20' '2017-08-27'
 #  '2018-04-08'
 
-for date_string in '2018-05-27'
+for date_string in '2018-06-03'
 {
 echo $date_string
 spark-submit \

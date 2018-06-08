@@ -3,6 +3,7 @@ from pyspark.sql.types import *
 from model.weekly_model_ver_1 import weekly_ensm_model
 from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
 from transform_data.pandas_support_func import *
+from model.ma_outlier import *
 import properties as p
 import datetime
 
@@ -160,24 +161,61 @@ def raw_data_to_monthly_aggregate(row_object_cat, **kwargs):
 
     return customernumber, matnr, data_pd_df_month_aggregated, category_obj
 
+def remove_outlier(x):
+    '''
+    removes the outlier based on moving average method. Before that changes the names of selected columns:
+    dt_week to ds and quantity to y
+    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
+    :return: (customernumber, matnr, data_pd_df_cleaned_week_aggregated, category_obj)
+    '''
+    from dateutil import parser
+
+    customernumber = x[0]
+    matnr = x[1]
+    aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
+    category_obj = x[3]
+
+    aggregated_data = aggregated_data[['dt_week', 'quantity']]
+    aggregated_data = aggregated_data.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+
+    aggregated_data.ds = aggregated_data.ds.apply(str).apply(parser.parse)
+    aggregated_data.y = aggregated_data.y.apply(float)
+    aggregated_data = aggregated_data.sort_values('ds')
+    aggregated_data = aggregated_data.reset_index(drop=True)
+    # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+
+    # Remove outlier
+    # weekly category
+    if category_obj.category in ("I", "II", "III"):
+        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True, sigma=2.5)
+        return customernumber, matnr, cleaned_weekly_agg_data, category_obj
+    # Monthly category
+    elif category_obj.category in ("IV", "V", "VI"):
+        cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
+                                                  window_size=6, sigma=2.5)
+        return customernumber, matnr, cleaned_monthly_agg_data, category_obj
+    # for the remaining categories no transformation as of yet
+    else:
+        return x
+
+
 
 def filter_white_noise(x):
     '''
     re-assign category to filter white noise time series to cat 7
-    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
-    :return: (customernumber, matnr, data_pd_df_week_aggregated, revised_product_cat)
+    :param x: tuple (customernumber, matnr, data_pd_df_cleaned_weekly/monthly_aggregated, category_obj)
+    :return: (customernumber, matnr, data_pd_df_cleaned_weekly/monthly_aggregated, revised_product_cat)
     '''
     from statsmodels.stats import diagnostic as diag
     import numpy as np
 
     customernumber = x[0]
     matnr = x[1]
-    aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
+    cleaned_aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
     revised_product_cat_obj = x[3]
 
-    ts_data = np.array(aggregated_data['quantity']).astype(float)
-
     if x[3].category in ("I", "II", "III", "IV", "V", "VI"):
+        ts_data = np.array(cleaned_aggregated_data['y']).astype(float)
         try:
             lj_box_test = diag.acorr_ljungbox(ts_data, lags=10, boxpierce=False)
 
@@ -191,7 +229,7 @@ def filter_white_noise(x):
                     revised_product_cat_obj = p.cat_8
         except ValueError:
             print("Test Failed!")
-        return customernumber, matnr, aggregated_data, revised_product_cat_obj
+        return customernumber, matnr, cleaned_aggregated_data, revised_product_cat_obj
     elif x[3].category in ("VII", "VIII", "IX", "X"):
         return x
 
@@ -212,7 +250,7 @@ def _get_last_day_of_previous_month(_date):
 
 
 def get_sample_customer_list(sc, sqlContext, **kwargs):
-    from data_fetch.custom_customer_list import generate_customer_list_fomatted
+    from properties import test_delivery_routes
 
     customer_data_location = p.customer_data_location
 
@@ -234,13 +272,13 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         print("ValueError: No module date has been provided")
         raise ValueError
 
-    full_custom_customer_list = generate_customer_list_fomatted()
-    custom_schema = StructType(
-        [StructField("customernumber", StringType(), True)]
-    )
-
-    _temp_rdd = sc.parallelize(full_custom_customer_list)
-    _custom_customer_list_df = sqlContext.createDataFrame(_temp_rdd, schema=custom_schema)
+    _custom_customer_list_df = sqlContext.read \
+        .format("csv") \
+        .option("delimiter", "\t") \
+        .option("header", "false") \
+        .load(test_delivery_routes) \
+        .withColumn("customernumber", concat_ws("", lit("0"), col("_c0"))) \
+        .select(col("customernumber"))
 
     customer_sample = _custom_customer_list_df \
         .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
@@ -323,9 +361,7 @@ def date_check(date_string, **kwargs):
     return _model_bld_dt.strftime("%Y-%m-%d"), monthly_sunday_flag
 
 
-# if __name__ == "__main__":
-#     import datetime as dt
-#
-#     now = dt.datetime.now()
-#     print _get_last_day_of_previous_month(now)
-#     print type(_get_last_day_of_previous_month(now))
+if __name__ == "__main__":
+    a, b = date_check("2018-06-03")
+    print(a)
+    print(b)
