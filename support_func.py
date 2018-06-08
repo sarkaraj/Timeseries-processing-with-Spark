@@ -361,9 +361,7 @@ def date_check(date_string, **kwargs):
     return _model_bld_dt.strftime("%Y-%m-%d"), monthly_sunday_flag
 
 
-# if __name__ == "__main__":
-#     import datetime as dt
-#
-#     now = dt.datetime.now()
-#     print _get_last_day_of_previous_month(now)
-#     print type(_get_last_day_of_previous_month(now))
+if __name__ == "__main__":
+    a, b = date_check("2018-06-03")
+    print(a)
+    print(b)

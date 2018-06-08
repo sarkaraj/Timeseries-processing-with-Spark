@@ -382,3 +382,13 @@ def get_monthly_aggregate(inputDF, input_sep="\t"):
 
     result = monthly_aggregate(dataset_cmplt)
     return result
+
+
+if __name__ == "__main__":
+    import pandas as pd
+
+    d = {'customernumber': ["A", "A"], 'matnr': ["F", "F"], 'date': ["20180707", "20180707"], 'quantity': [3, 4],
+         'q_indep_p': [3, 4]}
+    df = pd.DataFrame(d)
+    print(df)
+    print(get_monthly_aggregate(df))

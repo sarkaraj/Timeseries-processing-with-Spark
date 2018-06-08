@@ -417,9 +417,11 @@ def get_monthly_aggregate_per_product(data):
     return data_grp
 
 
-# if __name__ == "__main__":
-#     first_date = '2017-09-03'
-#     second_date = '2017-09-06'
-#     result = string_to_gregorian(second_date) - string_to_gregorian(first_date)
-#     print gregorian_to_iso(first_date.split("-"))
-#     print result.days
+if __name__ == "__main__":
+    import pandas as pd
+
+    d = {'customernumber': ["A", "A"], 'matnr': ["F", "F"], 'date': ["20180707", "20180707"], 'quantity': [3, 4],
+         'q_indep_p': [3, 4]}
+    df = pd.DataFrame(d)
+    print(df)
+    print(get_monthly_aggregate(df))

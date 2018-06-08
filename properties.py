@@ -1,7 +1,6 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
 
-# TODO: change it to append for production
-WRITE_MODE = "overwrite"
+WRITE_MODE = "append"
 
 _model_bld_date_string_list = ['2017-10-01']
 
@@ -32,21 +31,7 @@ REPARTITION_STAGE_2 = 70
 ###################################################################################################
 # ___________________________________STORAGE LOCATION______________________________________________
 ###################################################################################################
-container = "csotestenv"
-storage_account = "conapocv2standardsa.blob.core.windows.net"
-PREFIX = "wasb://" + "@".join([container, storage_account])
-
-weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
-weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
-customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
-test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
-comments = ""
-
-
-# TODO: uncomment the below portion of code for production and comment out above locations
-# container = "csoproduction"
+# container = "csotestenv"
 # storage_account = "conapocv2standardsa.blob.core.windows.net"
 # PREFIX = "wasb://" + "@".join([container, storage_account])
 #
@@ -57,6 +42,19 @@ comments = ""
 # customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
 # test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
 # comments = ""
+
+
+container = "csoproduction"
+storage_account = "conapocv2standardsa.blob.core.windows.net"
+PREFIX = "wasb://" + "@".join([container, storage_account])
+
+weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
+weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
+monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
+monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
+customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
+test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
+comments = ""
 
 ###################################################################################################
 # _________________________________________EOF____________________________________________________

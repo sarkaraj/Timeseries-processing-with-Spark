@@ -18,7 +18,7 @@ def _get_pred_dict_sarimax(prediction_series):
 
 
 def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
-    '''
+    """
     function performs fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
     :param cus_no: customer number
@@ -34,7 +34,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         pdt_cat: Product category object
     :return: ((cus_no, mat_no),
     (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
-    '''
+    """
     import pandas as pd
     import numpy as np
     import warnings
