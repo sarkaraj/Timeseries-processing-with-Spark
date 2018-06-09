@@ -24,7 +24,7 @@ def _get_pred_dict_sarimax_m(prediction_series):
 
 def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
     '''
-    function performs fits sarimax model on the monthly data(cat IV, V and VI) for the given parameter set,
+    function fits sarimax model on the monthly data(cat IV, V and VI) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
     :param cus_no: customer number
     :param mat_no: material number
