@@ -11,7 +11,7 @@ spark-submit \
 --queue tsmdl \
 --num-executors 50 \
 --driver-memory 3G \
---executor-memory 4G \
+--executor-memory 6G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
