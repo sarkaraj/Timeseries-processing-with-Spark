@@ -1,12 +1,3 @@
-# from model.weekly_model import *
-# from model.monthly_model import *
-# from transform_data.data_transform import *
-# from model.moving_average import *
-# from model.monthly_pydlm import *
-# from model.plt_data import *
-# from model.moving_average_monthly import *
-# from distributed_grid_search._fbprophet_monthly import *
-# from distributed_grid_search._fbprophet import *
 from distributed_grid_search._model_params_set import *
 from distributed_grid_search.properties import *
 from distributed_grid_search._sarimax_monthly import *
@@ -18,9 +9,7 @@ import pandas as pd
 from dateutil import parser
 import datetime as dt
 import matplotlib.pylab as plt
-# %matplotlib inline
 from matplotlib.pylab import rcParams
-
 rcParams['figure.figsize'] = 15, 6
 
 # data load and transform
@@ -29,51 +18,6 @@ file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
 # image save folder
 image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\thadeus\\monthly_trend_analysis\\"
 
-# holidays
-# holidays = pd.read_table(file_dir + 'holidays.csv', delimiter=',', header=0)
-# holidays.ds = holidays.ds.apply(parser.parse)
-# holidays.lower_window = -7
-# holidays.upper_window = 7
-# holidays.head(6)
-
-def generate_param():
-    """
-    CONDITIONS::::
-    yearly_seasonality = True / False
-    seasonality_prior_scale
-    {0.1, 0.2, _______, 1)
-
-    ###########################
-
-    changepoint_prior_scale
-    {1, 2________, 10}
-
-    :return:
-    """
-    import numpy as np
-
-    yearly_seasonality = [True, False]
-    seasonality_prior_scale = [{'seasonality_prior_scale': round(i / 10.0, 2)} for i in
-                               np.arange(PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT,
-                                         PROPH_M_SEASONALITY_PRIOR_SCALE_UPPER_LIMIT,
-                                         PROPH_M_SEASONALITY_PRIOR_SCALE_STEP_SIZE)]
-
-    # TODO: Added to test model improvement, can be removed later
-    optional_seeasonality_prior_scale = [{'seasonality_prior_scale': 0.05}]
-    seasonality_prior_scale = seasonality_prior_scale + optional_seeasonality_prior_scale
-
-    changepoint_prior_scale = [{'changepoint_prior_scale': int(i)} for i in
-                               np.arange(PROPH_M_CHANGEPOINT_PRIOR_SCALE_LOWER_LIMIT,
-                                         PROPH_M_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT,
-                                         PROPH_M_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE)]
-
-    yearly_seasonality_all_combo = generate_all_yearly_seasonality_params(yearly_seasonality, seasonality_prior_scale)
-
-    _result = [make_single_dict(i) for i in list(itertools.product(changepoint_prior_scale, yearly_seasonality_all_combo))]
-
-    return _result
-
-# data transformation to weekly and monthly aggregate
 raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
                        sep="\t", header=0, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 

@@ -17,7 +17,7 @@ def _get_pred_dict_sarimax(prediction_series):
     return _final
 
 
-def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
+def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwargs):
     '''
     function fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
@@ -28,10 +28,10 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     :param prod: time series data frame for a material for the given customer
         (structure:- ds: date(datetime), y: quantity(float))
     :param kwargs:
-        min_train_days: minimum training period for the CV to start for the remain test data
-        test_points: number of points ahead to make prediction for the each CV step
-        pred_points: future prediction points
-        pdt_cat: Product category object
+        :min_train_days: minimum training period for the CV to start for the remain test data
+        :test_points: number of points ahead to make prediction for the each CV step
+        :pred_points: future prediction points
+        :pdt_cat: Product category object
     :return: ((cus_no, mat_no),
     (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
     '''
@@ -55,6 +55,9 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         pred_points = kwargs.get('pred_points')
     else:
         pred_points = p_model.pred_points
+
+    if ('image_dir' in kwargs.keys()):
+        image_dir = kwargs.get('image_dir')
 
     try:
         pdq = pdq
@@ -90,6 +93,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # train and test set iteratively
         #################################################################
         output_result = pd.DataFrame()  # Data frame to store actual and predicted quantities for cross validation set
+        fit_counter = 0
         while (len(test) > 0):
             # Changing the index to date column to make it model consumable
             train_arima = train.set_index('ds', drop=True)
@@ -118,6 +122,11 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
             result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
             ##########################################################################
 
+            if run_locally == True:
+
+
+
+
             ##########################################################################
             # recreating test and train data set for next step of CV
             ##########################################################################
@@ -128,6 +137,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             # appending the cross validation results at each step
             output_result = pd.concat([output_result, result_test], axis=0)
+            fit_counter += 1
 
         ##############################################################################
         # Model building on complete data set to generate out of sample prediction
@@ -201,3 +211,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         return "MODEL_NOT_VALID"
     except IndexError:
         return "MODEL_NOT_VALID"
+
+
+if __name__ == '__main__':
+

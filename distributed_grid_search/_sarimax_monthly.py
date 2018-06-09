@@ -23,7 +23,7 @@ def _get_pred_dict_sarimax_m(prediction_series):
 
 
 def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
-    '''
+    """
     function fits sarimax model on the monthly data(cat IV, V and VI) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
     :param cus_no: customer number
@@ -33,13 +33,13 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
     :param prod: time series data frame for a material for the given customer
         (structure:- ds: date(datetime), y: quantity(float))
     :param kwargs:
-        min_train_days: minimum training period for the CV to start for the remain test data
-        test_points: number of points ahead to make prediction for the each CV step
-        pred_points: future prediction points
-        pdt_cat: Product category object
+        :min_train_days: minimum training period for the CV to start for the remain test data
+        :test_points: number of points ahead to make prediction for the each CV step
+        :pred_points: future prediction points
+        :pdt_cat: Product category object
     :return: ((cus_no, mat_no),
     (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
-    '''
+    """
     import pandas as pd
     import numpy as np
     from dateutil import parser
