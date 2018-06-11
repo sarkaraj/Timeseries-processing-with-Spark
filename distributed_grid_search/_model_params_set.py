@@ -10,9 +10,9 @@ import numpy as np
 def generate_all_param_combo_sarimax(**kwargs):
     from math import ceil
 
-    param_p = range(p.p_max + 1)
-    param_q = range(p.q_max + 1)
-    param_d = range(p.d_max + 1)
+    param_p = range(p.p_Weekly_lower_limit, p.p_Weekly_upper_limit)
+    param_q = range(p.q_Weekly_lower_limit, p.q_Weekly_upper_limit)
+    param_d = range(p.d_Weekly_lower_limit, p.d_Weekly_upper_limit)
 
     if "category" in kwargs.keys():
         category = kwargs.get("category")
@@ -73,7 +73,7 @@ def generate_models_sarimax(x, **kwargs):
     revised_cat_object = x[3]
 
     return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, revised_cat_object) for pdq, seasonal_pqd
-            in generate_all_param_combo_sarimax()]
+            in generate_all_param_combo_sarimax(category=revised_cat_object.category)]
 
 
 def generate_all_param_combo_prophet():
@@ -159,9 +159,9 @@ def generate_all_param_combo_prophet_monthly():
 
 
 def generate_all_param_combo_sarimax_monthly(**kwargs):
-    param_p = range(p.p_max_M + 1)
-    param_q = range(p.q_max_M + 1)
-    param_d = range(p.d_max_M + 1)
+    param_p = range(p.p_Monthly_lower_limit, p.p_Monthly_upper_limit)
+    param_q = range(p.q_Monthly_lower_limit, p.q_Monthly_upper_limit)
+    param_d = range(p.d_Monthly_lower_limit, p.d_Monthly_upper_limit)
 
     if "category" in kwargs.keys():
         category = kwargs.get("category")
@@ -170,7 +170,8 @@ def generate_all_param_combo_sarimax_monthly(**kwargs):
             param_P = range(p.P_max_M + 1)
             param_Q = range(p.Q_max_M + 1)
             param_D = range(p.D_max_M + 1)
-        else:
+
+        elif category == "V":
             param_P = [0]
             param_Q = [0]
             param_D = [0]
@@ -298,7 +299,7 @@ def generate_models_sarimax_monthly(x, **kwargs):
     revised_cat_object = x[3]
 
     return [(customernumber, matnr, pdq, seasonal_pqd, trend, data_pd_df_month_aggregated, revised_cat_object) for pdq, seasonal_pqd, trend
-            in generate_all_param_combo_sarimax_monthly()]
+            in generate_all_param_combo_sarimax_monthly(category=revised_cat_object.category)]
 
 
 def generate_all_param_combo_pydlm_monthly():
@@ -357,5 +358,5 @@ def generate_models_pydlm_monthly(x):
 
 
 if __name__ == '__main__':
-
-    print (generate_all_param_combo_sarimax())
+    print (len(generate_all_param_combo_sarimax(category="I")))
+    print (len((generate_all_param_combo_sarimax_monthly(category="IV"))))

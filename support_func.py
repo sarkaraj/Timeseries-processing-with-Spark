@@ -91,9 +91,6 @@ def assign_category(row_object):
                 row_object.time_gap_days > p.cat_5.time_gap_days_lower and row_object.time_gap_days <= p.cat_5.time_gap_days_upper and row_object.time_gap_years >= p.cat_5.time_gap_years):
             return row_object, p.cat_5
         elif (
-                row_object.time_gap_days > p.cat_6.time_gap_days_lower and row_object.time_gap_days <= p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
-            return row_object, p.cat_6
-        elif (
                 row_object.time_gap_days > p.cat_8.time_gap_days_lower and row_object.time_gap_days <= p.cat_8.time_gap_days_upper):
             return row_object, p.cat_8
     elif (row_object.pdt_freq_annual >= p.annual_freq_cut_3 and row_object.pdt_freq_annual < p.annual_freq_cut_2):
@@ -102,6 +99,11 @@ def assign_category(row_object):
         return row_object, p.cat_10
     else:
         return "NOT_CONSIDERED"
+
+    # TODO: Testing. To be deleted later.
+    # elif (
+    #         row_object.time_gap_days > p.cat_6.time_gap_days_lower and row_object.time_gap_days <= p.cat_6.time_gap_days_upper and row_object.time_gap_years >= p.cat_6.time_gap_years):
+    # return row_object, p.cat_6
 
 
 def raw_data_to_weekly_aggregate(row_object_cat, **kwargs):
