@@ -6,6 +6,7 @@ import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso, string_to_gregorian
 from transform_data.data_transform import get_monthly_aggregate_per_product
 from distributed_grid_search.properties import SARIMAX_M_MODEL_SELECTION_CRITERIA
+from model.save_images import *
 
 def _get_pred_dict_sarimax_m(prediction_series):
     import pandas as pd
@@ -22,7 +23,7 @@ def _get_pred_dict_sarimax_m(prediction_series):
     return _final
 
 
-def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
+def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally = False, **kwargs):
     """
     function fits sarimax model on the monthly data(cat IV, V and VI) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
@@ -62,6 +63,9 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
     else:
         pred_points = p_model.pred_points_monthly
 
+    if ('image_dir' in kwargs.keys()):
+        image_dir = kwargs.get('image_dir')
+
     try:
         pdq = pdq
         seasonal_pdq = seasonal_pdq
@@ -97,6 +101,7 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
         # train and test set iteratively
         #################################################################
         output_result = pd.DataFrame()  # Data frame to store actual and predicted quantities for cross validation set
+        fit_counter = 0
         while (len(test) > 0):
             # Changing the index to date column to make it model consumable
             train_arima = train.set_index('ds', drop=True)
@@ -129,6 +134,21 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
             ##########################################################################
 
             ##########################################################################
+            # save plots for CV fit and predictions at each CV step
+            ##########################################################################
+            if run_locally == True:
+                pred_train = results.get_prediction(start=np.amin(np.array(train_arima.index)), dynamic=False)
+                result_train = train
+                result_train['y_ARIMA'] = np.array(pred_train.predicted_mean)
+                three_dim_save_plot(x1=prod.ds, y1=prod.y, y1_label="Actual",
+                                    x2=result_test.ds, y2=result_test.y_ARIMA, y2_label='Predicted',
+                                    x3=result_train.ds, y3=result_train.y_ARIMA, y3_label='Model_fit',
+                                    xlable="Date", ylable="Quantity",
+                                    title="CV_fit_" + str(fit_counter),
+                                    dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
+            ##########################################################################
+
+            ##########################################################################
             # recreating test and train data set for next step of CV
             ##########################################################################
             train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
@@ -138,6 +158,18 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, **kwargs):
 
             # appending the cross validation results at each step
             output_result = pd.concat([output_result, result_test], axis=0)
+            fit_counter += 1
+
+        ##############################################################################
+        # save plot for complete CV predictions
+        ##############################################################################
+        if run_locally == True:
+            two_dim_save_plot(x1=prod.ds, y1=prod.y, y1_label="Actual",
+                              x2=output_result["ds"], y2=output_result["y_ARIMA"], y2_label="Predicted",
+                              xlable="Date", ylable="Quantity",
+                              title="prediction",
+                              dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
+        ##############################################################################
 
         ##############################################################################
         # Model building on complete data set to generate out of sample prediction

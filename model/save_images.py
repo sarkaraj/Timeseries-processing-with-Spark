@@ -39,7 +39,7 @@ def three_dim_save_plot(x1, y1, y1_label,
                         xlable, ylable, title, dir_name, cus_no, mat_no):
     fig = plt.figure()
     plt.plot(x1, y1, label = y1_label)
-    plt.plot(x2, y2, label = y2_label)
+    plt.plot(x2, y2, label = y2_label, marker = "*", markerfacecolor = "red", markeredgecolor = "red", markersize=5.0)
     plt.plot(x3, y3, label = y3_label)
     plt.title(title)
     plt.xlabel(xlable)

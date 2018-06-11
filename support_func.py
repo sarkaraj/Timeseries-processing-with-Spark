@@ -187,7 +187,7 @@ def remove_outlier(x):
     # Remove outlier
     # weekly category
     if category_obj.category in ("I", "II", "III"):
-        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True, sigma=2.5)
+        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True, sigma=3.0)
         return customernumber, matnr, cleaned_weekly_agg_data, category_obj
     # Monthly category
     elif category_obj.category in ("IV", "V", "VI"):

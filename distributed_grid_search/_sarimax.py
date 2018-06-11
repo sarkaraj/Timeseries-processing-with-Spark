@@ -5,6 +5,7 @@ from model.error_calculator_distributed_grid_search import weekly_arima_error_ca
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso
 from distributed_grid_search.properties import SARIMAX_W_MODEL_SELECTION_CRITERIA
+from model.save_images import *
 
 
 def _get_pred_dict_sarimax(prediction_series):
@@ -63,21 +64,6 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
         pdq = pdq
         seasonal_pdq = seasonal_pdq
 
-        ###############################################################
-        # # Uncomment this part of the code to run it locally
-        ###############################################################
-        # data transform
-        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        # prod = prod[['ds', 'y']]
-        # prod.ds = prod.ds.apply(str).apply(parser.parse)
-        # prod.y = prod.y.apply(float)
-        # prod = prod.sort_values('ds')
-        # prod = prod.reset_index(drop=True)
-        # # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
-        #
-        # # Remove outlier
-        # prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
-        ################################################################
 
         ################################################################
         # First split of test and train data
@@ -122,7 +108,20 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
             result_test.loc[(result_test['y_ARIMA'] < 0), 'y_ARIMA'] = 0
             ##########################################################################
 
+            ##########################################################################
+            # save plots for CV fit and predictions at each CV step
+            ##########################################################################
             if run_locally == True:
+                pred_train = results.get_prediction(start= np.amin(np.array(train_arima.index)),dynamic=False)
+                result_train = train
+                result_train['y_ARIMA'] = np.array(pred_train.predicted_mean)
+                three_dim_save_plot(x1= prod.ds, y1= prod.y, y1_label= "Actual",
+                                    x2= result_test.ds, y2= result_test.y_ARIMA, y2_label='Predicted',
+                                    x3= result_train.ds, y3= result_train.y_ARIMA, y3_label='Model_fit',
+                                    xlable= "Date", ylable= "Quantity",
+                                    title= "CV_fit_" + str(fit_counter),
+                                    dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+            ##########################################################################
 
             ##########################################################################
             # recreating test and train data set for next step of CV
@@ -135,6 +134,17 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
             # appending the cross validation results at each step
             output_result = pd.concat([output_result, result_test], axis=0)
             fit_counter += 1
+
+        ##############################################################################
+        # save plot for complete CV predictions
+        ##############################################################################
+        if run_locally == True:
+            two_dim_save_plot(x1 = prod.ds, y1 = prod.y, y1_label= "Actual",
+                              x2 = output_result["ds"], y2= output_result["y_ARIMA"], y2_label= "Predicted",
+                              xlable= "Date", ylable= "Quantity",
+                              title = "prediction",
+                              dir_name = image_dir, cus_no = cus_no, mat_no = mat_no)
+        ##############################################################################
 
         ##############################################################################
         # Model building on complete data set to generate out of sample prediction
@@ -210,5 +220,3 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
         return "MODEL_NOT_VALID"
 
 
-if __name__ == '__main__':
-    pass
