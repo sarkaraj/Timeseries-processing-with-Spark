@@ -124,9 +124,6 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
 
             if run_locally == True:
 
-
-
-
             ##########################################################################
             # recreating test and train data set for next step of CV
             ##########################################################################
@@ -214,4 +211,4 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
 
 
 if __name__ == '__main__':
-
+    pass

@@ -1,4 +1,5 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
+import product_class.properties as p
 
 WRITE_MODE = "append"
 
@@ -15,12 +16,12 @@ monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '20
 # ___________________________________CONTROL PARAMETERS___________________________________________
 ###################################################################################################
 
-annual_freq_cut_MAX = 'inf'
-annual_freq_cut_MIN = 0.0
+annual_freq_cut_MAX = p.annual_freq_cut_MAX
+annual_freq_cut_MIN = p.annual_freq_cut_MIN
 
-annual_freq_cut_1 = 48.0
-annual_freq_cut_2 = 20.0
-annual_freq_cut_3 = 12.0
+annual_freq_cut_1 = p.annual_freq_cut_1
+annual_freq_cut_2 = p.annual_freq_cut_2
+annual_freq_cut_3 = p.annual_freq_cut_3
 
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
@@ -61,7 +62,4 @@ comments = ""
 ###################################################################################################
 
 if __name__ == "__main__":
-    print(weekly_pdt_cat_123_location)
-    print(weekly_pdt_cat_7_location)
-    print(monthly_pdt_cat_456_location)
-    print(monthly_pdt_cat_8910_location)
+    print(cat_1.get_product_prop())

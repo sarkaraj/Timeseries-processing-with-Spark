@@ -1,8 +1,12 @@
+from product_class.properties import *
+
 # # CATEGORY 1
+
+
 class product_cat_1(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 60
-        self.pdt_freq_annual_upper = float("inf")
+        self.pdt_freq_annual_lower = annual_freq_cut_1
+        self.pdt_freq_annual_upper = float(annual_freq_cut_MAX)
         self.time_gap_days_lower = (731 + 123)
         self.time_gap_days_upper = float("inf")
         self.time_gap_years = 2.0
@@ -20,8 +24,8 @@ class product_cat_1(object):
 # # CATEGORY 2
 class product_cat_2(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 60
-        self.pdt_freq_annual_upper = float("inf")
+        self.pdt_freq_annual_lower = annual_freq_cut_1
+        self.pdt_freq_annual_upper = float(annual_freq_cut_MAX)
         self.time_gap_days_lower = (365 + 310)
         self.time_gap_days_upper = (731 + 123)
         self.time_gap_years = 1.5
@@ -39,8 +43,8 @@ class product_cat_2(object):
 # # CATEGORY 3
 class product_cat_3(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 60
-        self.pdt_freq_annual_upper = float("inf")
+        self.pdt_freq_annual_lower = annual_freq_cut_1
+        self.pdt_freq_annual_upper = float(annual_freq_cut_MAX)
         self.time_gap_days_lower = (365 + 123)
         self.time_gap_days_upper = (365 + 310)
         self.time_gap_years = 1.0
@@ -58,8 +62,8 @@ class product_cat_3(object):
 # # CATEGORY 4
 class product_cat_4(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 20
-        self.pdt_freq_annual_upper = 60
+        self.pdt_freq_annual_lower = annual_freq_cut_2
+        self.pdt_freq_annual_upper = annual_freq_cut_1
         self.time_gap_days_lower = (731 + 123)
         self.time_gap_days_upper = float("inf")
         self.time_gap_years = 2.0
@@ -77,8 +81,8 @@ class product_cat_4(object):
 # # CATEGORY 5
 class product_cat_5(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 20
-        self.pdt_freq_annual_upper = 60
+        self.pdt_freq_annual_lower = annual_freq_cut_2
+        self.pdt_freq_annual_upper = annual_freq_cut_1
         self.time_gap_days_lower = (365 + 310)
         self.time_gap_days_upper = (731 + 123)
         self.time_gap_years = 1.5
@@ -96,8 +100,8 @@ class product_cat_5(object):
 # # CATEGORY 6
 class product_cat_6(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 20
-        self.pdt_freq_annual_upper = 60
+        self.pdt_freq_annual_lower = annual_freq_cut_2
+        self.pdt_freq_annual_upper = annual_freq_cut_1
         self.time_gap_days_lower = (365 + 123)
         self.time_gap_days_upper = (365 + 310)
         self.time_gap_years = 1.0
@@ -115,8 +119,8 @@ class product_cat_6(object):
 # # CATEGORY 7
 class product_cat_7(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 60
-        self.pdt_freq_annual_upper = float("inf")
+        self.pdt_freq_annual_lower = annual_freq_cut_1
+        self.pdt_freq_annual_upper = float(annual_freq_cut_MAX)
         self.time_gap_days_lower = 0
         self.time_gap_days_upper = (365 + 123)
         self.category = 'VII'
@@ -132,8 +136,8 @@ class product_cat_7(object):
 # # CATEGORY 8
 class product_cat_8(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 20
-        self.pdt_freq_annual_upper = 60
+        self.pdt_freq_annual_lower = annual_freq_cut_2
+        self.pdt_freq_annual_upper = annual_freq_cut_1
         self.time_gap_days_lower = 0
         self.time_gap_days_upper = (365 + 123)
         self.category = 'VIII'
@@ -149,8 +153,8 @@ class product_cat_8(object):
 # # CATEGORY 9
 class product_cat_9(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 12
-        self.pdt_freq_annual_upper = 20
+        self.pdt_freq_annual_lower = annual_freq_cut_3
+        self.pdt_freq_annual_upper = annual_freq_cut_2
         self.time_gap_days_lower = 0
         self.time_gap_days_upper = float("inf")
         self.category = 'IX'
@@ -165,8 +169,8 @@ class product_cat_9(object):
 
 class product_cat_10(object):
     def __init__(self):
-        self.pdt_freq_annual_lower = 0
-        self.pdt_freq_annual_upper = 12
+        self.pdt_freq_annual_lower = annual_freq_cut_MIN
+        self.pdt_freq_annual_upper = annual_freq_cut_3
         self.time_gap_days_lower = 0
         self.time_gap_days_upper = float("inf")
         self.category = 'X'
@@ -190,7 +194,7 @@ cat_8 = product_cat_8()
 cat_9 = product_cat_9()
 cat_10 = product_cat_10()
 
-# if __name__ == "__main__":
-#     # print cat_1.get_product_prop()
-#
-#     print cat_10.category
+if __name__ == "__main__":
+    print cat_1.get_product_prop()
+
+    print cat_10.get_product_prop()
