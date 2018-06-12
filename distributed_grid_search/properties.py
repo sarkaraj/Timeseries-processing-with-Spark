@@ -1,6 +1,6 @@
 ################WEEKLY################
-min_train_days = 430
-test_points = 2
+min_train_days = 366 + 31
+test_points = 1
 pred_points = 2
 
 ################MONTHLY################

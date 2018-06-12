@@ -22,8 +22,9 @@ def generate_all_param_combo_sarimax(**kwargs):
             param_Q = range(p.Q_max + 1)
             param_D = range(p.D_max + 1)
 
+        # TODO: seasonal component is added even for data less that 2 years
         else:
-            param_P = [0]
+            param_P = range(p.P_max + 1)
             param_Q = [0]
             param_D = [0]
     else:
@@ -171,8 +172,9 @@ def generate_all_param_combo_sarimax_monthly(**kwargs):
             param_Q = range(p.Q_max_M + 1)
             param_D = range(p.D_max_M + 1)
 
+        # TODO: seasonal component is added even for data less that 2 years
         elif category == "V":
-            param_P = [0]
+            param_P = range(p.P_max_M + 1)
             param_Q = [0]
             param_D = [0]
     else:
@@ -358,5 +360,5 @@ def generate_models_pydlm_monthly(x):
 
 
 if __name__ == '__main__':
-    print (len(generate_all_param_combo_sarimax(category="I")))
-    print (len((generate_all_param_combo_sarimax_monthly(category="IV"))))
+    print (len(generate_all_param_combo_sarimax(category="II")))
+    print (len((generate_all_param_combo_sarimax_monthly(category="V"))))
