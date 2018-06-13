@@ -1,127 +1,138 @@
-from distributed_grid_search._model_params_set import *
-from distributed_grid_search.properties import *
-from distributed_grid_search._sarimax_monthly import *
+from transform_data.data_transform import *
+from model.ma_outlier import *
 from distributed_grid_search._sarimax import *
-from model.save_images import *
-
-import numpy as np
+from distributed_grid_search._sarimax_monthly import *
 import pandas as pd
 from dateutil import parser
-import datetime as dt
-import matplotlib.pylab as plt
 from matplotlib.pylab import rcParams
+import time
+
 rcParams['figure.figsize'] = 15, 6
 
 # data load and transform
-file_dir = "C:\\files\\CONA_Conv_Store_Data\\"
+file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
+
+cv_result_dir = "C:\\CONA_CSO\\thadeus_route\\cv_result\\"
 
 # image save folder
-image_dir = "C:\\files\\CONA_Conv_Store_Data\\temp\\thadeus\\monthly_trend_analysis\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\"
 
-raw_data = pd.read_csv(file_dir + "ThaddeusSmithConvRawInvoice.tsv",
-                       sep="\t", header=0, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
+raw_data = pd.read_csv(file_dir + "raw_invoices.tsv",
+                       sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 
-print(max(raw_data.date))
-print(min(raw_data.date))
-cus_no = 500068482
-mat_no = 134929
+m_cv_result = pd.read_csv(cv_result_dir + "cat_456_rmse_2018-06-12.tsv",
+                          sep= "\t", header=0)
 
-raw_data.quantity = raw_data.quantity.apply(float)
-raw_data = raw_data.loc[raw_data['quantity'] >= 0]
+print("Raw Data Head:\n")
+print(raw_data.head())
 
-cus_test = raw_data[raw_data.customernumber == cus_no]
-prod_test = cus_test[cus_test.matnr == mat_no]
+print("Monthly CV Result:\n")
+print(m_cv_result.dtypes)
 
-print(prod_test.sort_values('date'))
+print(m_cv_result.arima_params)
 
-# data_weekly = get_weekly_aggregate(inputDF=prod_test)
-# data_weekly.dt_week = data_weekly.dt_week.apply(str).apply(parser.parse)
+m_cv_result['arima_params_dict'] = m_cv_result['arima_params'].map(lambda x: [x.replace("]", "[").split("[")[i] for i in[1,3,5]])
+m_cv_result['arima_params_dict'] = m_cv_result['arima_params_dict'].map(lambda x: {'seasonal_pdq' : tuple(map(int,x[0].split(","))),
+                                                                         'trend': tuple(map(int,x[1].split(","))),
+                                                                         'pdq': tuple(map(int,x[2].split(",")))})
+for i in range(len(m_cv_result)):
 
-# weekly_data = data_weekly.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+    # User Input
+    ###########################################################
+    cus_no = m_cv_result['customernumber'][i]
+    mat_no = m_cv_result['mat_no'][i]
 
-# monthly_data = get_monthly_aggregate_per_product(weekly_data)
+    ## for weekly it has to be sunday, monthly last dte of month
+    mdl_cutoff_date = parser.parse("2018-05-31") #"2018-06-03"
+    weekly_model = False
+    monthly_model = True
 
-# data_weekly.head()
+    pdq = m_cv_result['arima_params_dict'][i].get('pdq')
+    pdq_seasonal = m_cv_result['arima_params_dict'][i].get('seasonal_pdq') # period is 52 and 12 for monthly and weekly respectively
+    trend = m_cv_result['arima_params_dict'][i].get('trend') # only applicable for monthly model
+    ############################################################
 
-# data_monthly = get_monthly_aggregate(inputDF=raw_data)
-# data_monthly.dt_week = data_monthly.dt_week.apply(str).apply(parser.parse)
-# print (data_monthly.head())
+    # filtering data
+    cus = raw_data[raw_data.customernumber == cus_no]
+    prod = cus[cus.matnr == mat_no]
 
-# param = {'changepoint_prior_scale': 2, 'yearly_seasonality': True, 'seasonality_prior_scale': 0.2}
-# loop to run for all product, all customer
-# final_data_df = pd.DataFrame()
-# for cus_no in raw_data.customernumber.unique():
-#     cus = raw_data[raw_data.customernumber == cus_no]
-#     for mat_no in cus.matnr.unique():
-#         prod = cus[cus.matnr == mat_no]
-#         prod['quantity'] = prod['quantity'].apply(float)
-#         prod = prod.loc[prod['quantity'] >= 0]
-#         # prod = prod.loc[prod['quantity'] >= 0]
-#
-#         print(prod.head())
-        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        # prod.ds = prod.ds.apply(str).apply(parser.parse)
-        # prod.y = prod.y.apply(float)
-        # prod = prod.sort_values('ds')
-        # prod = prod.reset_index(drop=True)
+    prod.date = prod.date.apply(str).apply(parser.parse)
+    prod.quantity = prod.quantity.apply(float)
+    prod = prod.sort_values('date')
+    prod = prod.reset_index(drop=True)
 
-        # plot_weekly_data(data=prod, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+    prod = prod.loc[prod['quantity'] >= 0.0]
+    prod = prod.loc[prod['date'] <= mdl_cutoff_date]
 
-monthly_data = get_monthly_aggregate(prod_test)
-print(monthly_data)
+    # artificially adding 0.0 at mdl cutoff date to get the aggregate right
+    lst_point = pd.DataFrame({'customernumber': [cus_no],'matnr': [mat_no],'date': [mdl_cutoff_date], 'quantity': [0.0], 'q_indep_p': [0.0]})
 
-        # plot_monthly_data(data=monthly_data, dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+    prod = prod.append(lst_point,ignore_index=True)
+    prod = prod.reset_index(drop= True)
 
+    if weekly_model == True:
+        start_time = time.time()
+        data_w_agg = get_weekly_aggregate(inputDF=prod)
+        data_w_agg = data_w_agg.sort_values('dt_week')
+        print("Weekly aggregated data:\n")
+        print(data_w_agg)
+        print("#####################################################\n")
 
-        # days = (
-        # max(prod.dt_week.apply(str).apply(parser.parse)) - min(prod.dt_week.apply(str).apply(parser.parse))).days
-        # if days > 854:
-        # weekly_model_image_saver(prod, cus_no, mat_no, dir_name, holidays, min_train_days=731, test_points=2)
-        # prod_output = weekly_ensm_model(prod=prod, cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
+        data_w_agg = data_w_agg[['dt_week', 'quantity']]
+        data_w_agg = data_w_agg.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
 
-        # monthly_prophet_model(prod, cus_no, mat_no, dir_name, min_train_days=731, test_points=1)
-        # prod_output = monthly_prophet_model(prod = prod , cus_no = cus_no, mat_no = mat_no, dir_name= image_dir)
-        # prod_output = monthly_pydlm_model(prod = prod , cus_no = cus_no, mat_no = mat_no)
-        # (prod_output, pred) = moving_average_model(prod=prod, cus_no=cus_no, mat_no=mat_no, weekly_data=False,
-        #                                             weekly_window=6, monthly_window=3, pred_points= 2)
+        data_w_agg.ds = data_w_agg.ds.apply(str).apply(parser.parse)
+        data_w_agg.y = data_w_agg.y.apply(float)
+        data_w_agg = data_w_agg.sort_values('ds')
+        data_w_agg = data_w_agg.reset_index(drop=True)
 
-        # prod_output = moving_average_model_monthly(prod = prod, cus_no= cus_no, mat_no=mat_no)
-        # res = run_prophet_monthly(cus_no= cus_no, mat_no= mat_no, prod=prod, param= param, min_train_days= 731)
-        # prod_output = res[1][1]
-#
-# for elem in generate_all_param_combo_sarimax_monthly():
-#     print(elem)
-#     output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=elem[0],
-#                                                        seasonal_pdq= elem[1], trend=elem[2])
+        data_w_agg_cleaned = ma_replace_outlier(data=data_w_agg, n_pass=3, aggressive=True, sigma=3) # initially sigma was 2.5
 
-# output = sarimax_monthly(cus_no=cus_no, mat_no=mat_no, prod=monthly_data, pdq=(2,0,1), seasonal_pdq= (1,0,0,12), trend=[0,0,1]
-#                          ,enforce_stationarity = False, enforce_invertibility = False, measurement_error = True, hamilton_representation = False)
-# print("elem")
-# print(elem)
-# print("output")
-# print(output)
+        two_dim_save_plot(x1= data_w_agg.ds, y1= data_w_agg.y, y1_label= "Raw_data",
+                          x2= data_w_agg_cleaned.ds, y2= data_w_agg_cleaned.y, y2_label= "Cleaned_data",
+                          xlable= "Date", ylable= "Quantity",
+                          title= "Raw_vs_Cleaned_Data", cus_no= cus_no, mat_no= mat_no, dir_name= image_dir)
 
-# if (output not in ["MODEL_NOT_VALID"]):
-#     three_dim_save_plot(x1= output[3].ds, y1= output[3].y, y1_label= "actual",
-#                       x2= output[1].ds, y2= output[1].y_ARIMA, y2_label='predicted',
-#                       x3=output[2].ds, y3=output[2].y_ARIMA, y3_label='model_fit',
-#                       xlable= "Date", ylable= "Quantity", title= "ts", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+        #sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally=False, **kwargs):
+        output = sarimax(cus_no= cus_no, mat_no= mat_no, pdq= pdq, seasonal_pdq= pdq_seasonal, prod= data_w_agg_cleaned,
+                         run_locally= True, image_dir= image_dir)
 
+        print("Output sarimax model:")
+        print(output)
+        print("\n#####################################################")
+        print("--- %s seconds ---" % (time.time() - start_time))
 
+    elif monthly_model == True:
+        data_m_agg = get_monthly_aggregate(inputDF=prod)
+        data_m_agg = data_m_agg.sort_values('dt_week')
+        print("Monthly aggregated data:\n")
+        print(data_m_agg)
+        print("#####################################################\n")
 
-            # final_data_df = pd.concat([final_data_df, output[1][1]], axis=0)
+        data_m_agg = data_m_agg[['dt_week', 'quantity']]
+        data_m_agg = data_m_agg.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
 
-# final_data_df.to_csv(image_dir + "error.csv", sep=',', header=True)
-#
-# print (final_data_df.head())
+        data_m_agg.ds = data_m_agg.ds.apply(str).apply(parser.parse)
+        data_m_agg.y = data_m_agg.y.apply(float)
+        data_m_agg = data_m_agg.sort_values('ds')
+        data_m_agg = data_m_agg.reset_index(drop=True)
 
-# for cus_no in raw_data.customernumber.unique():
-# for cus_no in raw_data.customernumber.unique():
-#     cus = raw_data[raw_data.customernumber == cus_no]
-#     for mat_no in cus.matnr.unique():
-#         prod = cus[cus.matnr == mat_no]
-#         prod.date = prod.date.apply(str).apply(parser.parse)
-#         prod.y = prod.quantity.apply(float)
-#         prod = prod.sort_values('date')
-#         prod = prod.reset_index(drop=True)
-#         plot_raw_data(data=prod, dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
+        data_m_agg_cleaned = ma_replace_outlier(data=data_m_agg, n_pass=3, aggressive=True,
+                                                window_size=6, sigma=2.5)
+
+        print("cleaned monthly agg data:\n")
+        print(data_m_agg_cleaned)
+        print("\n#####################################################")
+
+        two_dim_save_plot(x1=data_m_agg.ds, y1=data_m_agg.y, y1_label="Raw_data",
+                          x2=data_m_agg_cleaned.ds, y2=data_m_agg_cleaned.y, y2_label="Cleaned_data",
+                          xlable="Date", ylable="Quantity",
+                          title="Raw_vs_Cleaned_Data", cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
+
+        # sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally=False, **kwargs)
+        output = sarimax_monthly(cus_no= cus_no, mat_no= mat_no, pdq= pdq, seasonal_pdq= pdq_seasonal, trend= trend,
+                                 prod= data_m_agg_cleaned,run_locally= True, image_dir= image_dir)
+
+        print("Output sarimax monthly model:")
+        print(output)
+        print("\n#####################################################")
