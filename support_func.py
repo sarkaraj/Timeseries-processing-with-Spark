@@ -318,7 +318,10 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .withColumn("Comments", lit(comments))
 
     if p.CUSTOMER_SAMPLING:
-        customer_list = customer_sample.select(col("customernumber")).sample(False, p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
+        if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+            customer_list = customer_sample.select(col("customernumber"))
+        else:
+            customer_list = customer_sample.select(col("customernumber")).sample(False, p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
     else:
         customer_list = customer_sample.select(col("customernumber"))
 
