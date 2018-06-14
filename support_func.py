@@ -284,6 +284,8 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .withColumnRenamed("_c0", "sales_rep_id") \
         .select(col("sales_rep_id"))
 
+    _delivery_routes.show()
+
     _complete_customer_list_from_VL_df = sqlContext.read \
         .format("csv") \
         .option("delimiter", ",") \
@@ -291,6 +293,8 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .load(p.VISIT_LIST_LOCATION) \
         .select(col("USERID").alias("sales_rep_id"),
                 col("KUNNR").alias("customernumber"))
+
+    _complete_customer_list_from_VL_df.show(10)
 
     query_to_select_all_convenience_stores = """
     select kunnr
@@ -319,6 +323,8 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
 
     print("Testing for custom customer list")
     customer_sample.show()
+
+    sqlContext.stop()
 
     customer_list = customer_sample.select(col("customernumber"))
 
