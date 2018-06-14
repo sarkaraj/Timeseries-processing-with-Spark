@@ -52,7 +52,7 @@ test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_rout
 VISIT_LIST_LOCATION = "wasb://skuopt@conapocv2standardsa.blob.core.windows.net/AZ_TCAS_VL.csv"
 comments = ""
 
-CUSTOMER_SAMPLING_PERCENTAGE = 1  # has to be within 1
+CUSTOMER_SAMPLING_PERCENTAGE = 0.5  # has to be within 1
 ###################################################################################################
 # _________________________________________EOF____________________________________________________
 ###################################################################################################
