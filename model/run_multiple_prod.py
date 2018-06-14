@@ -15,12 +15,12 @@ file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
 cv_result_dir = "C:\\CONA_CSO\\thadeus_route\\cv_result\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\monthly_mre_4\\"
 
 raw_data = pd.read_csv(file_dir + "raw_invoices.tsv",
                        sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 
-m_cv_result = pd.read_csv(cv_result_dir + "cat_456_rmse_2018-06-12.tsv",
+m_cv_result = pd.read_csv(cv_result_dir + "cat_456_2018-06-12.tsv",
                           sep= "\t", header=0)
 
 print("Raw Data Head:\n")
@@ -41,6 +41,8 @@ for i in range(len(m_cv_result)):
     ###########################################################
     cus_no = m_cv_result['customernumber'][i]
     mat_no = m_cv_result['mat_no'][i]
+
+    # param_str = m_cv_result['arima_params'][i]
 
     ## for weekly it has to be sunday, monthly last dte of month
     mdl_cutoff_date = parser.parse("2018-05-31") #"2018-06-03"
@@ -117,6 +119,8 @@ for i in range(len(m_cv_result)):
         data_m_agg = data_m_agg.sort_values('ds')
         data_m_agg = data_m_agg.reset_index(drop=True)
 
+        raw_m_agg_data = data_m_agg.copy()
+
         data_m_agg_cleaned = ma_replace_outlier(data=data_m_agg, n_pass=3, aggressive=True,
                                                 window_size=6, sigma=2.5)
 
@@ -124,7 +128,7 @@ for i in range(len(m_cv_result)):
         print(data_m_agg_cleaned)
         print("\n#####################################################")
 
-        two_dim_save_plot(x1=data_m_agg.ds, y1=data_m_agg.y, y1_label="Raw_data",
+        two_dim_save_plot(x1=raw_m_agg_data.ds, y1=raw_m_agg_data.y, y1_label="Raw_data",
                           x2=data_m_agg_cleaned.ds, y2=data_m_agg_cleaned.y, y2_label="Cleaned_data",
                           xlable="Date", ylable="Quantity",
                           title="Raw_vs_Cleaned_Data", cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)

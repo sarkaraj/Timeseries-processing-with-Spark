@@ -141,11 +141,12 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally 
             result_train = train
             result_train['y_ARIMA'] = np.array(pred_train.predicted_mean)
             three_dim_save_plot(x1=prod.ds, y1=prod.y, y1_label="Actual",
-                               x2=result_test.ds, y2=result_test.y_ARIMA, y2_label='Predicted',
-                               x3=result_train.ds, y3=result_train.y_ARIMA, y3_label='Model_fit',
-                               xlable="Date", ylable="Quantity",
-                               title="CV_fit_" + str(fit_counter),
-                               dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
+                                x2=result_test.ds, y2=result_test.y_ARIMA, y2_label='Predicted',
+                                x3=result_train.ds, y3=result_train.y_ARIMA, y3_label='Model_fit',
+                                xlable="Date", ylable="Quantity",
+                                text= "pdq:" + str(pdq) + " pdq_seasonal:" + str(seasonal_pdq),
+                                title="CV_fit_" + str(fit_counter),
+                                dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
         ##########################################################################
 
         ##########################################################################
@@ -170,9 +171,10 @@ def sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally 
         baseline_res = baseline_res.reset_index(drop=True)
         three_dim_save_plot(x1=prod.ds, y1=prod.y, y1_label="Actual",
                             x2=output_result["ds"], y2=output_result["y_ARIMA"], y2_label="Predicted",
-                            x3=baseline_res.ds, y3= baseline_res.rolling_mean, y3_label="Baseline",
+                            x3=baseline_res.ds, y3= baseline_res.rolling_mean, y3_label="Baseline", y3_color= 'purple',
                             xlable= "Date", ylable= "Quantity",
-                            title="prediction",
+                            text="pdq:" + str(pdq) + " pdq_seasonal:" + str(seasonal_pdq),
+                            title="Baseline_vs_ARIMA_Prediction",
                             dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
     ##############################################################################
 
