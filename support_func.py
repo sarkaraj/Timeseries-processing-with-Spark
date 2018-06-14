@@ -252,8 +252,6 @@ def _get_last_day_of_previous_month(_date):
 
 
 def get_sample_customer_list(sc, sqlContext, **kwargs):
-    from properties import test_delivery_routes
-
     customer_data_location = p.customer_data_location
 
     if "_model_bld_date_string" in kwargs.keys():
@@ -274,17 +272,53 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         print("ValueError: No module date has been provided")
         raise ValueError
 
-    _custom_customer_list_df = sqlContext.read \
+    # ###########################################
+    # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
+    # ###########################################
+
+    _delivery_routes = sqlContext.read \
         .format("csv") \
         .option("delimiter", "\t") \
         .option("header", "false") \
-        .load(test_delivery_routes) \
-        .withColumn("customernumber", concat_ws("", lit("0"), col("_c0"))) \
-        .select(col("customernumber"))
+        .load(p.test_delivery_routes) \
+        .withColumnRenamed("_c0", "sales_rep_id") \
+        .select(col("sales_rep_id"))
+
+    _complete_customer_list_from_VL_df = sqlContext.read \
+        .format("csv") \
+        .option("delimiter", ",") \
+        .option("header", "true") \
+        .load(p.VISIT_LIST_LOCATION) \
+        .select(col("USERID").alias("sales_rep_id"),
+                col("KUNNR").alias("customernumber"))
+
+    query_to_select_all_convenience_stores = """
+    select kunnr
+    from mdm.customer
+    where katr6 = '3'
+    """
+
+    convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
+        .withColumnRenamed("kunnr", "customernumber")
+
+    _custom_customer_list_df = convenience_store_df \
+        .join(broadcast(_complete_customer_list_from_VL_df),
+              on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
+              how="inner") \
+        .drop(convenience_store_df.customernumber) \
+        .join(broadcast(_delivery_routes),
+              on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
+              how="inner") \
+        .drop(_delivery_routes.sales_rep_id) \
+        .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
+        .distinct()
 
     customer_sample = _custom_customer_list_df \
         .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
         .withColumn("Comments", lit(comments))
+
+    print("Testing for custom customer list")
+    customer_sample.show()
 
     customer_list = customer_sample.select(col("customernumber"))
 

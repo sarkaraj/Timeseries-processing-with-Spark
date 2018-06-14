@@ -45,6 +45,7 @@ monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pd
 monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
 customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
 test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
+VISIT_LIST_LOCATION = "wasb://skuopt@conapocv2standardsa.blob.core.windows.net/AZ_TCAS_VL.csv"
 comments = ""
 
 ###################################################################################################
