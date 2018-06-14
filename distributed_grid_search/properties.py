@@ -1,6 +1,6 @@
 ################WEEKLY################
 min_train_days = 366 + 31
-test_points = 1
+test_points = 2
 pred_points = 2
 
 ################MONTHLY################
@@ -11,9 +11,9 @@ pred_points_monthly = 2
 p_Weekly_lower_limit = 3
 p_Weekly_upper_limit = 6  # point is excluded
 d_Weekly_lower_limit = 0
-d_Weekly_upper_limit = 2  # point is excluded
+d_Weekly_upper_limit = 3  # point is excluded
 q_Weekly_lower_limit = 0
-q_Weekly_upper_limit = 2  # point is excluded
+q_Weekly_upper_limit = 3  # point is excluded
 
 P_max = 1
 Q_max = 0
