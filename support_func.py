@@ -284,8 +284,6 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .withColumnRenamed("_c0", "sales_rep_id") \
         .select(col("sales_rep_id"))
 
-    _delivery_routes.show()
-
     _complete_customer_list_from_VL_df = sqlContext.read \
         .format("csv") \
         .option("delimiter", ",") \
@@ -293,8 +291,6 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .load(p.VISIT_LIST_LOCATION) \
         .select(col("USERID").alias("sales_rep_id"),
                 col("KUNNR").alias("customernumber"))
-
-    _complete_customer_list_from_VL_df.show(10)
 
     query_to_select_all_convenience_stores = """
     select kunnr
@@ -321,12 +317,10 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
         .withColumn("Comments", lit(comments))
 
-    print("Testing for custom customer list")
-    print(customer_sample.count())
-
-    sqlContext.stop()
-
-    customer_list = customer_sample.select(col("customernumber"))
+    if p.CUSTOMER_SAMPLING:
+        customer_list = customer_sample.select(col("customernumber")).sample(False, p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
+    else:
+        customer_list = customer_sample.select(col("customernumber"))
 
     customer_list.createOrReplaceTempView("customerdata")
 

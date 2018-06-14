@@ -35,6 +35,10 @@ REPARTITION_STAGE_2 = 70
 container = "csotestenv"
 # container = "csoproduction"  # TODO: Uncomment when merging with production branch
 
+if container == "csoproduction":
+    CUSTOMER_SAMPLING = False
+else:
+    CUSTOMER_SAMPLING = True
 
 storage_account = "conapocv2standardsa.blob.core.windows.net"
 PREFIX = "wasb://" + "@".join([container, storage_account])
@@ -48,6 +52,7 @@ test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_rout
 VISIT_LIST_LOCATION = "wasb://skuopt@conapocv2standardsa.blob.core.windows.net/AZ_TCAS_VL.csv"
 comments = ""
 
+CUSTOMER_SAMPLING_PERCENTAGE = 0.2  # has to be within 1
 ###################################################################################################
 # _________________________________________EOF____________________________________________________
 ###################################################################################################
