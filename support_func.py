@@ -322,7 +322,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .withColumn("Comments", lit(comments))
 
     print("Testing for custom customer list")
-    customer_sample.show()
+    print(customer_sample.count())
 
     sqlContext.stop()
 
