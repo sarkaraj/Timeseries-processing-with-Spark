@@ -1,71 +1,47 @@
-# from pyspark.sql.types import *
-#
-# def _which_prophet_module():
-#     import fbprophet
-#     import pystan
-#     _result = str(fbprophet.__file__), str(pystan.__file__)
-#     return _result
-#
-#
-# def _schema():
-#     proph = StructField("fb_loc", StringType())
-#     pystan = StructField("pystan_loc", StringType())
-#     _result = StructType([proph, pystan])
-#     return _result
-
-
-def _run_dist_prophet_monthly(test_data, sqlContext, **kwargs):
+def _run_dist_arima_monthly(test_data, sqlContext, **kwargs):
     # LIBRARY IMPORTS
-    from distributed_grid_search._model_params_set import generate_models_prophet_monthly
-    from transform_data.rdd_to_df import map_for_output_prophet, prophet_output_schema
+    from distributed_grid_search._model_params_set import generate_models_sarimax_monthly
+    from transform_data.rdd_to_df import map_for_output_arima_monthly, arima_output_schema
 
     from support_func import dist_grid_search_create_combiner, dist_grid_search_merge_value, \
         dist_grid_search_merge_combiner
 
-    from distributed_grid_search._fbprophet_monthly import run_prophet_monthly
+    from distributed_grid_search._sarimax_monthly import sarimax_monthly
     from properties import REPARTITION_STAGE_1, REPARTITION_STAGE_2
 
     # ###################
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
+        .filter(lambda x: x[3].category in ('IV', 'V', 'VI'))
 
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
     test_data_parallel = test_data_input.flatMap(
-        lambda x: generate_models_prophet_monthly(x,
+        lambda x: generate_models_sarimax_monthly(x,
                                                   MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))  # # gets 587 * 55 = 32285 rows
 
-    # print(test_data_parallel.collect())
-
-    test_data_parallel.cache()
-    test_data_parallel.take(1)
-
     # # Parallelizing Jobs
-    prophet_results_rdd = test_data_parallel \
+    arima_results_rdd = test_data_parallel \
         .repartition(REPARTITION_STAGE_1) \
-        .map(lambda x: run_prophet_monthly(cus_no=x[0], mat_no=x[1], prod=x[2], pdq=x[2], seasonal_pdq=x[3],
-                                           min_train_days=x[4].min_train_days, pdt_cat=x[4].get_product_prop())) \
+        .map(lambda x: sarimax_monthly(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq = x[3], trend=x[4], prod=x[5],
+                               min_train_days=x[6].min_train_days, pdt_cat=x[6].get_product_prop())) \
         .filter(lambda x: x != "MODEL_NOT_VALID")
-
     # .repartition(REPARTITION_STAGE_1)
 
-    test_data_parallel.unpersist()
-    #
-    # print(prophet_results_rdd.collect())
+    # print(arima_results_rdd.take(1))
+    # return 1
 
-    opt_prophet_results_rdd = prophet_results_rdd \
+    opt_arima_results_rdd = arima_results_rdd \
         .combineByKey(dist_grid_search_create_combiner,
                       dist_grid_search_merge_value,
-                      dist_grid_search_merge_combiner)
+                      dist_grid_search_merge_combiner,
+                      numPartitions=REPARTITION_STAGE_2)
 
-    opt_prophet_results_mapped = opt_prophet_results_rdd.map(lambda line: map_for_output_prophet(line))
+    opt_arima_results_mapped = opt_arima_results_rdd.map(lambda line: map_for_output_arima_monthly(line))
 
-    opt_prophet_results_df = sqlContext.createDataFrame(opt_prophet_results_mapped, schema=prophet_output_schema())
+    opt_arima_results_df = sqlContext.createDataFrame(opt_arima_results_mapped, schema=arima_output_schema())
 
-    # return opt_prophet_results_mapped
-    return opt_prophet_results_df
-
+    return opt_arima_results_df
 
 
 # FOR MODULE TESTING
@@ -97,7 +73,7 @@ if __name__ == "__main__":
     ###################################################################################################################
 
     # Getting Current Date Time for AppName
-    appName_Monthly = "CONA_TS_MODEL_VALIDATION_JOB_ID_15"
+    appName_Monthly = "CONA_TS_MODEL_VALIDATION_JOB_ID_15_SARIMAX_M"
     ####################################################################################################################
 
     # conf = SparkConf().setAppName(appName)
@@ -121,7 +97,7 @@ if __name__ == "__main__":
 
     start_time = time.time()
 
-    print "Setting LOG LEVEL as ERROR"
+    print ("Setting LOG LEVEL as ERROR")
     sc.setLogLevel("ERROR")
 
     MODEL_BLD_CURRENT_DATE = string_to_gregorian("2018-04-01")
@@ -193,7 +169,6 @@ if __name__ == "__main__":
     #     file_to = open("/home/rajarshi/Desktop/temporary/thaddeusSmithCustomerList/product_list_raw.txt", mode="a")
 
     assigned_category = filtered_dataset \
-        .filter(col("matnr") == "000000000000151988") \
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
@@ -203,14 +178,14 @@ if __name__ == "__main__":
 
     # print(assigned_category.count())
 
-    print ("Running MONTHLY_MODELS PROPHET on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
+    print ("Running MONTHLY_MODELS SARIMAX on products with FREQ : " + str(p.annual_freq_cut_2) + " <= X < "
            + str(p.annual_freq_cut_1) + "\n")
 
-    print "\t\t--Running distributed prophet"
-    prophet_monthly_results = _run_dist_prophet_monthly(test_data=assigned_category, sqlContext=sqlContext,
-                                                        MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    print ("\t\t--Running distributed prophet")
+    prophet_monthly_results = _run_dist_arima_monthly(test_data=assigned_category, sqlContext=sqlContext,
+                                                      MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    prophet_monthly_results.show(10)
+    # prophet_monthly_results.show(10)
     #
     # prophet_monthly_results_final = prophet_monthly_results \
     #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \

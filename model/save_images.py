@@ -21,8 +21,8 @@ def two_dim_save_plot(x1, y1, y1_label,
                       x2, y2, y2_label,
                       xlable, ylable, title, dir_name, cus_no, mat_no):
     fig = plt.figure()
-    plt.plot(x1, y1, label = y1_label)
-    plt.plot(x2, y2, label = y2_label)
+    plt.plot(x1, y1, label = y1_label, marker = "*", markerfacecolor = "blue", markeredgecolor = "blue", markersize=3.0)
+    plt.plot(x2, y2, label = y2_label, marker = "*", markerfacecolor = "red", markeredgecolor = "red", markersize=3.0)
     plt.title(title)
     plt.xlabel(xlable)
     plt.ylabel(ylable)
@@ -36,15 +36,35 @@ def two_dim_save_plot(x1, y1, y1_label,
 def three_dim_save_plot(x1, y1, y1_label,
                         x2, y2, y2_label,
                         x3, y3, y3_label,
-                        xlable, ylable, title, dir_name, cus_no, mat_no):
+                        xlable, ylable, title, dir_name, cus_no, mat_no, **kwargs):
+
+    # if 'y1_color' in kwargs.keys():
+    #     y1_color = kwargs.get('y1_color')
+    # else:
+    #     y1_color = 'cyan'
+    # if 'y2_color' in kwargs.keys():
+    #     y2_color = kwargs.get('y2_color')
+    # else:
+    #     y2_color = 'orange'
+    # if 'y3_color' in kwargs.keys():
+    #     y3_color = kwargs.get('y3_color')
+    # else:
+    #     y3_color = 'green'
+
     fig = plt.figure()
-    plt.plot(x1, y1, label = y1_label)
-    plt.plot(x2, y2, label = y2_label)
-    plt.plot(x3, y3, label = y3_label)
+    plt.plot(x1, y1, label = y1_label, marker = "*", markerfacecolor = "blue", markeredgecolor = "blue", markersize=3.0)
+    plt.plot(x2, y2, label = y2_label, marker = "*", markerfacecolor = "red", markeredgecolor = "red", markersize=3.0)
+    plt.plot(x3, y3, label = y3_label, marker = "*", markerfacecolor = "green", markeredgecolor = "green", markersize=3.0)
     plt.title(title)
     plt.xlabel(xlable)
     plt.ylabel(ylable)
     plt.legend()
+
+    if 'text' in kwargs.keys():
+        text = kwargs.get('text')
+        ax = plt.subplot()
+        plt.text(0.5,0.95,text, horizontalalignment='center', verticalalignment='center', transform=ax.transAxes,
+                 bbox=dict(facecolor='green', alpha=0.5))
 
     save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
     plt.savefig(save_file, bbox_inches='tight')

@@ -1,5 +1,7 @@
 import properties as p_data_fetch
 from support_func import generate_weekly_query, generate_monthly_query
+from pyspark.sql.functions import *
+from pyspark.sql.types import *
 
 
 def get_data_weekly(sqlContext, **kwargs):
@@ -12,9 +14,6 @@ def get_data_weekly(sqlContext, **kwargs):
     if (test_query == None):
         raise ValueError
     else:
-        from pyspark.sql.functions import *
-        from pyspark.sql.types import *
-
         test_data = \
             sqlContext.sql(test_query) \
                 .filter(col('quantity') > 0) \
@@ -54,9 +53,6 @@ def get_data_monthly(sqlContext, **kwargs):
     if (test_query == None):
         raise ValueError
     else:
-        from pyspark.sql.functions import *
-        from pyspark.sql.types import *
-
         test_data = \
             sqlContext.sql(test_query) \
                 .filter(col('quantity') > 0) \

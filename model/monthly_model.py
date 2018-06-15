@@ -3,7 +3,8 @@ from transform_data.data_transform import *
 from model.error_calculator import *
 from model.save_images import *
 
-def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=1, **kwargs):
+
+def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=365, test_points=1, **kwargs):
     """
            Prod: weekly aggregated dataframe containing
                columns: customernumber, matnr, dt_week, quantity, p_ind_quantity
@@ -53,7 +54,10 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
                           title="weekly_aggregated_quantity_outlier_replaced",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
-    # prod = get_monthly_aggregate_per_product(prod)
+    # prod = get_monthly_aggregate_per_product
+
+    # Remove outlier
+    prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=6, sigma=2.5)
 
     # test and train data creation
     train = prod[
@@ -61,13 +65,16 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
     test = prod[(np.amax(np.array(train.index)) + 1):(np.amax(np.array(train.index)) + 1 + test_points)]
     # rem_data = prod[(np.amax(np.array(train.index)) + test_points):]
 
+    print(train)
+    print(test)
+
     output_result = pd.DataFrame()
 
     # incremental test
     while (len(test) > 0):
+        print("Enter While loop")
         # prophet model
-        m = Prophet(weekly_seasonality=False, yearly_seasonality=True,
-                    seasonality_prior_scale= 0.1,
+        m = Prophet(weekly_seasonality=False, yearly_seasonality=False,
                     changepoint_prior_scale=1)
         pr_fit = m.fit(train);
         # TODO : Parameterize seasonality_prior_scale and changepoint_prior_scale - distribute this.
@@ -94,6 +101,8 @@ def monthly_prophet_model(prod, cus_no, mat_no, min_train_days=731, test_points=
         output_result = pd.concat([output_result,result_test], axis=0)
 
     output_result = monthly_prophet_model_error_calculator(output_result)
+
+    print(output_result)
     #############################
     # m_ = Prophet(weekly_seasonality=False, yearly_seasonality=True,
     #              changepoint_prior_scale=2)
