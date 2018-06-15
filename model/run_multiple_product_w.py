@@ -15,12 +15,12 @@ file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
 cv_result_dir = "C:\\CONA_CSO\\thadeus_route\\cv_result\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\weekly_wre_12\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\production_plots\\"
 
 raw_data = pd.read_csv(file_dir + "raw_invoices.tsv",
                        sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 
-m_cv_result = pd.read_csv(cv_result_dir + "cat_123_2018-06-12.tsv",
+m_cv_result = pd.read_csv(cv_result_dir + "cat_123_production_2018-06-10.tsv",
                           sep= "\t", header=0)
 
 print("Raw Data Head:\n")
@@ -47,6 +47,7 @@ for i in range(len(m_cv_result)):
 
     pdq = m_cv_result['arima_params_dict'][i].get('pdq')
     pdq_seasonal = m_cv_result['arima_params_dict'][i].get('seasonal_pdq')
+    # pdq_seasonal = (1,0,0,52)
     ############################################################
 
     # filtering data

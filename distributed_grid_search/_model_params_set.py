@@ -24,7 +24,7 @@ def generate_all_param_combo_sarimax(**kwargs):
 
         # TODO: seasonal component is added even for data less that 2 years
         else:
-            param_P = range(p.P_max + 1)
+            param_P = [0]
             param_Q = [0]
             param_D = [0]
     else:
@@ -174,7 +174,7 @@ def generate_all_param_combo_sarimax_monthly(**kwargs):
 
         # TODO: seasonal component is added even for data less that 2 years
         elif category == "V":
-            param_P = range(p.P_max_M + 1)
+            param_P = [0]
             param_Q = [0]
             param_D = [0]
     else:
