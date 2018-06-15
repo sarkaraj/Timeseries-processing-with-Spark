@@ -8,7 +8,6 @@ spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
---queue tsmdl \
 --num-executors 30 \
 --driver-memory 5G \
 --executor-memory 4G \
@@ -23,7 +22,9 @@ spark-submit \
 ~/cso_predictor_prod/run.py \
 $model_bld_date
 
-#'2018-06-03'
 
+
+#'2018-06-03'
+# --queue tsmdl \
 
 exit 0
