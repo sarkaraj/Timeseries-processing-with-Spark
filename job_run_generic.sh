@@ -9,9 +9,9 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 50 \
---driver-memory 3G \
---executor-memory 6G \
+--num-executors 30 \
+--driver-memory 5G \
+--executor-memory 4G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
@@ -23,6 +23,7 @@ spark-submit \
 ~/cso_predictor_prod/run.py \
 $model_bld_date
 
-# $model_bld_date
+#'2018-06-03'
+
 
 exit 0

@@ -1,6 +1,6 @@
 ################WEEKLY################
-min_train_days = 365
-test_points = 4
+min_train_days = 366 + 31
+test_points = 2
 pred_points = 2
 
 ################MONTHLY################
@@ -8,13 +8,16 @@ test_points_monthly = 1
 pred_points_monthly = 2
 
 ################
-p_max = 2
-d_max = 1
-q_max = 2
+p_Weekly_lower_limit = 3
+p_Weekly_upper_limit = 6  # point is excluded
+d_Weekly_lower_limit = 0
+d_Weekly_upper_limit = 3  # point is excluded
+q_Weekly_lower_limit = 0
+q_Weekly_upper_limit = 3  # point is excluded
 
 P_max = 1
-Q_max = 1
-D_max = 1
+Q_max = 0
+D_max = 0
 
 ENABLE_SAMPLING = False
 GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY = 25
@@ -23,7 +26,7 @@ GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY = 25
 ################WEEKLY################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-SARIMAX_W_MODEL_SELECTION_CRITERIA = 'wre_mean_12'
+SARIMAX_W_MODEL_SELECTION_CRITERIA = 'rmse'
 
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
@@ -45,23 +48,26 @@ PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_mean_12'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 
-p_max_M = 2
-d_max_M = 1
-q_max_M = 2
+p_Monthly_lower_limit = 2
+p_Monthly_upper_limit = 4  # this point is excluded
+d_Monthly_lower_limit = 0
+d_Monthly_upper_limit = 3  # this point is excluded
+q_Monthly_lower_limit = 0
+q_Monthly_upper_limit = 3  # this point is excluded
 
 P_max_M = 1
-Q_max_M = 1
-D_max_M = 1
+Q_max_M = 0
+D_max_M = 0
 
-c_max_M = 1
-c_t_max_M = 1
-c_tsquare_max_M = 1
+c_max_M = 0
+c_t_max_M = 0
+c_tsquare_max_M = 0
 
 #################
 ################Monthly################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-SARIMAX_M_MODEL_SELECTION_CRITERIA = 'mre_mean_4'
+SARIMAX_M_MODEL_SELECTION_CRITERIA = 'rmse'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 #  PROPHET MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT is PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT / 10.0

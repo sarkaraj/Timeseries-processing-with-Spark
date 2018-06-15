@@ -1,6 +1,7 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
+import product_class.properties as p
 
-WRITE_MODE = "append"
+WRITE_MODE = "append"  # TODO: Change it to 'append' when merging with production branch
 
 _model_bld_date_string_list = ['2017-10-01']
 
@@ -15,12 +16,12 @@ monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '20
 # ___________________________________CONTROL PARAMETERS___________________________________________
 ###################################################################################################
 
-annual_freq_cut_MAX = 'inf'
-annual_freq_cut_MIN = 0.0
+annual_freq_cut_MAX = p.annual_freq_cut_MAX
+annual_freq_cut_MIN = p.annual_freq_cut_MIN
 
-annual_freq_cut_1 = 48.0
-annual_freq_cut_2 = 20.0
-annual_freq_cut_3 = 12.0
+annual_freq_cut_1 = p.annual_freq_cut_1
+annual_freq_cut_2 = p.annual_freq_cut_2
+annual_freq_cut_3 = p.annual_freq_cut_3
 
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
@@ -32,19 +33,13 @@ REPARTITION_STAGE_2 = 70
 # ___________________________________STORAGE LOCATION______________________________________________
 ###################################################################################################
 # container = "csotestenv"
-# storage_account = "conapocv2standardsa.blob.core.windows.net"
-# PREFIX = "wasb://" + "@".join([container, storage_account])
-#
-# weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
-# weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
-# monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
-# monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
-# customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
-# test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
-# comments = ""
+container = "csoproduction"  # TODO: Uncomment when merging with production branch
 
+if container == "csoproduction":
+    CUSTOMER_SAMPLING = False
+else:
+    CUSTOMER_SAMPLING = True
 
-container = "csoproduction"
 storage_account = "conapocv2standardsa.blob.core.windows.net"
 PREFIX = "wasb://" + "@".join([container, storage_account])
 
@@ -54,14 +49,13 @@ monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pd
 monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
 customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
 test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
+VISIT_LIST_LOCATION = "wasb://skuopt@conapocv2standardsa.blob.core.windows.net/AZ_TCAS_VL.csv"
 comments = ""
 
+CUSTOMER_SAMPLING_PERCENTAGE = 1  # has to be within 1
 ###################################################################################################
 # _________________________________________EOF____________________________________________________
 ###################################################################################################
 
 if __name__ == "__main__":
-    print(weekly_pdt_cat_123_location)
-    print(weekly_pdt_cat_7_location)
-    print(monthly_pdt_cat_456_location)
-    print(monthly_pdt_cat_8910_location)
+    print(cat_1.get_product_prop())

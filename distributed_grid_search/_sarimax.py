@@ -5,6 +5,7 @@ from model.error_calculator_distributed_grid_search import weekly_arima_error_ca
 import transform_data.pandas_support_func as pd_func
 from transform_data.data_transform import gregorian_to_iso
 from distributed_grid_search.properties import SARIMAX_W_MODEL_SELECTION_CRITERIA
+from model.save_images import *
 
 
 def _get_pred_dict_sarimax(prediction_series):
@@ -17,9 +18,9 @@ def _get_pred_dict_sarimax(prediction_series):
     return _final
 
 
-def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
-    """
-    function performs fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
+def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwargs):
+    '''
+    function fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
     :param cus_no: customer number
     :param mat_no: material number
@@ -28,13 +29,13 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     :param prod: time series data frame for a material for the given customer
         (structure:- ds: date(datetime), y: quantity(float))
     :param kwargs:
-        min_train_days: minimum training period for the CV to start for the remain test data
-        test_points: number of points ahead to make prediction for the each CV step
-        pred_points: future prediction points
-        pdt_cat: Product category object
+        :min_train_days: minimum training period for the CV to start for the remain test data
+        :test_points: number of points ahead to make prediction for the each CV step
+        :pred_points: future prediction points
+        :pdt_cat: Product category object
     :return: ((cus_no, mat_no),
     (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
-    """
+    '''
     import pandas as pd
     import numpy as np
     import warnings
@@ -56,25 +57,13 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
     else:
         pred_points = p_model.pred_points
 
+    if ('image_dir' in kwargs.keys()):
+        image_dir = kwargs.get('image_dir')
+
     try:
         pdq = pdq
         seasonal_pdq = seasonal_pdq
 
-        ###############################################################
-        # # Uncomment this part of the code to run it locally
-        ###############################################################
-        # data transform
-        # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-        # prod = prod[['ds', 'y']]
-        # prod.ds = prod.ds.apply(str).apply(parser.parse)
-        # prod.y = prod.y.apply(float)
-        # prod = prod.sort_values('ds')
-        # prod = prod.reset_index(drop=True)
-        # # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
-        #
-        # # Remove outlier
-        # prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, sigma= 2.5)
-        ################################################################
 
         ################################################################
         # First split of test and train data
@@ -90,6 +79,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         # train and test set iteratively
         #################################################################
         output_result = pd.DataFrame()  # Data frame to store actual and predicted quantities for cross validation set
+        fit_counter = 0
         while (len(test) > 0):
             # Changing the index to date column to make it model consumable
             train_arima = train.set_index('ds', drop=True)
@@ -119,6 +109,22 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
             ##########################################################################
 
             ##########################################################################
+            # save plots for CV fit and predictions at each CV step
+            ##########################################################################
+            if run_locally == True:
+                pred_train = results.get_prediction(start= np.amin(np.array(train_arima.index)),dynamic=False)
+                result_train = train
+                result_train['y_ARIMA'] = np.array(pred_train.predicted_mean)
+                three_dim_save_plot(x1= prod.ds, y1= prod.y, y1_label= "Actual",
+                                    x2= result_test.ds, y2= result_test.y_ARIMA, y2_label='Predicted',
+                                    x3= result_train.ds, y3= result_train.y_ARIMA, y3_label='Model_fit',
+                                    text="pdq:" + str(pdq) + " pdq_seasonal:" + str(seasonal_pdq),
+                                    xlable= "Date", ylable= "Quantity",
+                                    title= "CV_fit_" + str(fit_counter),
+                                    dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
+            ##########################################################################
+
+            ##########################################################################
             # recreating test and train data set for next step of CV
             ##########################################################################
             train = prod[:(np.amax(np.array(train.index)) + 1 + test_points)]
@@ -128,6 +134,24 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
 
             # appending the cross validation results at each step
             output_result = pd.concat([output_result, result_test], axis=0)
+            fit_counter += 1
+
+        ##############################################################################
+        # save plot for complete CV predictions
+        ##############################################################################
+        if run_locally == True:
+            data_baseline = prod.copy()
+            data_baseline['rolling_mean'] = pd.rolling_mean(data_baseline['y'].shift(), window=6, min_periods=1)
+            baseline_res = data_baseline.loc[-len(output_result):]
+            baseline_res = baseline_res.reset_index(drop=True)
+            three_dim_save_plot(x1 = prod.ds, y1 = prod.y, y1_label= "Actual",
+                              x2 = output_result["ds"], y2= output_result["y_ARIMA"], y2_label= "ARIMA",
+                              x3=baseline_res.ds, y3=baseline_res.rolling_mean, y3_label="Baseline", y3_color='purple',
+                              xlable="Date", ylable="Quantity",
+                              text="pdq:" + str(pdq) + " pdq_seasonal:" + str(seasonal_pdq),
+                              title="Baseline_vs_ARIMA_Prediction",
+                              dir_name=image_dir, cus_no=cus_no, mat_no=mat_no)
+        ##############################################################################
 
         ##############################################################################
         # Model building on complete data set to generate out of sample prediction
@@ -201,3 +225,5 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, **kwargs):
         return "MODEL_NOT_VALID"
     except IndexError:
         return "MODEL_NOT_VALID"
+
+
