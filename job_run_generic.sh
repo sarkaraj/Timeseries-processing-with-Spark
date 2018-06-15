@@ -9,8 +9,8 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 50 \
---driver-memory 3G \
+--num-executors 15 \
+--driver-memory 5G \
 --executor-memory 4G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
