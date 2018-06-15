@@ -9,7 +9,7 @@ spark-submit \
 --master yarn \
 --deploy-mode client \
 --queue tsmdl \
---num-executors 15 \
+--num-executors 30 \
 --driver-memory 5G \
 --executor-memory 4G \
 --executor-cores 2 \
@@ -21,8 +21,9 @@ spark-submit \
 --conf spark.sql.shuffle.partitions=70 \
 --py-files ~/cso_predictor_prod/forecaster.zip \
 ~/cso_predictor_prod/run.py \
-'2018-06-03'
+$model_bld_date
 
-#$model_bld_date
+#'2018-06-03'
+
 
 exit 0
