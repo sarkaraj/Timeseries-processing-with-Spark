@@ -38,7 +38,7 @@ def _run_baseline_moving_average_weekly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('I', 'II', 'III'))
+        .filter(lambda x: x[3].category in ('I', 'II', 'III'))
         # .map(lambda line: _baseline_moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
@@ -58,7 +58,7 @@ def _run_baseline_moving_average_monthly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')  # is of datetime.date type
 
     test_data_input = test_data \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
+        .filter(lambda x: x[3].category in ('IV', 'V', 'VI'))
         # .map(lambda line: _baseline_moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_monthly_results_rdd = test_data_input \
