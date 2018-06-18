@@ -4,7 +4,7 @@ from pyspark.sql import HiveContext
 from run_distributed_arima import _run_dist_arima
 from run_distributed_prophet import _run_dist_prophet
 from run_baseline_ma import _run_baseline_moving_average_weekly
-from support_func import assign_category, get_current_date
+from support_func import assign_category, get_current_date, raw_data_to_weekly_aggregate, remove_outlier, filter_white_noise
 from transform_data.spark_dataframe_func import final_select_dataset
 from properties import MODEL_BUILDING, weekly_pdt_cat_123_location_baseline
 import properties as p
@@ -33,9 +33,13 @@ def build_baseline_prediction_weekly(sc, sqlContext, **kwargs):
 
     print "Querying of Hive Table - Obtaining Product Data for Weekly Models"
     test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
+        .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .filter(lambda x: x[1].category in ('I', 'II', 'III'))
+        .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
+        .map(lambda x: remove_outlier(x)) \
+        .map(lambda x: filter_white_noise(x))\
+        .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
 
     # # Caching Data for current run
     test_data_weekly_models.cache()
