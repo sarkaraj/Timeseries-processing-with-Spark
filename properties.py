@@ -32,8 +32,8 @@ REPARTITION_STAGE_2 = 70
 ###################################################################################################
 # ___________________________________STORAGE LOCATION______________________________________________
 ###################################################################################################
-# container = "csotestenv"
-container = "csoproduction"  # TODO: Uncomment when merging with production branch
+container = "csotestenv"
+# container = "csoproduction"  # TODO: Uncomment when merging with production branch
 
 if container == "csoproduction":
     CUSTOMER_SAMPLING = False
