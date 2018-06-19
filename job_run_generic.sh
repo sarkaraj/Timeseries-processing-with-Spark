@@ -21,7 +21,11 @@ spark-submit \
 --conf spark.sql.shuffle.partitions=70 \
 --py-files ~/cso_predictor_prod/forecaster.zip \
 ~/cso_predictor_prod/run.py \
-$model_bld_date
+'2018-06-17'
+
+# TODO: Uncomment the below line for production
+
+# $model_bld_date
 
 #'2018-06-03'
 
