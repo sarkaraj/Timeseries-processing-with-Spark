@@ -1,13 +1,17 @@
+#!/usr/bin/env bash
+
 #!/bin/bash
 
 model_bld_date=$(date +'%Y-%m-%d')
 
+# echo $model_bld_date
 
 spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
---num-executors 30 \
+--queue tsmdl \
+--num-executors 15 \
 --driver-memory 5G \
 --executor-memory 4G \
 --executor-cores 2 \
@@ -18,9 +22,9 @@ spark-submit \
 --conf spark.speculation.interval=18000 \
 --conf spark.sql.shuffle.partitions=70 \
 --py-files ~/cso_predictor_prod/forecaster.zip \
-~/cso_predictor_prod/run_monthly.py \
+~/cso_predictor_prod_baseline/run_baseline.py \
 '2018-06-03'
 
+#$model_bld_date
 
-# $model_bld_date
 exit 0

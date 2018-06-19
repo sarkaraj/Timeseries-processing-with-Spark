@@ -48,13 +48,13 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
         min_train_days = p_model.min_train_days
 
     # data transform
-    prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-    prod = prod[['ds', 'y']]
-    prod.ds = prod.ds.apply(str).apply(parser.parse)
-    prod.y = prod.y.apply(float)
-    prod = prod.sort_values('ds')
-    prod = prod.reset_index(drop=True)
-    # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
+    # prod = prod.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+    # prod = prod[['ds', 'y']]
+    # prod.ds = prod.ds.apply(str).apply(parser.parse)
+    # prod.y = prod.y.apply(float)
+    # prod = prod.sort_values('ds')
+    # prod = prod.reset_index(drop=True)
+    # # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
     # save plot
     if ('dir_name' in kwargs.keys()):
@@ -63,20 +63,20 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
                           title="raw_weekly_aggregated_quantity",
                           dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
     # Remove outlier
-    if len(prod.y) >= 26:
-        if ('dir_name' in kwargs.keys()):
-            dir_name = kwargs.get('dir_name')
-            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=12, sigma=2.5
-                                      , dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
-        else:
-            prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=12, sigma=2.5)
+    # if len(prod.y) >= 26:
+    #     if ('dir_name' in kwargs.keys()):
+    #         dir_name = kwargs.get('dir_name')
+    #         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=12, sigma=2.5
+    #                                   , dir_name=dir_name, mat_no=mat_no, cus_no=cus_no)
+    #     else:
+    #         prod = ma_replace_outlier(data=prod, n_pass=3, aggressive=True, window_size=12, sigma=2.5)
 
-        # save plot
-        if ('dir_name' in kwargs.keys()):
-            dir_name = kwargs.get('dir_name')
-            one_dim_save_plot(x=prod.ds, y=prod.y, xlable="Date", ylable="quantity",
-                              title="weekly_aggregated_quantity_outlier_replaced",
-                              dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
+        # # save plot
+        # if ('dir_name' in kwargs.keys()):
+        #     dir_name = kwargs.get('dir_name')
+        #     one_dim_save_plot(x=prod.ds, y=prod.y, xlable="Date", ylable="quantity",
+        #                       title="weekly_aggregated_quantity_outlier_replaced",
+        #                       dir_name=dir_name, cus_no=cus_no, mat_no=mat_no)
 
     pred_df = pd.DataFrame()
     pred_df['y'] = prod['y']

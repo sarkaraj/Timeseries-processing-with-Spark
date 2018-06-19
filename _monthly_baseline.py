@@ -3,7 +3,7 @@ from pyspark import SparkContext, SparkConf
 from pyspark.sql import HiveContext
 from run_distributed_prophet_monthly import _run_dist_prophet_monthly
 from run_baseline_ma import _run_baseline_moving_average_monthly
-from support_func import assign_category, get_current_date, _get_last_day_of_previous_month
+from support_func import assign_category, get_current_date, _get_last_day_of_previous_month, raw_data_to_monthly_aggregate, remove_outlier, filter_white_noise
 from properties import MODEL_BUILDING, monthly_pdt_cat_456_location_baseline, monthly_pdt_cat_8910_location
 import properties as p
 from pyspark.sql.functions import *
@@ -32,9 +32,13 @@ def build_baseline_prediction_monthly(sc, sqlContext, **kwargs):
 
     print ("Querying of Hive Table - Obtaining Product Data for Monthly Models")
     test_data_monthly_model = get_data_monthly(sqlContext=sqlContext, month_cutoff_date=month_cutoff_date) \
+        .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
-        .filter(lambda x: x[1].category in ('IV', 'V', 'VI'))
+        .map(lambda x: raw_data_to_monthly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
+        .map(lambda x: remove_outlier(x)) \
+        .map(lambda x: filter_white_noise(x))\
+        .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VIII', 'IX', 'X'))
 
     # # Caching Data for this run
     test_data_monthly_model.cache()
