@@ -1,7 +1,7 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
 import product_class.properties as p
 
-WRITE_MODE = "append"  # TODO: Change it to 'append' when merging with production branch
+WRITE_MODE = "overwrite"  # TODO: Change it to 'append' when merging with production branch
 
 _model_bld_date_string_list = ['2017-10-01']
 
@@ -32,8 +32,8 @@ REPARTITION_STAGE_2 = 70
 ###################################################################################################
 # ___________________________________STORAGE LOCATION______________________________________________
 ###################################################################################################
-# container = "csotestenv"
-container = "csoproduction"  # TODO: Uncomment when merging with production branch
+container = "csotestenv"
+# container = "csoproduction"  # TODO: Uncomment when merging with production branch
 
 if container == "csoproduction":
     CUSTOMER_SAMPLING = False
@@ -45,8 +45,8 @@ PREFIX = "wasb://" + "@".join([container, storage_account])
 
 weekly_pdt_cat_123_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123"
 weekly_pdt_cat_7_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_7"
-monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456"
-monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_8910"
+monthly_pdt_cat_456_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/archive/monthly_pdt_cat_456"  # TODO: Remove 'archive'
+monthly_pdt_cat_8910_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/archive/monthly_pdt_cat_8910"  # TODO: Remove 'archive'
 customer_data_location = PREFIX + "/CONA_CSO/CCBCC_Consolidated/customer_data"
 test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
 VISIT_LIST_LOCATION = "wasb://skuopt@conapocv2standardsa.blob.core.windows.net/AZ_TCAS_VL.csv"
