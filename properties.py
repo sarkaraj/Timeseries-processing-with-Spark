@@ -52,10 +52,14 @@ test_delivery_routes = PREFIX + "/CONA_CSO/CCBCC_Consolidated/test_delivery_rout
 VISIT_LIST_LOCATION = "wasb://skuopt@conapocv2standardsa.blob.core.windows.net/AZ_TCAS_VL.csv"
 comments = ""
 
+weekly_pdt_cat_123_location_baseline = PREFIX + "/CONA_CSO/CCBCC_Consolidated/weekly_pdt_cat_123_baseline"
+monthly_pdt_cat_456_location_baseline = PREFIX + "/CONA_CSO/CCBCC_Consolidated/monthly_pdt_cat_456_baseline"
+
 CUSTOMER_SAMPLING_PERCENTAGE = 1  # has to be within 1
 ###################################################################################################
 # _________________________________________EOF____________________________________________________
 ###################################################################################################
+
 
 if __name__ == "__main__":
     print(cat_1.get_product_prop())
