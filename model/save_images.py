@@ -28,6 +28,19 @@ def two_dim_save_plot(x1, y1, y1_label,
     plt.ylabel(ylable)
     plt.legend()
 
+    from dateutil import parser
+    start = parser.parse('20180101')
+    end = parser.parse('20180228')
+    print(start)
+    ax = plt.subplot()
+    # import matplotlib.transforms as mtransforms
+    # trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
+
+    # ax.fill_between(x= x2, y0 = 0, y1 = 1, facecolor='green', alpha=0.5)
+    # ax.plot(range(20))
+    ax.axvspan(start, end, alpha=0.1, color='green')
+
+
     save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
