@@ -3,6 +3,7 @@ import pandas as pd
 from dateutil import parser
 from matplotlib.pylab import rcParams
 from transform_data.data_transform import get_weekly_aggregate, get_monthly_aggregate
+from model.save_images import *
 # import time
 rcParams['figure.figsize'] = 15, 6
 
@@ -133,41 +134,89 @@ print(route_promotions_data.head())
 print(route_promotions_data.dtypes)
 print('###########################################################\n')
 
-for i in range(len(cv_result)):
+# filter spnd type ZEDV
+route_promotions_data_non_ZEDV = route_promotions_data[route_promotions_data['Spnd Type'] != 'ZEDV']
+route_promotions_data_ZEDV = route_promotions_data[route_promotions_data['Spnd Type'] == 'ZEDV']
+print("non ZEDV Promotions Data:\n")
+print(route_promotions_data_non_ZEDV.head())
+print(len(route_promotions_data_non_ZEDV))
 
-    cus_no = cv_result['customernumber'][i]
-    mat_no = cv_result['mat_no'][i]
+# temp: zedv data eda
+print(route_promotions_data_ZEDV.dtypes)
+route_promotions_data_ZEDV.loc['Plnd_Start_date'] = route_promotions_data_ZEDV['Plnd Start'].apply(str).apply(parser.parse)
+route_promotions_data_ZEDV.loc['Plan_Fin_date'] = route_promotions_data_ZEDV['Plan Fin'].apply(str).apply(parser.parse)
 
-    #####################-- obtaining per combination aggregated invoices data --##################
-    ## for weekly it has to be sunday, monthly last dte of month
-    mdl_cutoff_date = parser.parse("2018-06-17")
+route_promotions_data_ZEDV.loc['promo_period'] = route_promotions_data_ZEDV.apply(lambda x: (x['Plan_Fin_date'] - x['Plnd_Start_date']).days)
 
-    # filtering data
-    cus = raw_data[raw_data.customernumber == cus_no]
-    prod = cus[cus.matnr == mat_no]
+print(route_promotions_data_ZEDV)
+# print(route_promotions_data_non_ZEDV.groupby(['Spnd Type'])['Spnd Type'].count())
 
-    prod.date = prod.date.apply(str).apply(parser.parse)
-    prod.quantity = prod.quantity.apply(float)
-    prod = prod.sort_values('date')
-    prod = prod.reset_index(drop=True)
+# for i in range(len(cv_result)):
+#
+#     cus_no = cv_result['customernumber'][i]
+#     mat_no = cv_result['mat_no'][i]
+#
+#     #####################-- obtaining per combination aggregated invoices data --#####################
+#     ## for weekly it has to be sunday, monthly last date of month
+#     mdl_cutoff_date = parser.parse("2018-06-17")
+#
+#     # filtering data
+#     cus = raw_data[raw_data.customernumber == cus_no]
+#     prod = cus[cus.matnr == mat_no]
+#
+#     prod.date = prod.date.apply(str).apply(parser.parse)
+#     prod.quantity = prod.quantity.apply(float)
+#     prod = prod.sort_values('date')
+#     prod = prod.reset_index(drop=True)
+#
+#     prod = prod.loc[prod['quantity'] >= 0.0]
+#     prod = prod.loc[prod['date'] <= mdl_cutoff_date]
+#
+#     # artificially adding 0.0 at mdl cutoff date to get the aggregate right
+#     lst_point = pd.DataFrame({'customernumber': [cus_no], 'matnr': [mat_no], 'date': [mdl_cutoff_date],
+#                               'quantity': [0.0], 'q_indep_p': [0.0]})
+#
+#     prod = prod.append(lst_point, ignore_index=True)
+#     prod = prod.reset_index(drop=True)
+#
+#     data_w_agg = get_weekly_aggregate(inputDF=prod)
+#     data_w_agg = data_w_agg.sort_values('dt_week')
+#     print("Weekly aggregated data:\n")
+#     print(data_w_agg)
+#     print("#####################################################\n")
+#
+#     data_w_agg = data_w_agg[['dt_week', 'quantity']]
+#     data_w_agg = data_w_agg.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+#
+#     data_w_agg.ds = data_w_agg.ds.apply(str).apply(parser.parse)
+#     data_w_agg.y = data_w_agg.y.apply(float)
+#     data_w_agg = data_w_agg.sort_values('ds')
+#     data_w_agg = data_w_agg.reset_index(drop=True)
+#
+#     #####################-- obtaining promotions data per combination --##################
+#
+#     cus_promo = route_promotions_data_non_ZEDV[route_promotions_data['Business Partner'] == cus_no]
+#     prod_promo = cus_promo[cus_promo['Product ID'] == mat_no]
+#
+#     prod_promo['Plnd Start'] = prod_promo['Plnd Start'].apply(parser.parse)
+#     prod_promo['Plan Fin'] = prod_promo['Plan Fin'].apply(parser.parse)
+#
+#     prod_promo = prod_promo[prod_promo['Plan Fin'] >= min(data_w_agg['ds'])]
+#
+#     print("Cus-Mat Promotions Data:\n")
+#     print(prod_promo[['Business Partner', 'Product ID', 'Plnd Start', 'Plan Fin', 'Spend Method', 'Spnd Type']].head())
+#     print("#####################################################\n")
+#
+#     promotions_save_plots(x= data_w_agg.ds, y = data_w_agg.y,
+#                           xlable= "Date", ylable= "Quantity",
+#                           promo_count= len(prod_promo), start_day_list= np.array(prod_promo['Plnd Start']),
+#                           end_day_list= np.array(prod_promo['Plan Fin']), spnd_type= np.array(prod_promo['Spnd Type']),
+#                           title= "Promotions_Periods",dir_name= image_dir, cus_no= cus_no, mat_no= mat_no)
 
-    prod = prod.loc[prod['quantity'] >= 0.0]
-    prod = prod.loc[prod['date'] <= mdl_cutoff_date]
 
-    # artificially adding 0.0 at mdl cutoff date to get the aggregate right
-    lst_point = pd.DataFrame({'customernumber': [cus_no], 'matnr': [mat_no], 'date': [mdl_cutoff_date],
-                              'quantity': [0.0], 'q_indep_p': [0.0]})
 
-    prod = prod.append(lst_point, ignore_index=True)
-    prod = prod.reset_index(drop=True)
 
-    data_w_agg = get_weekly_aggregate(inputDF=prod)
-    data_w_agg = data_w_agg.sort_values('dt_week')
-    print("Weekly aggregated data:\n")
-    print(data_w_agg)
-    print("#####################################################\n")
 
-    #####################-- obtaining promotions data per combination --##################
 
 
 

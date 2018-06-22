@@ -2,6 +2,7 @@ import os
 import matplotlib.pylab as plt
 # %matplotlib inline
 from matplotlib.pylab import rcParams
+import matplotlib.patches as mpatches
 rcParams['figure.figsize'] = 15, 6
 
 # 2d Image saver function
@@ -29,16 +30,18 @@ def two_dim_save_plot(x1, y1, y1_label,
     plt.legend()
 
     from dateutil import parser
-    start = parser.parse('20180101')
-    end = parser.parse('20180228')
+    start = [parser.parse('20180101'), parser.parse('20180201')]
+    end = [parser.parse('20180228'), parser.parse('20180328')]
     print(start)
     ax = plt.subplot()
+
+    for i in range(2):
     # import matplotlib.transforms as mtransforms
     # trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
 
     # ax.fill_between(x= x2, y0 = 0, y1 = 1, facecolor='green', alpha=0.5)
     # ax.plot(range(20))
-    ax.axvspan(start, end, alpha=0.1, color='green')
+        ax.axvspan(start[i], end[i], alpha=0.1, color='#C0392B')
 
 
     save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
@@ -171,5 +174,36 @@ def weekly_ensm_model_error_plots(output_result, dir_name, cus_no, mat_no):
 
     save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_twelveweek_rolling_error.png")
 
+    plt.savefig(save_file, bbox_inches='tight')
+    plt.close(fig)
+
+def promotions_save_plots(x, y,
+                          xlable, ylable,
+                          promo_count, start_day_list, end_day_list, spnd_type,
+                          title, dir_name, cus_no, mat_no):
+    fig = plt.figure()
+    plt.plot(x, y, marker="*", markerfacecolor="red", markeredgecolor="red", markersize=3.0)
+    plt.title(title)
+    plt.xlabel(xlable)
+    plt.ylabel(ylable)
+    # plt.legend()
+    spnd_type_col = {'ZCMG' : '#7B241C', 'ZCPI' : '#C0392B', 'ZEDV': '#DAF7A6', 'ZEPI': '#FFC300',
+                     'ZTLS': '#FF5733', 'ZVOL': '#C70039'}
+
+    # colors = ['#7B241C', '#C0392B', '#DAF7A6', '#FFC300', '#FF5733', '#C70039']
+    all_patch = []
+    promo_type = []
+    ax = plt.subplot()
+    for i in range(promo_count):
+        ax.axvspan(start_day_list[i], end_day_list[i], alpha=0.1, color= spnd_type_col.get(spnd_type[i]))
+
+        if spnd_type[i] not in promo_type:
+            promo_type = promo_type + [spnd_type[i]]
+            patch = mpatches.Patch(color= spnd_type_col.get(spnd_type[i]), label= spnd_type[i])
+            all_patch = all_patch + [patch]
+
+    plt.legend(handles= all_patch)
+
+    save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)

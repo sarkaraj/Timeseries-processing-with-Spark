@@ -15,7 +15,7 @@ file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
 cv_result_dir = "C:\\CONA_CSO\\thadeus_route\\cv_result\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\weekly_wre_12\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\temp\\"
 
 raw_data = pd.read_csv(file_dir + "raw_invoices_2018-06-19.tsv",
                        sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
