@@ -1,11 +1,7 @@
-from pyspark import SparkContext, SparkConf
-from pyspark.sql import HiveContext, SparkSession, SQLContext
-from support_func import get_current_date, get_sample_customer_list, obtain_mdl_bld_dt
-from properties import MODEL_BUILDING
+from pyspark.sql import SparkSession
 from _weekly_products import build_prediction_weekly
-import properties as p
-# from _monthly_products import build_prediction_monthly
 import time
+import sys
 
 
 def run_weekly(sc, sqlContext, _model_bld_date_string):
@@ -20,7 +16,12 @@ def run_weekly(sc, sqlContext, _model_bld_date_string):
 
 
 if __name__ == "__main__":
-    ####################################################################################################################
+    from support_func import get_current_date, get_sample_customer_list, date_check
+    from properties import MODEL_BUILDING
+    import properties as p
+
+    ##############################################################################################
+
 
     # Getting Current Date Time for AppName
     appName = "_".join([MODEL_BUILDING, "WEEKLY", get_current_date()])
@@ -40,17 +41,15 @@ if __name__ == "__main__":
     print ("Setting LOG LEVEL as ERROR")
     sc.setLogLevel("ERROR")
 
-    print ("Adding forecaster.zip to system path")
-    import sys
-
-    sys.path.insert(0, "forecaster.zip")
-
     mdl_bld_date_string = ["".join(sys.argv[1])]
-    _model_bld_date_string = mdl_bld_date_string[0]
+    _model_bld_date_string_stg = mdl_bld_date_string[0]
+    _model_bld_date_string, if_first_sunday_of_month = date_check(_model_bld_date_string_stg)
+
+    print ("Weekly Run")
+    print ("Importing Sample Customer List")
 
     comments = " ".join(["Weekly-Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()])
 
-    print ("Importing Customer List")
     get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
                              comments=comments,
                              module="weekly")

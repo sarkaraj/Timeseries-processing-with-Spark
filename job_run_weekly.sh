@@ -4,45 +4,26 @@
 #for date_string in '2017-07-23' '2017-07-30' '2017-08-06' '2017-08-13' '2017-08-20' '2017-08-27'
 #  '2018-04-08'
 
-for date_string in '2018-06-03'
+for date_string in '2018-06-03' '2018-06-10' '2018-06-17'
 {
-echo $date_string
 spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
---queue tsmdl \
---num-executors 15 \
+--num-executors 30 \
 --driver-memory 5G \
---executor-memory 2G \
+--executor-memory 4G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \
 --conf spark.speculation.multiplier=1.5 \
 --conf spark.speculation.quantile=0.9 \
 --conf spark.speculation.interval=18000 \
---py-files ~/cso_predictor_w/forecaster.zip \
-~/cso_predictor_w/run_weekly.py \
+--conf spark.sql.shuffle.partitions=70 \
+--py-files ~/cso_predictor_prod/forecaster.zip \
+~/cso_predictor_prod/run_weekly.py \
 $date_string
 }
+
+
 exit 0
-
-
-
-# spark-submit \
-# --master yarn \
-# --deploy-mode client \
-# --supervise \
-# --queue tsmdl \
-# --driver-memory 10G \
-# --executor-memory 4G \
-# --num-executors 30 \
-# --executor-cores 1 \
-# --conf spark.dynamicAllocation.enabled=false \
-# --conf spark.speculation=true \
-# --conf spark.speculation.multiplier=3 \
-# --conf spark.speculation.quantile=0.9 \
-# --conf spark.speculation.interval=900000 \
-# --py-files ~/cso_predictor/forecaster.zip \
-# ~/cso_predictor/_monthly_products.py \
-# $date_string

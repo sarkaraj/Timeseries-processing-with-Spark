@@ -1,7 +1,7 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
 import product_class.properties as p
 
-WRITE_MODE = "overwrite"  # TODO: Change it to 'append' when merging with production branch
+WRITE_MODE = "append"  # TODO: Change it to 'append' when merging with production branch
 
 _model_bld_date_string_list = ['2017-10-01']
 
