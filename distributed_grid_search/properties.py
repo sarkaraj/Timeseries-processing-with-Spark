@@ -11,7 +11,7 @@ pred_points_monthly = 2
 p_Weekly_lower_limit = 3
 p_Weekly_upper_limit = 6  # point is excluded
 d_Weekly_lower_limit = 0
-d_Weekly_upper_limit = 2  # point is excluded
+d_Weekly_upper_limit = 3  # point is excluded
 q_Weekly_lower_limit = 0
 q_Weekly_upper_limit = 3  # point is excluded
 
@@ -26,7 +26,7 @@ GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY = 25
 ################WEEKLY################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-SARIMAX_W_MODEL_SELECTION_CRITERIA = 'wre_mean_12'
+SARIMAX_W_MODEL_SELECTION_CRITERIA = 'rmse'
 
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################
@@ -44,7 +44,7 @@ PROPH_W_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT = 10  # # Point is EXCLUSIVE
 PROPH_W_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 4
 
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_mean_12'
+PROPH_W_MODEL_SELECTION_CRITERIA = 'rmse'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 
@@ -67,7 +67,7 @@ c_tsquare_max_M = 0
 ################Monthly################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-SARIMAX_M_MODEL_SELECTION_CRITERIA = 'mre_mean_4'
+SARIMAX_M_MODEL_SELECTION_CRITERIA = 'rmse'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 #  PROPHET MONTHLY PARAMETERS - Actual LOWER_LIMIT and UPPER_LIMIT is PROPH_M_SEASONALITY_PRIOR_SCALE_LOWER_LIMIT / 10.0
