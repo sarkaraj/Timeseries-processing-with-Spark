@@ -1,3 +1,6 @@
+# import pandas as pd
+from transform_data.data_transform import *
+
 holidays_list = """ds,holiday,lower_window,upper_window
 1/2/2012,New Year Day,15,1
 5/28/2012,Memorial Day,15,1
@@ -74,8 +77,58 @@ def get_holidays_dataframe_pd(_list=holidays_list):
 
     return holidays
 
+def get_holidays_sarimax(_holiday_df = get_holidays_dataframe_pd(_list=holidays_list)):
+    import pandas as pd
+    _holidays = _holiday_df
+    _holidays['week_before'] = _holidays['ds'] + pd.DateOffset(days = -7)
+    _holidays['week_after'] = _holidays['ds'] + pd.DateOffset(days = 7)
+
+    _holidays_cw = _holidays[['ds', 'holiday']].reset_index(drop= True)
+    _holidays_wb = _holidays[['week_before', 'holiday']].rename(columns={'week_before': 'ds'})
+    _holidays_wb['holiday'] = _holidays_wb['holiday'].apply(lambda x: "Pre " + x)
+    _holidays_wa = _holidays[['week_after', 'holiday']].rename(columns = {'week_after': 'ds'})
+    _holidays_wa['holiday'] = _holidays_wa['holiday'].apply(lambda x: "Post " + x)
+
+    _holidays_window = pd.concat([_holidays_cw,_holidays_wb, _holidays_wa], axis= 0, ignore_index=True, verify_integrity= True)
+    _holidays_window = _holidays_window.sort_values(by = ['ds', 'holiday'])
+    _holidays_window = _holidays_window.reset_index(drop=True)
+    return _holidays_window
+
+def generate_sarimax_holiday_input_data(ts_date_df, _holiday = get_holidays_sarimax()):
+    import datetime
+    import pandas as pd
+    ts_date_df['year_week'] = ts_date_df['ds'].apply(str).apply(lambda x: x.split(" ")[0])\
+        .apply(lambda x: string_to_gregorian(x)).apply(lambda x: str(
+        x.isocalendar()[0]) + "-" + str(x.isocalendar()[1]))
+    _holiday['year_week'] = _holiday['ds'].apply(str).apply(lambda x: x.split(" ")[0]) \
+        .apply(lambda x: string_to_gregorian(x)).apply(
+        lambda x: str(x.isocalendar()[0]) + "-" + str(x.isocalendar()[1]))
+    _holidays_weeks = _holiday.drop('ds', axis = 1)
+    _holidays_weeks.holiday = _holidays_weeks.holiday.astype('category')
+    _holidays_dummy = pd.get_dummies(_holidays_weeks.holiday)
+    _holidays_weeks_dummy = pd.concat([_holidays_weeks.drop('holiday', axis = 1), _holidays_dummy], axis= 1)
+    _holidays_weeks_agg = _holidays_weeks_dummy.groupby(['year_week'], as_index=False).sum()
+    sarimax_holiday_input = pd.merge(ts_date_df, _holidays_weeks_agg, how='left', left_on=['year_week'],
+                                     right_on=['year_week'])
+    return sarimax_holiday_input.drop('year_week', axis = 1)
 
 if __name__ == "__main__":
+    import pandas as pd
+    from dateutil import parser
     # print(get_holidays_dataframe_pd(_list=holidays_list))
-    df = get_holidays_dataframe_pd(_list=holidays_list)
-    print(df["holiday"].unique())
+    # df = get_holidays_dataframe_pd(_list=holidays_list)
+    # print(df["holiday"].unique())
+
+    df = get_holidays_sarimax()
+
+    t = {'ds': ["2018-01-02", "2018-01-09"], 'quantity': [3, 4]}
+    ts = pd.DataFrame(data=t)
+    ts.ds = ts.ds.apply(str).apply(parser.parse)
+    ts.quantity = ts.quantity.apply(float)
+
+    ts_data = generate_sarimax_holiday_input_data(ts_date_df= ts)
+    # df_new = pd.DataFrame(df)
+    # df_new = df_new.sort_values['ds']
+    print(ts_data.set_index('ds', drop=True).values.astype('float'))
+    # print((df.sort_values(by=['ds','holiday'])))
+    # print(df.tail(50))

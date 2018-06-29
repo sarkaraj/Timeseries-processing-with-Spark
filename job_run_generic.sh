@@ -22,9 +22,7 @@ spark-submit \
 ~/cso_predictor_prod/run.py \
 $model_bld_date
 
-
-
-#'2018-06-03'
+# '2018-06-03'
 # --queue tsmdl \
 
 exit 0
