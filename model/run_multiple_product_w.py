@@ -15,19 +15,25 @@ file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
 cv_result_dir = "C:\\CONA_CSO\\thadeus_route\\cv_result\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\temp\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\w_rmse\\"
 
-raw_data = pd.read_csv(file_dir + "raw_invoices_2018-06-19.tsv",
+raw_data = pd.read_csv(file_dir + "raw_invoices_till_2018-06-24.tsv",
                        sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 
-m_cv_result = pd.read_csv(cv_result_dir + "cat_123_2018-06-19.tsv",
-                          sep= "\t", header=0)
+m_cv_result = pd.read_csv(cv_result_dir + "cat_123_results_2018-06-27.tsv",
+                          sep= "\t", header=None, names= ["customernumber", "mat_no", "rmse", "cum_error_ar",
+                                                          "period_days_ar", "wre_max_12_ar", "wre_med_12_ar",
+                                                          "wre_mean_12_ar", "wre_max_6_ar", "wre_med_6_ar",
+                                                          "wre_mean_6_ar", "seasonal_pdq", "pdq", "quantity_mean_6",
+                                                          "quantity_mean_12", "cum_quantity", "cat", "mdl_bld_dt"])
+
+m_cv_result['arima_params'] = "{seasonal_pdq:[" + m_cv_result['seasonal_pdq'].map(str) + "], pdq:[" + m_cv_result['pdq'].map(str) + "]}"
 
 print("Raw Data Head:\n")
 print(raw_data.head())
 
 print("Monthly CV Result:\n")
-print(m_cv_result.dtypes)
+print(m_cv_result.head())
 
 # print(m_cv_result.arima_params)
 

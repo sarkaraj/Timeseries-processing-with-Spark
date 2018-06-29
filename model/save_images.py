@@ -35,15 +35,6 @@ def two_dim_save_plot(x1, y1, y1_label,
     print(start)
     ax = plt.subplot()
 
-    for i in range(2):
-    # import matplotlib.transforms as mtransforms
-    # trans = mtransforms.blended_transform_factory(ax.transData, ax.transAxes)
-
-    # ax.fill_between(x= x2, y0 = 0, y1 = 1, facecolor='green', alpha=0.5)
-    # ax.plot(range(20))
-        ax.axvspan(start[i], end[i], alpha=0.1, color='#C0392B')
-
-
     save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
@@ -177,30 +168,45 @@ def weekly_ensm_model_error_plots(output_result, dir_name, cus_no, mat_no):
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
 
-def promotions_save_plots(x, y,
-                          xlable, ylable,
-                          promo_count, start_day_list, end_day_list, spnd_type,
-                          title, dir_name, cus_no, mat_no):
+def promotions_and_holidays_save_plots(x, y,
+                                       xlable, ylable,
+                                       promo_count, start_day_list, end_day_list, spnd_type,
+                                       holidays_count, holiday_start_day_list, holidays_end_day_list, holiday_name,
+                                       title, dir_name, cus_no, mat_no,
+                                       plot_type = "holidays"):
     fig = plt.figure()
     plt.plot(x, y, marker="*", markerfacecolor="red", markeredgecolor="red", markersize=3.0)
     plt.title(title)
     plt.xlabel(xlable)
     plt.ylabel(ylable)
-    # plt.legend()
+
     spnd_type_col = {'ZCMG' : '#7B241C', 'ZCPI' : '#C0392B', 'ZEDV': '#DAF7A6', 'ZEPI': '#FFC300',
                      'ZTLS': '#FF5733', 'ZVOL': '#C70039'}
 
-    # colors = ['#7B241C', '#C0392B', '#DAF7A6', '#FFC300', '#FF5733', '#C70039']
-    all_patch = []
-    promo_type = []
-    ax = plt.subplot()
-    for i in range(promo_count):
-        ax.axvspan(start_day_list[i], end_day_list[i], alpha=0.1, color= spnd_type_col.get(spnd_type[i]))
+    holiday_col = {'New Year Day' : '#E6194B', 'Memorial Day' : '#3CB44B', 'Independence Day' : '#FFE119',
+                   'Labor Day' : '#0082C8', 'Thanksgiving Day' : '#F58231', 'Christmas Day' : '#911EB4'}
 
-        if spnd_type[i] not in promo_type:
-            promo_type = promo_type + [spnd_type[i]]
-            patch = mpatches.Patch(color= spnd_type_col.get(spnd_type[i]), label= spnd_type[i])
-            all_patch = all_patch + [patch]
+    ax = plt.subplot()
+    all_patch = []
+    if (plot_type == "promotions"):
+        promo_type = []
+        for i in range(promo_count):
+            ax.axvspan(start_day_list[i], end_day_list[i], alpha=0.1, color= spnd_type_col.get(spnd_type[i]))
+
+            if spnd_type[i] not in promo_type:
+                promo_type = promo_type + [spnd_type[i]]
+                patch = mpatches.Patch(color= spnd_type_col.get(spnd_type[i]), label= spnd_type[i])
+                all_patch = all_patch + [patch]
+
+    elif (plot_type == "holidays"):
+        holiday_type = []
+        for j in range(holidays_count):
+            ax.axvspan(holiday_start_day_list.iloc[j], holidays_end_day_list.iloc[j], alpha=0.1, color=holiday_col.get(holiday_name[j]))
+
+            if holiday_name[j] not in holiday_type:
+                holiday_type = holiday_type + [holiday_name[j]]
+                patch = mpatches.Patch(color=holiday_col.get(holiday_name[j]), label=holiday_name[j])
+                all_patch = all_patch + [patch]
 
     plt.legend(handles= all_patch)
 
