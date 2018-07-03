@@ -22,9 +22,9 @@ print("Raw Data Head:\n")
 print(raw_data.head())
 # User Input
 ###########################################################
-cus_no = 500097312
+cus_no = 500073843
  #500057580 #500072487 #500068490(m)
-mat_no = 119826
+mat_no = 100278
  #119826 #132218 #144484(m)
 
 # compare w: wre_12: 500096578 100285 (5,0,1), 500067084 119826 (5,2,2),
@@ -35,7 +35,7 @@ mdl_cutoff_date = parser.parse("2018-06-03") #"2018-06-03"
 weekly_model = True
 monthly_model = False
 
-pdq = (3,0,1)
+pdq = (0,1,1)
 pdq_seasonal = (0,0,0,52) # period is 52 and 12 for monthly and weekly respectively
 trend = [0,0,0] # only applicable for monthly model
 ############################################################
