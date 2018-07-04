@@ -360,5 +360,5 @@ def generate_models_pydlm_monthly(x):
 
 
 if __name__ == '__main__':
-    print (len(generate_all_param_combo_sarimax(category="II")))
+    print (generate_all_param_combo_sarimax(category="II"))
     print (len((generate_all_param_combo_sarimax_monthly(category="V"))))
