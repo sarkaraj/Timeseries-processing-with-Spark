@@ -11,7 +11,7 @@ pred_points_monthly = 2
 p_Weekly_lower_limit = 3
 p_Weekly_upper_limit = 6  # point is excluded
 d_Weekly_lower_limit = 0
-d_Weekly_upper_limit = 3  # point is excluded
+d_Weekly_upper_limit = 2  # point is excluded
 q_Weekly_lower_limit = 0
 q_Weekly_upper_limit = 3  # point is excluded
 

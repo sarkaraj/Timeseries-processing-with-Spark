@@ -11,8 +11,8 @@ def generate_all_param_combo_sarimax(**kwargs):
     from math import ceil
 
     # TODO: Uncomment the below line
-    # param_p = range(p.p_Weekly_lower_limit, p.p_Weekly_upper_limit)
-    param_p = [0, 3, 4, 5]
+    param_p = range(p.p_Weekly_lower_limit, p.p_Weekly_upper_limit)
+    # param_p = [0, 3, 4, 5]
     param_q = range(p.q_Weekly_lower_limit, p.q_Weekly_upper_limit)
     param_d = range(p.d_Weekly_lower_limit, p.d_Weekly_upper_limit)
 
