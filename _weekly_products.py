@@ -57,6 +57,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
     arima_results \
+        .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -77,6 +78,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the MA WEEKLY data into HDFS\n")
     ma_weekly_results_df_final \
+        .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
