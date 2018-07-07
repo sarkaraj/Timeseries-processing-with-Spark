@@ -71,6 +71,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print ("Writing the MONTHLY MODEL data into HDFS")
     arima_monthly_results_final \
+        .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -91,6 +92,7 @@ def build_prediction_monthly(sc, sqlContext, **kwargs):
 
     print "Writing the MA MONTHLY data into HDFS\n"
     ma_monthly_results_df_final \
+        .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
