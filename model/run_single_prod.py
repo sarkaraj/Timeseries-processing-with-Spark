@@ -22,21 +22,22 @@ print("Raw Data Head:\n")
 print(raw_data.head())
 # User Input
 ###########################################################
-cus_no = 500097312
+cus_no = 500075185
+
  #500057580 #500072487 #500068490(m)
-mat_no = 119826
+mat_no = 126073
  #119826 #132218 #144484(m)
 
 # compare w: wre_12: 500096578 100285 (5,0,1), 500067084 119826 (5,2,2),
 # compare m: rmse: 500057578 100287 (2,0,0), 500068482 132540 (2,0,0)
 # example to show seasonal effect 500269279 135573(m)
 ## for weekly it has to be sunday, monthly last dte of month
-mdl_cutoff_date = parser.parse("2018-06-03") #"2018-06-03"
-weekly_model = True
-monthly_model = False
+mdl_cutoff_date = parser.parse("2018-05-31") #"2018-06-03"
+weekly_model = False
+monthly_model = True
 
-pdq = (3,0,1)
-pdq_seasonal = (0,0,0,52) # period is 52 and 12 for monthly and weekly respectively
+pdq = (0,1,1)
+pdq_seasonal = (0,0,0,12) # period is 52 and 12 for monthly and weekly respectively
 trend = [0,0,0] # only applicable for monthly model
 ############################################################
 

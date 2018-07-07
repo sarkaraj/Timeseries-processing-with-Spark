@@ -10,7 +10,9 @@ import numpy as np
 def generate_all_param_combo_sarimax(**kwargs):
     from math import ceil
 
-    param_p = range(p.p_Weekly_lower_limit, p.p_Weekly_upper_limit)
+    # TODO: Uncomment the below line
+    # param_p = range(p.p_Weekly_lower_limit, p.p_Weekly_upper_limit)
+    param_p = [0, 3, 4, 5]
     param_q = range(p.q_Weekly_lower_limit, p.q_Weekly_upper_limit)
     param_d = range(p.d_Weekly_lower_limit, p.d_Weekly_upper_limit)
 
@@ -358,5 +360,5 @@ def generate_models_pydlm_monthly(x):
 
 
 if __name__ == '__main__':
-    print (len(generate_all_param_combo_sarimax(category="II")))
+    print (generate_all_param_combo_sarimax(category="II"))
     print (len((generate_all_param_combo_sarimax_monthly(category="V"))))
