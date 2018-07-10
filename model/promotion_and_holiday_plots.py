@@ -169,77 +169,84 @@ print('###########################################################\n')
 
 # print(route_promotions_data_non_ZEDV.groupby(['Spnd Type'])['Spnd Type'].count())
 
-for i in range(len(cv_result)):
 
-    cus_no = cv_result['customernumber'][i]
-    mat_no = cv_result['mat_no'][i]
+############################################################################################
+# plot holidays and promotion er customer product
+############################################################################################
+# for i in range(len(cv_result)):
+#
+#     cus_no = cv_result['customernumber'][i]
+#     mat_no = cv_result['mat_no'][i]
+#
+#     #####################-- obtaining per combination aggregated invoices data --#####################
+#     ## for weekly it has to be sunday, monthly last date of month
+#     mdl_cutoff_date = parser.parse("2018-06-17")
+#
+#     # filtering data
+#     cus = raw_data[raw_data.customernumber == cus_no]
+#     prod = cus[cus.matnr == mat_no]
+#
+#     prod.date = prod.date.apply(str).apply(parser.parse)
+#     prod.quantity = prod.quantity.apply(float)
+#     prod = prod.sort_values('date')
+#     prod = prod.reset_index(drop=True)
+#
+#     prod = prod.loc[prod['quantity'] >= 0.0]
+#     prod = prod.loc[prod['date'] <= mdl_cutoff_date]
+#
+#     # artificially adding 0.0 at mdl cutoff date to get the aggregate right
+#     lst_point = pd.DataFrame({'customernumber': [cus_no], 'matnr': [mat_no], 'date': [mdl_cutoff_date],
+#                               'quantity': [0.0], 'q_indep_p': [0.0]})
+#
+#     prod = prod.append(lst_point, ignore_index=True)
+#     prod = prod.reset_index(drop=True)
+#
+#     data_w_agg = get_weekly_aggregate(inputDF=prod)
+#     data_w_agg = data_w_agg.sort_values('dt_week')
+#     print("Weekly aggregated data:\n")
+#     print(data_w_agg)
+#     print("#####################################################\n")
+#
+#     data_w_agg = data_w_agg[['dt_week', 'quantity']]
+#     data_w_agg = data_w_agg.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
+#
+#     data_w_agg.ds = data_w_agg.ds.apply(str).apply(parser.parse)
+#     data_w_agg.y = data_w_agg.y.apply(float)
+#     data_w_agg = data_w_agg.sort_values('ds')
+#     data_w_agg = data_w_agg.reset_index(drop=True)
+#
+#     #####################-- obtaining promotions data per combination --########################
+#
+#     cus_promo = route_promotions_data_non_ZEDV[route_promotions_data['Business Partner'] == cus_no]
+#     prod_promo = cus_promo[cus_promo['Product ID'] == mat_no]
+#
+#     prod_promo['Plnd Start'] = prod_promo['Plnd Start'].apply(parser.parse)
+#     prod_promo['Plan Fin'] = prod_promo['Plan Fin'].apply(parser.parse)
+#
+#     prod_promo = prod_promo[prod_promo['Plan Fin'] >= min(data_w_agg['ds'])]
+#
+#     print("Cus-Mat Promotions Data:\n")
+#     print(prod_promo[['Business Partner', 'Product ID', 'Plnd Start', 'Plan Fin', 'Spend Method', 'Spnd Type']].head())
+#     print("#####################################################\n")
+#
+#     prod_holidays = _holidays[_holidays['week_after'] >= min(data_w_agg['ds'])]
+#     prod_holidays = prod_holidays[prod_holidays['week_after'] <= max(data_w_agg['ds'] + pd.DateOffset(14))]
+#
+#     print("Holidays List:\n")
+#     print(prod_holidays.tail())
+#     print("#####################################################\n")
+#
+#     promotions_and_holidays_save_plots(x= data_w_agg.ds, y = data_w_agg.y,
+#                                        xlable= "Date", ylable= "Quantity",
+#                                        promo_count= len(prod_promo), start_day_list= np.array(prod_promo['Plnd Start']),
+#                                        end_day_list= np.array(prod_promo['Plan Fin']), spnd_type= np.array(prod_promo['Spnd Type']),
+#                                        holidays_count= len(prod_holidays), holiday_start_day_list= prod_holidays['week_before'],
+#                                        holidays_end_day_list= prod_holidays['week_after'], holiday_name= np.array(prod_holidays.holiday),
+#                                        title= "Holiday_Effect", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no,
+#                                        plot_type= "holidays")
+    ############################################################################################
 
-    #####################-- obtaining per combination aggregated invoices data --#####################
-    ## for weekly it has to be sunday, monthly last date of month
-    mdl_cutoff_date = parser.parse("2018-06-17")
 
-    # filtering data
-    cus = raw_data[raw_data.customernumber == cus_no]
-    prod = cus[cus.matnr == mat_no]
-
-    prod.date = prod.date.apply(str).apply(parser.parse)
-    prod.quantity = prod.quantity.apply(float)
-    prod = prod.sort_values('date')
-    prod = prod.reset_index(drop=True)
-
-    prod = prod.loc[prod['quantity'] >= 0.0]
-    prod = prod.loc[prod['date'] <= mdl_cutoff_date]
-
-    # artificially adding 0.0 at mdl cutoff date to get the aggregate right
-    lst_point = pd.DataFrame({'customernumber': [cus_no], 'matnr': [mat_no], 'date': [mdl_cutoff_date],
-                              'quantity': [0.0], 'q_indep_p': [0.0]})
-
-    prod = prod.append(lst_point, ignore_index=True)
-    prod = prod.reset_index(drop=True)
-
-    data_w_agg = get_weekly_aggregate(inputDF=prod)
-    data_w_agg = data_w_agg.sort_values('dt_week')
-    print("Weekly aggregated data:\n")
-    print(data_w_agg)
-    print("#####################################################\n")
-
-    data_w_agg = data_w_agg[['dt_week', 'quantity']]
-    data_w_agg = data_w_agg.rename(columns={'dt_week': 'ds', 'quantity': 'y'})
-
-    data_w_agg.ds = data_w_agg.ds.apply(str).apply(parser.parse)
-    data_w_agg.y = data_w_agg.y.apply(float)
-    data_w_agg = data_w_agg.sort_values('ds')
-    data_w_agg = data_w_agg.reset_index(drop=True)
-
-    #####################-- obtaining promotions data per combination --########################
-
-    cus_promo = route_promotions_data_non_ZEDV[route_promotions_data['Business Partner'] == cus_no]
-    prod_promo = cus_promo[cus_promo['Product ID'] == mat_no]
-
-    prod_promo['Plnd Start'] = prod_promo['Plnd Start'].apply(parser.parse)
-    prod_promo['Plan Fin'] = prod_promo['Plan Fin'].apply(parser.parse)
-
-    prod_promo = prod_promo[prod_promo['Plan Fin'] >= min(data_w_agg['ds'])]
-
-    print("Cus-Mat Promotions Data:\n")
-    print(prod_promo[['Business Partner', 'Product ID', 'Plnd Start', 'Plan Fin', 'Spend Method', 'Spnd Type']].head())
-    print("#####################################################\n")
-
-    prod_holidays = _holidays[_holidays['week_after'] >= min(data_w_agg['ds'])]
-    prod_holidays = prod_holidays[prod_holidays['week_after'] <= max(data_w_agg['ds'] + pd.DateOffset(14))]
-
-    print("Holidays List:\n")
-    print(prod_holidays.tail())
-    print("#####################################################\n")
-
-    promotions_and_holidays_save_plots(x= data_w_agg.ds, y = data_w_agg.y,
-                                       xlable= "Date", ylable= "Quantity",
-                                       promo_count= len(prod_promo), start_day_list= np.array(prod_promo['Plnd Start']),
-                                       end_day_list= np.array(prod_promo['Plan Fin']), spnd_type= np.array(prod_promo['Spnd Type']),
-                                       holidays_count= len(prod_holidays), holiday_start_day_list= prod_holidays['week_before'],
-                                       holidays_end_day_list= prod_holidays['week_after'], holiday_name= np.array(prod_holidays.holiday),
-                                       title= "Holiday_Effect", dir_name= image_dir, cus_no= cus_no, mat_no= mat_no,
-                                       plot_type= "promotions")
 
 
 

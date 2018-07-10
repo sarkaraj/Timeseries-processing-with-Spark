@@ -44,7 +44,7 @@ PROPH_W_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT = 10  # # Point is EXCLUSIVE
 PROPH_W_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 4
 
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-PROPH_W_MODEL_SELECTION_CRITERIA = 'rmse'
+PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_mean_6'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 
