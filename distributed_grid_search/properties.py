@@ -26,7 +26,7 @@ GRID_SEARCH_SAMPLING_SAMPLE_SIZE_WEEKLY = 25
 ################WEEKLY################################WEEKLY################################WEEKLY################
 #################SARIMAX##################################
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-SARIMAX_W_MODEL_SELECTION_CRITERIA = 'wre_mean_6'
+SARIMAX_W_MODEL_SELECTION_CRITERIA = 'mae'
 
 #################
 ################WEEKLY################################WEEKLY################################WEEKLY################

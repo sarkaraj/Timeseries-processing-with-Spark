@@ -105,6 +105,13 @@ def rmse_calculator(y_forecasted,y_truth):
 
     return (round(rmse, 2))
 
+def mae_calculator(y_forecasted,y_truth):
+
+    import numpy as np
+    mae = (np.abs(y_forecasted - y_truth)).mean()
+
+    return (round(mae, 2))
+
 def mape_calculator(y_forecasted,y_truth):
 
     import numpy as np
@@ -211,3 +218,17 @@ def monthly_moving_average_error_calc(data, monthly_window, baseline = False, mi
     mape = mape_calculator(y_forecasted= data_pred.rolling_mean, y_truth=data_pred.y)
 
     return(data_pred, rmse, mape)
+
+
+if __name__ == "__main__":
+
+    import pandas as pd
+    import numpy as np
+
+    df = pd.DataFrame({'actual': [1, 2, 5], 'predicted': [2, 3, 0]})
+
+    print(df)
+
+    print(mae_calculator(df['actual'], df['predicted']))
+
+    print(np.mean([1, 1, 5]))
