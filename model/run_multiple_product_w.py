@@ -15,12 +15,12 @@ file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
 cv_result_dir = "C:\\CONA_CSO\\thadeus_route\\cv_result\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\w_rmse\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\weekly_wre_6\\"
 
 raw_data = pd.read_csv(file_dir + "raw_invoices_2018-07-06.tsv",
                        sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 
-m_cv_result = pd.read_csv(cv_result_dir + "cat_123_2018-07-06.tsv",
+m_cv_result = pd.read_csv(cv_result_dir + "cat_123_2018-07-11.tsv",
                           sep= "\t", header=None, names= ["customernumber", "mat_no", "rmse", "cum_error_ar",
                                                           "period_days_ar", "wre_max_12_ar", "wre_med_12_ar",
                                                           "wre_mean_12_ar", "wre_max_6_ar", "wre_med_6_ar",
