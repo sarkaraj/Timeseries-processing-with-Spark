@@ -3,7 +3,7 @@ from run_distributed_arima import _run_dist_arima
 from run_moving_average import _run_moving_average_weekly
 from support_func import assign_category, get_current_date
 # from transform_data.spark_dataframe_func import final_select_dataset
-from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, weekly_pdt_cat_7_location
+from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, monthly_pdt_cat_456_location, weekly_pdt_cat_7_location, monthly_pdt_cat_8910_location
 from pyspark.sql.functions import *
 from transform_data.data_transform import string_to_gregorian
 from support_func import get_current_date, get_sample_customer_list, raw_data_to_weekly_aggregate, filter_white_noise, remove_outlier
@@ -36,9 +36,9 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
-        .map(lambda x: remove_outlier(x)) \
+        .map(lambda x: remove_outlier(x))\
         .map(lambda x: filter_white_noise(x))\
-        .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
+        .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'))
 
     # # Caching Data for current run
     test_data_weekly_models.cache()
@@ -67,7 +67,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t**************\n**************")
 
-    print ("Running WEEKLY_MODELS MOVING AVERAGE on products  with FREQ >= " + str(p.annual_freq_cut_1))
+    print ("Running MOVING AVERAGE on products")
     print ("\t--Running distributed Moving Average")
     ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                                       MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -76,13 +76,30 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
         .withColumn('week_cutoff_date', lit(week_cutoff_date))
 
-    print ("\t--Writing the MA WEEKLY data into HDFS\n")
+    print ("\t--Writing the MA data into HDFS\n")
     ma_weekly_results_df_final \
+        .filter((col('_pdt_category').isin(['IV','V','VI']))==True)\
+        .coalesce(5) \
+        .write.mode(p.WRITE_MODE) \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_456_location)
+
+    ma_weekly_results_df_final \
+        .filter((col('_pdt_category').isin(['VII'])) == True) \
         .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
+
+    ma_weekly_results_df_final \
+        .filter((col('_pdt_category').isin(['VIII', 'IX', 'X'])) == True) \
+        .coalesce(5) \
+        .write.mode(p.WRITE_MODE) \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_8910_location)
 
     ####################################################################################################################
     # Clearing cache before the next run

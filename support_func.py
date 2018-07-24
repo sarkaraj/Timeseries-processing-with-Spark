@@ -189,12 +189,13 @@ def remove_outlier(x):
     # Remove outlier
     # weekly category
     if category_obj.category in ("I", "II", "III"):
-        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True, sigma=3.0)
+        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
+                                                     window_size=12, sigma=3.0)
         return customernumber, matnr, cleaned_weekly_agg_data, category_obj
     # Monthly category
     elif category_obj.category in ("IV", "V", "VI"):
         cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                  window_size=6, sigma=2.5)
+                                                  window_size=18, sigma=3.0)
         return customernumber, matnr, cleaned_monthly_agg_data, category_obj
     # Outlier removal for moving average categories
     elif category_obj.category in ("VII"):
@@ -205,9 +206,9 @@ def remove_outlier(x):
         else:
             return customernumber, matnr, aggregated_data, category_obj
     elif category_obj.category in ("VIII", "IX", "X"):
-        if len(aggregated_data) >= 12 and category_obj.category not in ('IX', 'X'):
+        if len(aggregated_data) >= 52 and category_obj.category not in ('IX', 'X'):
             cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                          window_size=6, sigma=2.5)
+                                                          window_size=18, sigma=3.0)
             return customernumber, matnr, cleaned_monthly_agg_data, category_obj
         else:
             return customernumber, matnr, aggregated_data, category_obj
