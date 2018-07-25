@@ -53,13 +53,13 @@ def get_data_weekly(sqlContext, **kwargs):
                             (datediff(col('current_date'), col('min_date')).cast("int") / 365).cast(FloatType())) \
                 .withColumn('total_time_gap_days',
                             (datediff(col('current_date'), col('min_date')).cast("int")).cast(FloatType())) \
-                .withColumn('pdt_freq_annual_old', (col('row_count') / col('time_gap_years')).cast(FloatType())) \
+                .withColumn('pdt_freq_annual_old', (col('row_count') / col('total_time_gap_years')).cast(FloatType())) \
                 .withColumn('recent_time_gap_years',
                             (datediff(col('current_date'), col('min_date_w')).cast("int") / 365).cast(FloatType())) \
                 .withColumn('recent_time_gap_days',
                             (datediff(col('current_date'), col('min_date_w')).cast("int")).cast(FloatType())) \
                 .withColumn('pdt_freq_annual_new',
-                            (col('invoices_in_last_one_year') / col('time_gap_years')).cast(FloatType())) \
+                            (col('invoices_in_last_one_year') / col('recent_time_gap_years')).cast(FloatType())) \
                 .filter((datediff(col('current_date'), col('max_date')) <= p_data_fetch._latest_product_criteria_days))
         # .drop(col('max_date')) \
         # .drop(col('min_date')) \
