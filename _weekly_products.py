@@ -78,15 +78,17 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .withColumn('week_cutoff_date', lit(week_cutoff_date))
 
     print ("\t--Writing the MA data into HDFS\n")
-    ma_weekly_results_df_final.select('*', func.explode('pdt_cat')).show(10)
-    # ma_weekly_results_df_final \
-    #     .filter(col('pdt_cat').filter("category='IV'"))\
-    #     .coalesce(5) \
-    #     .write.mode(p.WRITE_MODE) \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(monthly_pdt_cat_456_location)
-    #
+    # ma_weekly_results_df_final.select('*', func.explode('pdt_cat')).show(10)
+    ma_weekly_results_df_final \
+        .select('*', func.explode('pdt_cat'))\
+        .filter(col('value').isin(['IV', 'V', 'VI']))\
+        .drop('key', 'value')\
+        .coalesce(5) \
+        .write.mode(p.WRITE_MODE) \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_456_location)
+
     # ma_weekly_results_df_final \
     #     .filter((col('pdt_cat')["category"].isin(['VII'])) == True) \
     #     .coalesce(5) \
