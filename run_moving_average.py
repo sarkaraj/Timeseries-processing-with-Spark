@@ -50,7 +50,7 @@ def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
 
     opt_ma_weekly_results_mapped = ma_weekly_results_rdd.map(lambda line: map_for_output_MA_weekly(line))
 
-    opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema=MA_output_schema())
+    opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema = MA_output_schema())
 
     return opt_ma_weekly_results_df
 

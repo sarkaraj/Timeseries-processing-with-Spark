@@ -79,7 +79,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     print ("\t--Writing the MA data into HDFS\n")
     # ma_weekly_results_df_final.show(5)
     ma_weekly_results_df_final \
-        .filter(col('pdt_cat').filter("ddd='DDD'"))\
+        .filter(col('pdt_cat').filter("category='IV'"))\
         .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
