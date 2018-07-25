@@ -78,7 +78,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the MA data into HDFS\n")
     ma_weekly_results_df_final \
-        .filter((col('_pdt_category').isin(['IV','V','VI']))==True)\
+        .filter((col('pdt_cat')["category"].isin(['IV','V','VI']))==True)\
         .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
@@ -86,7 +86,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .save(monthly_pdt_cat_456_location)
 
     ma_weekly_results_df_final \
-        .filter((col('_pdt_category').isin(['VII'])) == True) \
+        .filter((col('pdt_cat')["category"].isin(['VII'])) == True) \
         .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
@@ -94,7 +94,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .save(weekly_pdt_cat_7_location)
 
     ma_weekly_results_df_final \
-        .filter((col('_pdt_category').isin(['VIII', 'IX', 'X'])) == True) \
+        .filter((col('pdt_cat')["category"].isin(['VIII', 'IX', 'X'])) == True) \
         .coalesce(5) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
