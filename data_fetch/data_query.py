@@ -1,5 +1,5 @@
 import properties as p_data_fetch
-from support_func import generate_weekly_query, generate_monthly_query
+from data_fetch.support_func import generate_weekly_query, generate_monthly_query
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from pyspark.sql.window import Window
@@ -33,7 +33,9 @@ def get_data_weekly(sqlContext, **kwargs):
                 .withColumn('one_yr_mark', add_months(col("max_date_w"), -12)) \
                 .withColumn('min_date_f', when(col("min_date_w") >= col("one_yr_mark"), col("min_date_w")).otherwise(
                 col("one_yr_mark"))) \
-                .withColumn("consider_fr_pdt_freq", when((col("b_date") >= col("min_date_f")), 1).otherwise(0)) \
+                .withColumn("consider_fr_pdt_freq",
+                            when(((col("b_date") >= col("min_date_f")) & (col("b_date") <= col("max_date_w"))),
+                                 1).otherwise(0)) \
                 .groupBy('customernumber', 'matnr') \
                 .agg(collect_list('matnr_data').alias('data'),
                      max('b_date').alias('max_date'),
@@ -41,7 +43,7 @@ def get_data_weekly(sqlContext, **kwargs):
                      min('one_yr_mark').alias('one_yr_mark'),
                      count('b_date').alias('row_count'),
                      sum('consider_fr_pdt_freq').alias('invoices_in_last_one_year')) \
-            .withColumn('temp_curr_date', lit(week_cutoff_date)) \
+                .withColumn('temp_curr_date', lit(week_cutoff_date)) \
                 .withColumn('current_date',
                             from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
                 .withColumn('time_gap_years',
