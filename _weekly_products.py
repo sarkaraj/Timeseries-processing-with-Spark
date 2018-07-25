@@ -77,14 +77,14 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .withColumn('week_cutoff_date', lit(week_cutoff_date))
 
     print ("\t--Writing the MA data into HDFS\n")
-    ma_weekly_results_df_final.show(5)
-    # ma_weekly_results_df_final \
-    #     .filter((col('pdt_cat')["category"].isin(['IV','V','VI']))==True)\
-    #     .coalesce(5) \
-    #     .write.mode(p.WRITE_MODE) \
-    #     .format('orc') \
-    #     .option("header", "false") \
-    #     .save(monthly_pdt_cat_456_location)
+    # ma_weekly_results_df_final.show(5)
+    ma_weekly_results_df_final \
+        .filter(col('pdt_cat').filter("ddd='DDD'"))\
+        .coalesce(5) \
+        .write.mode(p.WRITE_MODE) \
+        .format('orc') \
+        .option("header", "false") \
+        .save(monthly_pdt_cat_456_location)
     #
     # ma_weekly_results_df_final \
     #     .filter((col('pdt_cat')["category"].isin(['VII'])) == True) \
