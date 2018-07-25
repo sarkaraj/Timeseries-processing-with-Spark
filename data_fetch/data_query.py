@@ -33,9 +33,7 @@ def get_data_weekly(sqlContext, **kwargs):
                 .withColumn('one_yr_mark', add_months(col("max_date_w"), -12)) \
                 .withColumn('min_date_f', when(col("min_date_w") >= col("one_yr_mark"), col("min_date_w")).otherwise(
                 col("one_yr_mark"))) \
-                .withColumn("consider_fr_pdt_freq",
-                            when(((col("b_date") >= col("min_date_f")) & (col("b_date") = < col("max_date_w"))),
-                            1).otherwise(0)) \
+                .withColumn("consider_fr_pdt_freq", when((col("b_date") >= col("min_date_f")), 1).otherwise(0)) \
                 .groupBy('customernumber', 'matnr') \
                 .agg(collect_list('matnr_data').alias('data'),
                      max('b_date').alias('max_date'),
