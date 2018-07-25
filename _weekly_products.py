@@ -31,65 +31,68 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     #############################________________DATA_ACQUISITION__________#####################################
 
     print ("Querying of Hive Table - Obtaining Product Data for Weekly Models")
-    test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
-        .rdd \
-        .map(lambda x: assign_category(x)) \
-        .filter(lambda x: x != "NOT_CONSIDERED") \
-        .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
-        .map(lambda x: remove_outlier(x)) \
-        .map(lambda x: filter_white_noise(x))\
-        .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
+    test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date)
+    test_data_weekly_models.show()
 
-    # # Caching Data for current run
-    test_data_weekly_models.cache()
-
-    #####################################________________ARIMA__________#######################################
-
-    # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
-    print ("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
-    print ("\t--Running distributed ARIMA")
-    arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                    MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    arima_results = arima_results_to_disk \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))
-
-    print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
-    arima_results \
-        .coalesce(5) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_pdt_cat_123_location)
-
-    #############################________________MOVING AVERAGE__________#####################################
-
-    print ("\t**************\n**************")
-
-    print ("Running WEEKLY_MODELS MOVING AVERAGE on products  with FREQ >= " + str(p.annual_freq_cut_1))
-    print ("\t--Running distributed Moving Average")
-    ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                                      MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
-
-    ma_weekly_results_df_final = ma_weekly_results_df \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))
-
-    print ("\t--Writing the MA WEEKLY data into HDFS\n")
-    ma_weekly_results_df_final \
-        .coalesce(5) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_pdt_cat_7_location)
-
-    ####################################################################################################################
-    # Clearing cache before the next run
-    # sqlContext.clearCache()
-    test_data_weekly_models.unpersist()
-
-    print("************************************************************************************")
+    # TODO: UNCOMMENT THIS
+    #     .rdd \
+    #     .map(lambda x: assign_category(x)) \
+    #     .filter(lambda x: x != "NOT_CONSIDERED") \
+    #     .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
+    #     .map(lambda x: remove_outlier(x)) \
+    #     .map(lambda x: filter_white_noise(x))\
+    #     .filter(lambda x: x[3].category in ('I', 'II', 'III', 'VII'))
+    #
+    # # # Caching Data for current run
+    # test_data_weekly_models.cache()
+    #
+    # #####################################________________ARIMA__________#######################################
+    #
+    # # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
+    # print ("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
+    # print ("\t--Running distributed ARIMA")
+    # arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
+    #                                 MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # arima_results = arima_results_to_disk \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('week_cutoff_date', lit(week_cutoff_date))
+    #
+    # print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
+    # arima_results \
+    #     .coalesce(5) \
+    #     .write.mode(p.WRITE_MODE) \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(weekly_pdt_cat_123_location)
+    #
+    # #############################________________MOVING AVERAGE__________#####################################
+    #
+    # print ("\t**************\n**************")
+    #
+    # print ("Running WEEKLY_MODELS MOVING AVERAGE on products  with FREQ >= " + str(p.annual_freq_cut_1))
+    # print ("\t--Running distributed Moving Average")
+    # ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
+    #                                                   MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+    #
+    # ma_weekly_results_df_final = ma_weekly_results_df \
+    #     .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+    #     .withColumn('week_cutoff_date', lit(week_cutoff_date))
+    #
+    # print ("\t--Writing the MA WEEKLY data into HDFS\n")
+    # ma_weekly_results_df_final \
+    #     .coalesce(5) \
+    #     .write.mode(p.WRITE_MODE) \
+    #     .format('orc') \
+    #     .option("header", "false") \
+    #     .save(weekly_pdt_cat_7_location)
+    #
+    # ####################################################################################################################
+    # # Clearing cache before the next run
+    # # sqlContext.clearCache()
+    # test_data_weekly_models.unpersist()
+    #
+    # print("************************************************************************************")
 
 
 if __name__ == "__main__":
