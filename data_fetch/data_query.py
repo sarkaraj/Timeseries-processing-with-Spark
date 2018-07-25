@@ -44,7 +44,7 @@ def get_data_weekly(sqlContext, **kwargs):
                      min('min_date_f').alias('min_date_w'),
                      min('one_yr_mark').alias('one_yr_mark'),
                      count('b_date').alias('row_count'),
-                     sum('consider_fr_pdt_freq').alias('invoices_in_last_one_year').cast(FloatType())
+                     sum('consider_fr_pdt_freq').cast(FloatType()).alias('invoices_in_last_one_year')
                      ) \
                 .withColumn('temp_curr_date', lit(week_cutoff_date)) \
                 .withColumn('current_date',
