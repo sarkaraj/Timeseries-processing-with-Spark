@@ -85,7 +85,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     ma_weekly_results_df_final\
         .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType())) \
-        .filter(col('category_flag').isin(['IV', 'V', 'VI'])).show()
+        .filter(col('category_flag').isin(['IV', 'V', 'VI'])).distinct(col('category_flag')).show()
         # .coalesce(5) \
         # .write.mode(p.WRITE_MODE) \
         # .format('orc') \
