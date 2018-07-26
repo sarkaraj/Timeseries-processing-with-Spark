@@ -33,8 +33,8 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     print ("Querying of Hive Table - Obtaining Product Data for Weekly Models")
     test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date)
     print("This is the right branch")
-    test_data_weekly_models.cache()
-    test_data_weekly_models.show(50)
+    # test_data_weekly_models.cache()
+    # test_data_weekly_models.show(50)
     print(test_data_weekly_models.count())
 
     # TODO: UNCOMMENT THIS

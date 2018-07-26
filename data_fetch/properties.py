@@ -26,7 +26,7 @@ d.matnr=f.matnr and d.units=f.meinh
 where d.bill_date <= """
 
 _latest_product_criteria_days = 92
-_minimum_invoices = 4
+_minimum_invoices = 0
 
 if __name__ == "__main__":
-    print _query
+    print(_query)
