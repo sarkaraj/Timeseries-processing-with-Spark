@@ -6,6 +6,7 @@ from support_func import assign_category, get_current_date
 # from transform_data.spark_dataframe_func import final_select_dataset
 from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, monthly_pdt_cat_456_location, weekly_pdt_cat_7_location, monthly_pdt_cat_8910_location
 from pyspark.sql.functions import *
+from pyspark.sql.types import *
 from transform_data.data_transform import string_to_gregorian
 from support_func import get_current_date, get_sample_customer_list, raw_data_to_weekly_aggregate, filter_white_noise, remove_outlier
 import properties as p
@@ -79,15 +80,17 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     print ("\t--Writing the MA data into HDFS\n")
     # ma_weekly_results_df_final.select('*', func.explode('pdt_cat')).show(10)
-    ma_weekly_results_df_final \
-        .select('*', func.explode('pdt_cat'))\
-        .filter(col('value').isin(['IV', 'V', 'VI']))\
-        .drop('key', 'value')\
-        .coalesce(5) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_456_location)
+    # .select('*', func.explode('pdt_cat')) \
+    #     .filter(col('value').isin(['IV', 'V', 'VI'])) \
+
+    ma_weekly_results_df_final\
+        .withColumn("category_flag", udf(lambda x: x.get("category"), MapType())(col("pdt_cat")).cast(StringType())) \
+        .filter(col('category_flag').isin(['IV', 'V', 'VI'])).show()
+        # .coalesce(5) \
+        # .write.mode(p.WRITE_MODE) \
+        # .format('orc') \
+        # .option("header", "false") \
+        # .save(monthly_pdt_cat_456_location)
 
     # ma_weekly_results_df_final \
     #     .filter((col('pdt_cat')["category"].isin(['VII'])) == True) \
