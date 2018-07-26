@@ -195,6 +195,6 @@ cat_9 = product_cat_9()
 cat_10 = product_cat_10()
 
 if __name__ == "__main__":
-    print cat_1.get_product_prop()
+    print (cat_1.get_product_prop())
 
-    print cat_10.get_product_prop()
+    print (cat_10.get_product_prop())
