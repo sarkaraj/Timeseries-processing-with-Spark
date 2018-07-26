@@ -45,8 +45,10 @@ def get_data_weekly(sqlContext, **kwargs):
                      min('b_date').alias('min_date_over_complete_period'),
                      max('max_date').alias('max_date'),
                      min('min_date_final').alias('min_date'),
-                     sum('consider_fr_pdt_freq').cast(FloatType()).alias('invoices_in_last_one_year')
+                     sum('consider_fr_pdt_freq').cast(FloatType()).alias('invoices_in_last_one_year'),
+                     count('b_date').alias('row_count')
                      ) \
+                .filter(col('row_count') > p_data_fetch._minimum_invoices) \
                 .withColumn('temp_curr_date', lit(week_cutoff_date)) \
                 .withColumn('current_date',
                             from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
@@ -66,7 +68,8 @@ def get_data_weekly(sqlContext, **kwargs):
                 .drop(col('temp_curr_date')) \
                 .drop(col('current_date')) \
                 .drop(col('recent_time_gap_years')) \
-                .drop(col('invoices_in_last_one_year'))
+                .drop(col('invoices_in_last_one_year')) \
+                .drop(col('row_count'))
         # .limit(2)
 
         return test_data
