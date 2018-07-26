@@ -47,7 +47,7 @@ def get_data_weekly(sqlContext, **kwargs):
                      min('min_date_final').alias('min_date'),
                      sum('consider_fr_pdt_freq').cast(FloatType()).alias('invoices_in_last_one_year'),
                      ) \
-                .filter(col('invoices_in_last_one_year').cast(IntegerType()) > p_data_fetch._minimum_invoices) \
+                .filter(col('invoices_in_last_one_year').cast(IntegerType()) >= p_data_fetch._minimum_invoices) \
                 .withColumn('temp_curr_date', lit(week_cutoff_date)) \
                 .withColumn('current_date',
                             from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
