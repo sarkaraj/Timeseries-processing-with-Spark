@@ -24,12 +24,12 @@ def get_data_weekly(sqlContext, **kwargs):
                                                                 .partitionBy(col("customernumber"), col("matnr"))
                                                                 .orderBy(col("b_date"))
                                                                 .rangeBetween(Window.unboundedPreceding,
-                                                                                Window.unboundedFollowing))) \
+                                                                              Window.unboundedFollowing))) \
                 .withColumn('min_date', min(col('b_date')).over(window=Window
                                                                 .partitionBy(col("customernumber"), col("matnr"))
                                                                 .orderBy(col("b_date"))
                                                                 .rangeBetween(Window.unboundedPreceding,
-                                                                                Window.unboundedFollowing))) \
+                                                                              Window.unboundedFollowing))) \
                 .withColumn('temp_curr_date', lit(week_cutoff_date)) \
                 .withColumn('current_date',
                             from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
@@ -46,9 +46,8 @@ def get_data_weekly(sqlContext, **kwargs):
                      max('max_date').alias('max_date'),
                      min('min_date_final').alias('min_date'),
                      sum('consider_fr_pdt_freq').cast(FloatType()).alias('invoices_in_last_one_year'),
-                     count('b_date').alias('row_count')
                      ) \
-                .filter(col('row_count') > p_data_fetch._minimum_invoices) \
+                .filter(col('invoices_in_last_one_year').cast(IntegerType()) > p_data_fetch._minimum_invoices) \
                 .withColumn('temp_curr_date', lit(week_cutoff_date)) \
                 .withColumn('current_date',
                             from_unixtime(unix_timestamp(col('temp_curr_date'), "yyyy-MM-dd")).cast(DateType())) \
@@ -68,9 +67,7 @@ def get_data_weekly(sqlContext, **kwargs):
                 .drop(col('temp_curr_date')) \
                 .drop(col('current_date')) \
                 .drop(col('recent_time_gap_years')) \
-                .drop(col('invoices_in_last_one_year')) \
-                .drop(col('row_count'))
-        # .limit(2)
+                .drop(col('invoices_in_last_one_year'))
 
         return test_data
 
