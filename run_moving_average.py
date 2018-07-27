@@ -40,7 +40,7 @@ def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
     test_data_input = test_data \
-        .filter(lambda x: x[3].category == 'VII') \
+        .filter(lambda x: x[3].category in ('IV','V', 'VI', 'VII', 'VIII', 'IX', 'X')) \
         .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
