@@ -84,7 +84,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     #     .filter(col('value').isin(['IV', 'V', 'VI'])) \
 
     ma_weekly_results_df_final\
-        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType())).show()
+        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType())).select(col("category_flag")).distinct().show()
         # .filter(col('category_flag').
         #         isin(['IV', 'V', 'VI']))\
         # .select(col('category_flag')).distinct().show()
