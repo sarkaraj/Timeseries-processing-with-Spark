@@ -42,6 +42,7 @@ if __name__ == "__main__":
     # ###############################################################################################
     # Check for new customers and generate predictions for previous 13 weeks
     # 13 weeks is hard-coded for now
+    print("THIS IS THE RIGHT BRANCH")
     comments = " ".join(
         ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
