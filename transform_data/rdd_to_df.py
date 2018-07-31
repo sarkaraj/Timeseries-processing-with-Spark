@@ -134,7 +134,7 @@ def MA_output_schema():
     _params = StructField("params", MapType(StringType(), ArrayType(StringType())), nullable=True)
     _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
 
-    schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _pdt_category])
+    schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_category])
 
     return schema
 
