@@ -74,13 +74,6 @@ if __name__ == "__main__":
 
         sqlContext.catalog.dropTempView("customerdata")
 
-    temp_df = sqlContext.sql("""select * from customerdata""")
-
-    print("TEMP_DF count")
-    print(temp_df.count())
-    print("TEMP_DF Sample customers")
-    temp_df.show(10)
-
     # if if_first_sunday_of_month:
     #     print("Consolidated Run")
     #     print("Importing Sample Customer List")
