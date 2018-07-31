@@ -14,8 +14,8 @@ def run_weekly(sc, sqlContext, _model_bld_date_string):
     print("************************************************************************************\n")
     print("Starting Weekly Model building")
     start_time = time.time()
-
-    build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    # TODO: uncomment
+    # build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
     print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
 

@@ -61,19 +61,26 @@ if __name__ == "__main__":
     print("TEMP_DF Sample customers")
     temp_df.show(10)
 
-    # if new_cust_check:
-    #     # New customers are present
-    #     # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
-    #
-    #     all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
-    #
-    #     for sunday in all_previous_sundays:
-    #         print("**********************************" + sunday + "************************************\n")
-    #         run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday)
-    #         print("************************************************************************************\n")
-    #
-    #     sqlContext.catalog.dropTempView("customerdata")
-    #
+    if new_cust_check:
+        # New customers are present
+        # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
+
+        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
+
+        for sunday in all_previous_sundays:
+            print("**********************************" + sunday + "************************************\n")
+            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday)
+            print("************************************************************************************\n")
+
+        sqlContext.catalog.dropTempView("customerdata")
+
+    temp_df = sqlContext.sql("""select * from customerdata""")
+
+    print("TEMP_DF count")
+    print(temp_df.count())
+    print("TEMP_DF Sample customers")
+    temp_df.show(10)
+
     # if if_first_sunday_of_month:
     #     print("Consolidated Run")
     #     print("Importing Sample Customer List")
