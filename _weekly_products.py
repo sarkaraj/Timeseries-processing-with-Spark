@@ -76,14 +76,15 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     ma_weekly_results_df_final = ma_weekly_results_df \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))
+        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+        .withColumn('load_timestamp', current_timestamp()) \
+        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
 
     print ("\t--Writing the MA data into HDFS\n")
 
     ma_weekly_results_df_final.cache()
 
     ma_weekly_results_df_final\
-        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))\
         .filter(col('category_flag').isin(['IV', 'V', 'VI']))\
         .drop(col('category_flag'))\
         .coalesce(5) \
@@ -93,7 +94,6 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .save(monthly_pdt_cat_456_location)
 
     ma_weekly_results_df_final \
-        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType())) \
         .filter(col('category_flag').isin(['VII'])) \
         .drop(col('category_flag')) \
         .coalesce(5) \
@@ -103,7 +103,6 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .save(weekly_pdt_cat_7_location)
 
     ma_weekly_results_df_final \
-        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))\
         .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
         .drop(col('category_flag')) \
         .coalesce(5) \
