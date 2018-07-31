@@ -130,6 +130,8 @@ def MA_output_schema():
 
     # _pred_ma = StructField("pred_MA", MapType(StringType(), ArrayType(FloatType(), containsNull=True)),
     #                        nullable=False)
+
+    _params = StructField("params", MapType(StringType(), ArrayType(StringType())), nullable=True)
     _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
 
     schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _pdt_category])
@@ -160,7 +162,8 @@ def map_for_output_MA_weekly(line):
     _pred_ma_temp = line[3]
     _pred_ma = {(lambda key: "-".join([str(key[0]), str(key[1])]))(key): float(_pred_ma_temp.get(key)) for key in
                 _pred_ma_temp.keys()}
+    _params = None  # Adding an extra tuple component to maintain consistency among table structures
     _pdt_cat = line[4]
 
-    _result = customernumber, mat_no, _error_ma, _pred_ma, _pdt_cat
+    _result = customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_cat
     return _result
