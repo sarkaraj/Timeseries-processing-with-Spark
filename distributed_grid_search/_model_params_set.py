@@ -33,7 +33,9 @@ def generate_all_param_combo_sarimax(**kwargs):
         param_Q = range(p.Q_max + 1)
         param_D = range(p.D_max + 1)
 
-    pdq = list(itertools.product(param_p, param_d, param_q))
+    # TODO: testing with (0,1,1) and (0,2,2)
+    # pdq = list(itertools.product(param_p, param_d, param_q))
+    pdq = [(0, 1, 1), (0, 2, 2)]
 
     seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
 
