@@ -215,6 +215,7 @@ def remove_outlier(x):
 
 
 
+
 def filter_white_noise(x):
     '''
     re-assign category to filter white noise time series to cat 7
