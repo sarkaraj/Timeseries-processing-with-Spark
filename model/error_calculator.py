@@ -177,7 +177,9 @@ def weekly_moving_average_error_calc(data, weekly_window, baseline = False, min_
 
     mape = mape_calculator(y_forecasted= data_pred.rolling_mean, y_truth=data_pred.y)
 
-    return(data_pred, rmse, mape)
+    mae= mae_calculator(y_forecasted=data_pred.rolling_mean, y_truth=data_pred.y)
+
+    return(data_pred, rmse, mape, mae)
 
 def monthly_moving_average_error_calc(data, monthly_window, baseline = False, min_train_days = 365):
 

@@ -95,10 +95,10 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
 
     final_pred = _get_pred_dict_MA_w(pd.DataFrame({'ds': ds, 'yhat': pred}))
 
-    (output_result, rmse, mape) = weekly_moving_average_error_calc(data=prod, weekly_window=weekly_window,
+    (output_result, rmse, mape, mae) = weekly_moving_average_error_calc(data=prod, weekly_window=weekly_window,
                                                                    baseline=baseline, min_train_days=min_train_days)
 
-    output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape,
+    output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse, mape, mae,
                                        np.nanmedian(np.absolute(np.array(output_result.rolling_6week_percent_error))),
                                        np.nanmax(np.absolute(np.array(output_result.rolling_6week_percent_error))),
                                        np.nanmean(np.absolute(np.array(output_result.rolling_6week_percent_error))),
@@ -118,7 +118,7 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
                                        output_result['Error_Cumsum'].iloc[-1],
                                        output_result['cumsum_quantity'].iloc[-1],
                                        ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                                columns=['cus_no', 'mat_no', 'rmse', 'mape',
+                                columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mae',
                                          'wre_med_6', 'wre_max_6', 'wre_mean_6', 'quantity_mean_6',
                                          'wre_med_12', 'wre_max_12', 'wre_mean_12', 'quantity_mean_12',
                                          'wre_med_24', 'wre_max_24', 'wre_mean_24', 'quantity_mean_24',

@@ -32,6 +32,18 @@ def weekly_arima_error_calc(_data):
         'rolling_12week_y'] * 100
     data['rolling_12week_quantity'] = pd.rolling_sum(data['y'], window=12, min_periods=12)
 
+    data['rolling_24week_error_arima'] = pd.rolling_sum(data['Error_arima'], window=24, min_periods=24)
+    data['rolling_24week_y'] = pd.rolling_sum(data['y'], window=24, min_periods=24)
+    data['rolling_24week_percent_error_arima'] = data['rolling_24week_error_arima'] / data[
+        'rolling_24week_y'] * 100
+    data['rolling_24week_quantity'] = pd.rolling_sum(data['y'], window=24, min_periods=24)
+
+    data['rolling_48week_error_arima'] = pd.rolling_sum(data['Error_arima'], window=48, min_periods=48)
+    data['rolling_48week_y'] = pd.rolling_sum(data['y'], window=48, min_periods=48)
+    data['rolling_48week_percent_error_arima'] = data['rolling_48week_error_arima'] / data[
+        'rolling_48week_y'] * 100
+    data['rolling_48week_quantity'] = pd.rolling_sum(data['y'], window=48, min_periods=48)
+
     # # Calculate Rolling 6-week and 12-week error for Ensemble
     # data['rolling_6week_error'] = pd.rolling_sum(data['Error'], window=6, min_periods=6)
     # data['rolling_6week_y'] = pd.rolling_sum(data['y'], window=6, min_periods=6)
