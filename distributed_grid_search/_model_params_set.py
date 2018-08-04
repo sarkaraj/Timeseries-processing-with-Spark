@@ -12,7 +12,7 @@ def generate_all_param_combo_sarimax(**kwargs):
 
     # TODO: Uncomment the below line
     # param_p = range(p.p_Weekly_lower_limit, p.p_Weekly_upper_limit)
-    param_p = [0, 2, 3, 4, 5]
+    param_p = [0, 2, 3]
     param_q = range(p.q_Weekly_lower_limit, p.q_Weekly_upper_limit)
     param_d = range(p.d_Weekly_lower_limit, p.d_Weekly_upper_limit)
 
@@ -33,7 +33,9 @@ def generate_all_param_combo_sarimax(**kwargs):
         param_Q = range(p.Q_max + 1)
         param_D = range(p.D_max + 1)
 
-    pdq = list(itertools.product(param_p, param_d, param_q))
+    # TODO: testing with (0,1,1) and (0,2,2)
+    # pdq = list(itertools.product(param_p, param_d, param_q))
+    pdq = [(0, 1, 1), (0, 2, 2), (0, 1, 2)]
 
     seasonal_pdq = [(x[0], x[1], x[2], 52) for x in list(itertools.product(param_P, param_D, param_Q))]
 

@@ -22,18 +22,10 @@ print("Raw Data Head:\n")
 print(raw_data.head())
 # User Input
 ###########################################################
-cus_no = 500096598
-
-
+cus_no = 500075236
 
  #500057580 #500072487 #500068490(m)
-mat_no = 133115
-
-
-
-
-
-
+mat_no = 132221
 
  #119826 #132218 #144484(m)
 
@@ -43,9 +35,9 @@ mat_no = 133115
 ## for weekly it has to be sunday, monthly last dte of month
 mdl_cutoff_date = parser.parse("2018-06-30") #"2018-06-03"
 weekly_model = True
-monthly_model = False
+monthly_model = True
 
-pdq = (1,0,0)
+pdq = (0,1,1)
 pdq_seasonal = (0,0,0,52) # period is 52 and 12 for monthly and weekly respectively
 trend = [0,0,0] # only applicable for monthly model
 ############################################################
@@ -127,10 +119,11 @@ elif monthly_model == True:
                       xlable="Date", ylable="Quantity",
                       title="Raw_vs_Cleaned_Data", cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
 
-    # sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally=False, **kwargs)
-    output = sarimax_monthly(cus_no= cus_no, mat_no= mat_no, pdq= pdq, seasonal_pdq= pdq_seasonal, trend= trend,
-                             prod= data_m_agg_cleaned,run_locally= True, image_dir= image_dir)
 
-    print("Output sarimax monthly model:")
-    print(output)
-    print("\n#####################################################")
+    # # sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally=False, **kwargs)
+    # output = sarimax_monthly(cus_no= cus_no, mat_no= mat_no, pdq= pdq, seasonal_pdq= pdq_seasonal, trend= trend,
+    #                          prod= data_m_agg_cleaned,run_locally= True, image_dir= image_dir)
+    #
+    # print("Output sarimax monthly model:")
+    # print(output)
+    # print("\n#####################################################")
