@@ -189,28 +189,30 @@ def remove_outlier(x):
     # Remove outlier
     # weekly category
     if category_obj.category in ("I", "II", "III"):
-        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True, sigma=3.0)
+        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
+                                                     window_size=12, sigma=4.0)
         return customernumber, matnr, cleaned_weekly_agg_data, category_obj
     # Monthly category
     elif category_obj.category in ("IV", "V", "VI"):
         cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                  window_size=6, sigma=2.5)
+                                                  window_size=18, sigma=5.0)
         return customernumber, matnr, cleaned_monthly_agg_data, category_obj
     # Outlier removal for moving average categories
     elif category_obj.category in ("VII"):
         if len(aggregated_data) >= 26:
             cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                         window_size=12, sigma=3.0)
+                                                         window_size=12, sigma=4.0)
             return customernumber, matnr, cleaned_weekly_agg_data, category_obj
         else:
             return customernumber, matnr, aggregated_data, category_obj
     elif category_obj.category in ("VIII", "IX", "X"):
-        if len(aggregated_data) >= 12 and category_obj.category not in ('IX', 'X'):
+        if len(aggregated_data) >= 26 and category_obj.category not in ('X'):
             cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                          window_size=6, sigma=2.5)
+                                                          window_size=18, sigma=5.0)
             return customernumber, matnr, cleaned_monthly_agg_data, category_obj
         else:
             return customernumber, matnr, aggregated_data, category_obj
+
 
 
 
@@ -346,6 +348,124 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         .save(customer_data_location + append_to_folder_name)
 
 
+def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
+    customer_data_location = p.customer_data_location
+
+    if "_model_bld_date_string" in kwargs.keys():
+        _model_bld_date_string = kwargs.get("_model_bld_date_string")
+    else:
+        print("ValueError: No model date has been provided")
+        raise ValueError
+
+    if "comments" in kwargs.keys():
+        comments = kwargs.get("comments")
+    else:
+        comments = p.comments
+
+    if "module" in kwargs.keys():
+        module = kwargs.get("module")
+        append_to_folder_name = "".join(["/", "module", "=", module])
+    else:
+        print("ValueError: No module date has been provided")
+        raise ValueError
+
+    # ###########################################
+    # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
+    # ###########################################
+
+    _delivery_routes = sqlContext.read \
+        .format("csv") \
+        .option("delimiter", "\t") \
+        .option("header", "false") \
+        .load(p.test_delivery_routes) \
+        .withColumnRenamed("_c0", "sales_rep_id") \
+        .select(col("sales_rep_id"))
+
+    print(_delivery_routes.count())
+
+    _complete_customer_list_from_VL_df = sqlContext.read \
+        .format("csv") \
+        .option("delimiter", ",") \
+        .option("header", "true") \
+        .load(p.VISIT_LIST_LOCATION) \
+        .select(col("USERID").alias("sales_rep_id"),
+                col("KUNNR").alias("customernumber"))
+
+    query_to_select_all_convenience_stores = """
+    select kunnr
+    from mdm.customer
+    where katr6 = '3'
+    """
+
+    convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
+        .withColumnRenamed("kunnr", "customernumber")
+
+    query_to_select_all_customers_from_last_mdl_bld_dt = """
+    select customer_tbl.customernumber customernumber
+    from
+    (select customernumber, mdl_bld_dt
+    from cso_production.view_consolidated_pred_complete_CCBCC
+    group by customernumber, mdl_bld_dt) customer_tbl
+    join
+    (select max(mdl_bld_dt) mdl_bld_dt
+    from cso_production.view_consolidated_pred_complete_CCBCC) max_date
+    on customer_tbl.mdl_bld_dt = max_date.mdl_bld_dt
+    """
+
+    customers_present_on_previous_run = sqlContext.sql(query_to_select_all_customers_from_last_mdl_bld_dt)
+
+    _custom_customer_list_df_stg = convenience_store_df \
+        .join(broadcast(_complete_customer_list_from_VL_df),
+              on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
+              how="inner") \
+        .drop(convenience_store_df.customernumber) \
+        .join(broadcast(_delivery_routes),
+              on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
+              how="inner") \
+        .drop(_delivery_routes.sales_rep_id) \
+        .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
+        .distinct()
+
+    _custom_customer_list_df = _custom_customer_list_df_stg \
+        .join(broadcast(customers_present_on_previous_run),
+              on=[customers_present_on_previous_run.customernumber == _custom_customer_list_df_stg.customernumber],
+              how="left") \
+        .filter(isnull(customers_present_on_previous_run.customernumber)) \
+        .drop(customers_present_on_previous_run.customernumber)
+
+    _custom_customer_list_df.cache()
+
+    if _custom_customer_list_df.count() == 0:
+        # Implying there exists no new customers that has been added to the routes
+        sqlContext.clearCache()
+        return False
+    else:
+        # Implying there exists customers that had not been present in the previous run
+        customer_sample = _custom_customer_list_df \
+            .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
+            .withColumn("Comments", lit(comments))
+
+        if p.CUSTOMER_SAMPLING:
+            if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+                customer_list = customer_sample.select(col("customernumber"))
+            else:
+                customer_list = customer_sample.select(col("customernumber")).sample(False,
+                                                                                     p.CUSTOMER_SAMPLING_PERCENTAGE,
+                                                                                     42)
+        else:
+            customer_list = customer_sample.select(col("customernumber"))
+
+        customer_list.createOrReplaceTempView("customerdata")
+
+        customer_sample.coalesce(1) \
+            .write.mode('append') \
+            .format('orc') \
+            .option("header", "false") \
+            .save(customer_data_location + append_to_folder_name)
+
+        return True
+
+
 def obtain_mdl_bld_dt():
     import argparse
 
@@ -410,6 +530,22 @@ def date_check(date_string, **kwargs):
     _model_bld_dt = get_current_or_next_sunday(d=_date)
     monthly_sunday_flag = check_if_first_sunday_of_month(_model_bld_dt)
     return _model_bld_dt.strftime("%Y-%m-%d"), monthly_sunday_flag
+
+
+def get_previous_sundays(_date, **kwargs):
+    if "previous_weeks" in kwargs.keys():
+        if isinstance(kwargs.get("previous_weeks"), int):
+            previous_weeks = kwargs.get("previous_weeks")
+        else:
+            previous_weeks = int(kwargs.get("previous_weeks"))
+    else:
+        previous_weeks = 12
+
+    start_date = string_to_gregorian(dt_str=_date)
+    result_array = [(start_date + datetime.timedelta(days=(-7 * (week + 1)))).strftime("%Y-%m-%d") for week in
+                    range(previous_weeks)]
+    result_array.reverse()  # This step is optional. This is done just to maintain a chronology
+    return result_array
 
 
 if __name__ == "__main__":

@@ -8,7 +8,7 @@ test_points_monthly = 1
 pred_points_monthly = 2
 
 ################
-p_Weekly_lower_limit = 3
+p_Weekly_lower_limit = 2
 p_Weekly_upper_limit = 6  # point is excluded
 d_Weekly_lower_limit = 0
 d_Weekly_upper_limit = 3  # point is excluded
@@ -44,7 +44,7 @@ PROPH_W_CHANGEPOINT_PRIOR_SCALE_UPPER_LIMIT = 10  # # Point is EXCLUSIVE
 PROPH_W_CHANGEPOINT_PRIOR_SCALE_STEP_SIZE = 4
 
 # OPTIONS::: 'rmse', 'mape', 'wre_med_6', 'wre_max_6', 'wre_mean_6', 'wre_med_12', 'wre_max_12', 'wre_mean_12', 'cum_error'
-PROPH_W_MODEL_SELECTION_CRITERIA = 'rmse'
+PROPH_W_MODEL_SELECTION_CRITERIA = 'wre_mean_6'
 
 ################MONTHLY################################MONTHLY################################MONTHLY################
 
