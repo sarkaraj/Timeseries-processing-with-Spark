@@ -42,7 +42,6 @@ if __name__ == "__main__":
     # ###############################################################################################
     # Check for new customers and generate predictions for previous 13 weeks
     # 13 weeks is hard-coded for now
-    print("THIS IS THE RIGHT BRANCH")
     comments = " ".join(
         ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
@@ -52,18 +51,17 @@ if __name__ == "__main__":
                                                            comments=comments,
                                                            module="consolidated")
 
-    print(new_cust_check)
-
-    temp_df = sqlContext.sql("""select * from customerdata""")
-
-    print("TEMP_DF count")
-    print(temp_df.count())
-    print("TEMP_DF Sample customers")
-    temp_df.show(10)
-
     if new_cust_check:
+        print("Backlog Run")
         # New customers are present
         # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
+
+        temp_df = sqlContext.sql("""select * from customerdata""")
+
+        print("TEMP_DF count")
+        print(temp_df.count())
+        # print("TEMP_DF Sample customers")
+        # temp_df.show(10)
 
         all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
 
@@ -74,35 +72,52 @@ if __name__ == "__main__":
 
         sqlContext.catalog.dropTempView("customerdata")
 
-    if if_first_sunday_of_month:
-        print("Consolidated Run")
-        print("Importing Sample Customer List")
+    # Running normal weekly runs
+    print("Weekly Run")
+    print("Importing Sample Customer List")
 
-        comments = " ".join(
-            ["Consolidated Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
-        )
+    comments = " ".join(
+        ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
+    )
 
-        get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-                                 comments=comments,
-                                 module="consolidated")
+    get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+                             comments=comments,
+                             module="weekly")
+    run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    print("************************************************************************************\n")
 
-        run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        print("************************************************************************************\n")
-        run_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        print("************************************************************************************\n")
-    else:
-        print("Weekly Run")
-        print("Importing Sample Customer List")
+    # if if_first_sunday_of_month:
+    #     print("Consolidated Run")
+    #     print("Importing Sample Customer List")
+    #
+    #     comments = " ".join(
+    #         ["Consolidated Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
+    #     )
+    #
+    #     get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+    #                              comments=comments,
+    #                              module="consolidated")
+    #
+    #     run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    #     print("************************************************************************************\n")
+    #     run_monthly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    #     print("************************************************************************************\n")
+    # else:
+    #     print("Weekly Run")
+    #     print("Importing Sample Customer List")
+    #
+    #     comments = " ".join(
+    #         ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
+    #     )
+    #
+    #     get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+    #                              comments=comments,
+    #                              module="weekly")
+    #     run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    #     print("************************************************************************************\n")
 
-        comments = " ".join(
-            ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
-        )
-
-        get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-                                 comments=comments,
-                                 module="weekly")
-        run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
-        print("************************************************************************************\n")
+    # Cleaning Up memory
+    sqlContext.catalog.dropTempView("customerdata")
 
     # Stopping SparkContext
     spark.stop()

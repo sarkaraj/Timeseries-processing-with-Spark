@@ -457,11 +457,11 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
         customer_list.createOrReplaceTempView("customerdata")
 
-        # customer_sample.coalesce(1) \
-        #     .write.mode('append') \
-        #     .format('orc') \
-        #     .option("header", "false") \
-        #     .save(customer_data_location + append_to_folder_name)
+        customer_sample.coalesce(1) \
+            .write.mode('append') \
+            .format('orc') \
+            .option("header", "false") \
+            .save(customer_data_location + append_to_folder_name)
 
         return True
 

@@ -22,7 +22,7 @@ def _get_monthly_mdl_bld_cutoff_date(_date):
 
 
 def generate_weekly_query(date):
-    from properties import _query
+    from data_fetch.properties import _query
 
     MODEL_BLD_CURRENT_DATE = string_to_gregorian(date)
 

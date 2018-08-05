@@ -4,7 +4,7 @@ model_bld_date=$(date +'%Y-%m-%d')
 
 # echo $model_bld_date
 
-model_bld_date='2018-07-15'
+model_bld_date='2018-07-29'
 
 spark-submit \
 --verbose \

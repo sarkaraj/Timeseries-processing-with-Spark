@@ -57,11 +57,12 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
 
     arima_results = arima_results_to_disk \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))
+        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+        .withColumn('load_timestamp', current_timestamp())
 
     print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
     arima_results \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -89,7 +90,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ma_weekly_results_df_final \
         .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
         .drop(col('category_flag')) \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -98,7 +99,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ma_weekly_results_df_final \
         .filter(col('category_flag').isin(['VII'])) \
         .drop(col('category_flag')) \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -107,7 +108,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ma_weekly_results_df_final \
         .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
         .drop(col('category_flag')) \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
