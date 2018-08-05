@@ -42,37 +42,37 @@ if __name__ == "__main__":
     # ###############################################################################################
     # Check for new customers and generate predictions for previous 13 weeks
     # 13 weeks is hard-coded for now
-    # comments = " ".join(
-    #     ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
-    # )
-    #
-    # new_cust_check = get_sample_customer_list_new_addition(sc=sc, sqlContext=sqlContext,
-    #                                                        _model_bld_date_string=_model_bld_date_string,
-    #                                                        comments=comments,
-    #                                                        module="consolidated")
-    #
-    # if new_cust_check:
-    #     print("Backlog Run")
-    #     # New customers are present
-    #     # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
-    #
-    #     temp_df = sqlContext.sql("""select * from customerdata""")
-    #
-    #     print("TEMP_DF count")
-    #     print(temp_df.count())
-    #     # print("TEMP_DF Sample customers")
-    #     # temp_df.show(10)
-    #
-    #     all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
-    #
-    #     for sunday in all_previous_sundays:
-    #         print("**********************************" + sunday + "************************************\n")
-    #         run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday)
-    #         print("************************************************************************************\n")
-    #
-    #     sqlContext.catalog.dropTempView("customerdata")
-    #
-    # Running normal weekly runs
+    comments = " ".join(
+        ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
+    )
+
+    new_cust_check = get_sample_customer_list_new_addition(sc=sc, sqlContext=sqlContext,
+                                                           _model_bld_date_string=_model_bld_date_string,
+                                                           comments=comments,
+                                                           module="consolidated")
+
+    if new_cust_check:
+        print("Backlog Run")
+        # New customers are present
+        # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
+
+        temp_df = sqlContext.sql("""select * from customerdata""")
+
+        print("TEMP_DF count")
+        print(temp_df.count())
+        # print("TEMP_DF Sample customers")
+        # temp_df.show(10)
+
+        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
+
+        for sunday in all_previous_sundays:
+            print("**********************************" + sunday + "************************************\n")
+            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday)
+            print("************************************************************************************\n")
+
+        sqlContext.catalog.dropTempView("customerdata")
+
+    # # Running normal weekly runs
     print("Weekly Run")
     print("Importing Sample Customer List")
 
