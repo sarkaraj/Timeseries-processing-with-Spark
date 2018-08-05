@@ -4,14 +4,13 @@ model_bld_date=$(date +'%Y-%m-%d')
 
 # echo $model_bld_date
 
-model_bld_date='2018-07-29'
+# model_bld_date='2018-07-29'
 
 spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
---num-executors 15 \
---queue tsmdl \
+--num-executors 35 \
 --driver-memory 5G \
 --executor-memory 4G \
 --executor-cores 2 \
