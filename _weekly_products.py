@@ -50,18 +50,19 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     #####################################________________ARIMA__________#######################################
 
     # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
-    print ("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
-    print ("\t--Running distributed ARIMA")
+    print("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
+    print("\t--Running distributed ARIMA")
     arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                    MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+                                            MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
     arima_results = arima_results_to_disk \
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date))
+        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+        .withColumn('load_timestamp', current_timestamp())
 
-    print ("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
+    print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
     arima_results \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -70,7 +71,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     #############################________________MOVING AVERAGE__________#####################################
 
     print("\t**************\n**************")
-
+    
     print("Running MOVING AVERAGE on products")
     print("\t--Running distributed Moving Average")
     ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
@@ -89,7 +90,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ma_weekly_results_df_final \
         .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
         .drop(col('category_flag')) \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -98,7 +99,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ma_weekly_results_df_final \
         .filter(col('category_flag').isin(['VII'])) \
         .drop(col('category_flag')) \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
@@ -107,7 +108,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     ma_weekly_results_df_final \
         .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
         .drop(col('category_flag')) \
-        .coalesce(5) \
+        .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
         .option("header", "false") \
