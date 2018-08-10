@@ -6,6 +6,7 @@ import pandas as pd
 from dateutil import parser
 from matplotlib.pylab import rcParams
 import time
+from order_compare.od_com_support_func import *
 
 rcParams['figure.figsize'] = 15, 6
 
@@ -23,7 +24,7 @@ order_compare_dir = "C:\\CONA_CSO\\thadeus_route\\compare\\"
 vl_dir = "C:\\CONA_CSO\\thadeus_route\\vl\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\monthly_rmse\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\temp\\"
 
 order_compare = pd.read_csv(order_compare_dir + "compare_2018-08-09.tsv", sep= "\t", header=None,
                             names=["custmernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
@@ -58,11 +59,16 @@ print("final orderdate compare data:\n")
 print(order_comp_select_cust.head())
 ################################################
 
+
+
 #orderate basis comparison
 od_order_comp = order_comp_select_cust.copy()
 od_order_comp['q_diff'] = abs(order_comp_select_cust['actual_q'] - order_comp_select_cust['pred_q'])
 
 print(od_order_comp.head())
+
+plot_count_hist(data=od_order_comp, field= 'q_diff', title='Histogram of Error Quantity on Order Date Basis',
+                num_bar=10, image_dir=image_dir)
 
 ax =od_order_comp['q_diff'].value_counts().sort_index().plot(kind = 'bar',grid=True, color='#607c8e')
 plt.title('Histogram of Error Quantity on Order Date Basis')
