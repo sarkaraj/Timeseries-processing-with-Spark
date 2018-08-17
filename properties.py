@@ -1,8 +1,6 @@
 from product_class._products import cat_1, cat_2, cat_3, cat_4, cat_5, cat_6, cat_7, cat_8, cat_9, cat_10
 import product_class.properties as p
 
-WRITE_MODE = "overwrite"  # TODO: Change it to 'append' when merging with production branch
-
 _model_bld_date_string_list = ['2017-10-01']
 
 weekly_dates = {'2017-09-03': True, '2017-09-10': True, '2017-09-17': True, '2017-09-24': True, '2017-10-01': True,
@@ -11,6 +9,12 @@ weekly_dates = {'2017-09-03': True, '2017-09-10': True, '2017-09-17': True, '201
 
 monthly_dates = {'2017-08-06': True, '2017-09-03': True, '2017-10-01': True, '2017-11-05': True, '2018-04-01': True,
                  '2018-05-06': True}
+
+###################################################################################################
+# ___________________________________SIMULATION SETTINGS___________________________________________
+###################################################################################################
+
+IS_SIM = True
 
 ###################################################################################################
 # ___________________________________CONTROL PARAMETERS___________________________________________
@@ -36,9 +40,14 @@ container = "csotestenv"
 # container = "csoproduction"  # TODO: Uncomment when merging with production branch
 
 if container == "csoproduction":
+    WRITE_MODE = "append"
     CUSTOMER_SAMPLING = False
 else:
-    CUSTOMER_SAMPLING = True
+    if IS_SIM:
+        WRITE_MODE = "append"
+    else:
+        WRITE_MODE = "overwrite"
+        CUSTOMER_SAMPLING = True
 
 storage_account = "conapocv2standardsa.blob.core.windows.net"
 PREFIX = "wasb://" + "@".join([container, storage_account])
