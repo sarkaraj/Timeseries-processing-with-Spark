@@ -29,8 +29,8 @@ spark-submit \
 --conf spark.speculation.quantile=0.9 \
 --conf spark.speculation.interval=18000 \
 --conf spark.sql.shuffle.partitions=70 \
---py-files ~/cso_predictor_prod/forecaster.zip \
-~/cso_predictor_prod/run_sim.py \
+--py-files $HOME/cso_simulator_master/cso_predictor_prod/forecaster.zip \
+$HOME/cso_simulator_master/cso_predictor_prod/run_sim.py \
 $model_bld_date
 
 exit 0
