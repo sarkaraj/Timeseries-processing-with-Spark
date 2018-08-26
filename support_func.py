@@ -302,11 +302,8 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             .withColumnRenamed("_c0", "sales_rep_id") \
             .select(col("sales_rep_id"))
 
-        _complete_customer_list_from_VL_df = sqlContext.read \
-            .format("orc") \
-            .option("header", "true") \
-            .load(
-            "wasb://csoproduction@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/visit_list_data_history") \
+        _complete_customer_list_from_VL_df = sqlContext.sql(
+            """select * from cso_test_env.tbl_visit_list_history_complete""") \
             .select(col("USERID").alias("sales_rep_id"),
                     col("KUNNR").alias("customernumber"))
 
@@ -473,11 +470,8 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
         print(_delivery_routes.count())
 
-        _complete_customer_list_from_VL_df = sqlContext.read \
-            .format("orc") \
-            .option("header", "true") \
-            .load(
-            "wasb://csoproduction@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/visit_list_data_history") \
+        _complete_customer_list_from_VL_df = sqlContext.sql(
+            """select * from cso_test_env.tbl_visit_list_history_complete""") \
             .select(col("USERID").alias("sales_rep_id"),
                     col("KUNNR").alias("customernumber"))
 
