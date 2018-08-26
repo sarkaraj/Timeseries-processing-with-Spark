@@ -46,6 +46,8 @@ def insert_missing_dates(data):
 
     od_order_comp = data.copy()
 
+    colnames = list(od_order_comp)
+
     od_order_comp['order_date'] = od_order_comp['order_date'].astype(str)
     cust_date = od_order_comp.groupby(['customernumber']).apply(lambda x: x['order_date'].unique())
     cust_mat_date = od_order_comp.groupby(['customernumber', 'mat_no']). \
@@ -56,7 +58,7 @@ def insert_missing_dates(data):
                                                                                                          drop=True)
     missing_od_df.name = "order_date"
     missing_od_df = cust_mat_date.drop('date_list', axis=1).join(missing_od_df).reset_index(drop=True)
-    other_cols = dict.fromkeys(['actual_q', 'pred_q', 'q_diff_abs', 'perc_diff_abs', 'q_diff', 'perc_diff'], 0)
+    other_cols = dict.fromkeys(list(set(colnames).difference(set(list(missing_od_df)))), 0)
     missing_od_df = missing_od_df.assign(**other_cols)
     od_order_comp_with_zeros = od_order_comp.append(missing_od_df).reset_index(drop=True)
 
@@ -87,5 +89,28 @@ def filter_mismatch_dates(data):
     od_order_comp_with_zeros_cleaned_final = od_order_comp_with_zeros_cleaned.drop('cus_od', axis=1)
 
     return od_order_comp_with_zeros_cleaned_final
+
+def perc_diff_bucket(num):
+
+    if num < -100:
+        diff_bucket = "Below[-100]"
+    elif num < -50:
+        diff_bucket = "[-100,-50)"
+    elif num < -25:
+        diff_bucket = "[-50,-25)"
+    elif num < 0:
+        diff_bucket = "[-25,0)"
+    elif num == 0:
+        diff_bucket = "[0]"
+    elif num <= 25:
+        diff_bucket = "(0,25]"
+    elif num <= 50:
+        diff_bucket = "(25,50]"
+    elif num <= 100:
+        diff_bucket = "(50,100]"
+    else:
+        diff_bucket = "Above[100]"
+
+    return  diff_bucket
 
 
