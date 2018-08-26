@@ -529,15 +529,15 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
                 .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
                 .withColumn("Comments", lit(comments))
 
-            if p.CUSTOMER_SAMPLING:
-                if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
-                    customer_list = customer_sample.select(col("customernumber"))
-                else:
-                    customer_list = customer_sample.select(col("customernumber")).sample(False,
-                                                                                         p.CUSTOMER_SAMPLING_PERCENTAGE,
-                                                                                         42)
-            else:
-                customer_list = customer_sample.select(col("customernumber"))
+            # if p.CUSTOMER_SAMPLING:
+            #     if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+            #         customer_list = customer_sample.select(col("customernumber"))
+            #     else:
+            #         customer_list = customer_sample.select(col("customernumber")).sample(False,
+            #                                                                              p.CUSTOMER_SAMPLING_PERCENTAGE,
+            #                                                                              42)
+            # else:
+            customer_list = customer_sample.select(col("customernumber"))
 
             customer_list.createOrReplaceTempView("customerdata")
 
