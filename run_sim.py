@@ -66,7 +66,7 @@ if __name__ == "__main__":
         # print("TEMP_DF Sample customers")
         # temp_df.show(10)
 
-        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string, previous_weeks=5)  # this is an array
+        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string, previous_weeks=1)  # this is an array
 
         for sunday in all_previous_sundays:
             print("**********************************" + sunday + "************************************\n")
