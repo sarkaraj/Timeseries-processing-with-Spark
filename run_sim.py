@@ -51,7 +51,8 @@ if __name__ == "__main__":
     new_cust_check = get_sample_customer_list_new_addition(sc=sc, sqlContext=sqlContext,
                                                            _model_bld_date_string=_model_bld_date_string,
                                                            comments=comments,
-                                                           module="consolidated")
+                                                           module="consolidated",
+                                                           simulation=True)
 
     if new_cust_check:
         print("Backlog Run")
@@ -65,7 +66,7 @@ if __name__ == "__main__":
         # print("TEMP_DF Sample customers")
         # temp_df.show(10)
 
-        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
+        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string, previous_weeks=8)  # this is an array
 
         for sunday in all_previous_sundays:
             print("**********************************" + sunday + "************************************\n")
@@ -84,7 +85,8 @@ if __name__ == "__main__":
 
     get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
                              comments=comments,
-                             module="weekly")
+                             module="weekly",
+                             simulation=True)
     run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
     print("************************************************************************************\n")
 
