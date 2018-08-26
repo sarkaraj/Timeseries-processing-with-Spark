@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
-while getopts ":date:" opt
+while getopts ":d:" opt
 do
   case $opt in
-    date)
+    d)
       model_bld_date=$OPTARG
       ;;
     :)
