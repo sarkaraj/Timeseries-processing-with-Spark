@@ -521,7 +521,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
         if _custom_customer_list_df.count() == 0:
             # Implying there exists no new customers that has been added to the routes
-            sqlContext.clearCache()
+            # sqlContext.clearCache()
             return False
         else:
             # Implying there exists customers that had not been present in the previous run
