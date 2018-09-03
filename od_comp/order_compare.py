@@ -12,10 +12,12 @@ import os
 rcParams['figure.figsize'] = 15, 6
 
 ############################
-route_id_list = ['CC002189'] #CC019018
+route_id_list = ['CC002189']  #CC019018 #CC002189
 
-start_date = '2018-07-02'
-end_date = '2018-08-10'
+start_date = '2017-07-09'
+end_date = '2019-08-06'
+
+insert_zeros = False
 ############################
 
 # data load and transform
@@ -28,35 +30,32 @@ order_compare_dir = "C:\\CONA_CSO\\thadeus_route\\compare\\"
 vl_dir = "C:\\CONA_CSO\\thadeus_route\\vl\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\temp\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\"
 
-order_compare = pd.read_csv(order_compare_dir + "compare_2018-08-09.tsv", sep="\t", header=None,
+order_compare = pd.read_csv(order_compare_dir + "order_comparison_simulation_04-06-2018_to_09-08-2018.tsv", sep="\t",
+                            header=None,
                             names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
                                    "dd_pred", "month"])
 
-print("Order compare data:\n")
+print("##########--Order compare data--##############\n")
 print(order_compare.head())
+print("\n############################################")
+
 
 order_compare[['order_date']] = order_compare[['order_date']].apply(lambda x: x.astype(str).apply(parser.parse))
 
 ###############################################
-cv_result = pd.read_csv(cv_result_dir + "cv_result_2018-08-03.tsv",
+cv_result = pd.read_csv(cv_result_dir + "cv_result_2018-08-28.tsv",
                         sep="\t", header=None,
                         names=["customernumber", "mat_no", "rmse", "mae", "mape", "cum_error", "period_days",
                                "wre_max_6",
                                "wre_med_6", "wre_mean_6", "quantity_mean_6", "wre_max_12", "wre_med_12",
                                "wre_mean_12", "quantity_mean_12", "wre_max_24", "wre_med_24",
                                "wre_mean_24", "quantity_mean_24", "wre_max_48", "wre_med_48",
-                               "wre_mean_48", "quantity_mean_48", "params", "cat", "mdl_bld_dt"])
+                               "wre_mean_48", "quantity_mean_48", "cat", "mdl_bld_dt"])
 
 cv_result = cv_result.loc[:, ['customernumber', 'mat_no', 'cat']]
-
-# cv_result_cat_123 = cv_result.loc[cv_result['cat'].isin(['I', 'II', 'III', 'VII'])]
-#
-# cv_result_cat_123 = cv_result_cat_123.loc[:, ['customernumber', 'mat_no', 'cat']]
-# print(cv_result_cat_123.head())
 ################################################
-
 
 ##############################################
 # obtaining customer list for the given route
@@ -71,112 +70,165 @@ customer_list = list(set(vl_select_route['KUNNR'].values))
 order_comp_select_cust = order_compare.loc[(order_compare['customernumber'].isin(customer_list)) &
                                            ((order_compare['order_date'] >= start_date) &
                                             (order_compare['order_date'] <= end_date))]
-print("raw order date compare data:\n")
-print(order_comp_select_cust.head())
+# print("raw order date compare data:\n")
+# print(order_comp_select_cust.head())
 
 # ################################################
 # # twice a week customer count analysis
 # ################################################
-# unique_cus_od_list = order_comp_select_cust.groupby(['customernumber'])['order_date'].unique().rename('order_date').reset_index()
-# s = unique_cus_od_list.apply(lambda x: pd.Series(x['order_date']),axis=1).stack().reset_index(level=1, drop=True)
-# s.name = 'order_date'
-# unique_cus_od_list = unique_cus_od_list.drop('order_date', axis = 1).join(s).sort_values(['customernumber', 'order_date']).reset_index(drop= True)
-#
-# unique_days_diff_cus = unique_cus_od_list.groupby(['customernumber']).apply(lambda x: (x['order_date'] - x['order_date'].shift(-1))).rename('days_diff').reset_index()
-# unique_days_diff_cus['days_diff'] = abs(unique_days_diff_cus['days_diff'].apply(lambda x: x.days)).apply(str)
-#
-#
-# unique_mode_days_cus = unique_days_diff_cus.drop('level_1', axis = 1).groupby(['customernumber']).agg(lambda x:x.value_counts().index[0]).reset_index()
-# unique_mode_days_cus['days_diff'] = unique_mode_days_cus['days_diff'].apply(lambda x: float(x))
-# twice_a_week_cus = unique_mode_days_cus.loc[unique_mode_days_cus['days_diff'] < 7]
-#
-# print("total customer list:\n")
-# print(len(unique_mode_days_cus))
-#
-# print("total twice a week customer list:\n")
-# print(len(twice_a_week_cus))
-#
-# print("percentage of twice a week customer:\n")
-# print(len(twice_a_week_cus)/len(unique_mode_days_cus))
-# ################################################
+unique_cus_od_list = order_comp_select_cust.groupby(['customernumber'])['order_date'].unique().rename(
+    'order_date').reset_index()
+s = unique_cus_od_list.apply(lambda x: pd.Series(x['order_date']), axis=1).stack().reset_index(level=1, drop=True)
+s.name = 'order_date'
+unique_cus_od_list = unique_cus_od_list.drop('order_date', axis=1).join(s).sort_values(
+    ['customernumber', 'order_date']).reset_index(drop=True)
 
-order_comp_select_cust = pd.merge(left=order_comp_select_cust, right=cv_result, how="left",
+unique_days_diff_cus = unique_cus_od_list.groupby(['customernumber']).apply(
+    lambda x: (x['order_date'] - x['order_date'].shift(-1))).rename('days_diff').reset_index()
+unique_days_diff_cus['days_diff'] = abs(unique_days_diff_cus['days_diff'].apply(lambda x: x.days)).apply(str)
+
+unique_mode_days_cus = unique_days_diff_cus.drop('level_1', axis=1).groupby(['customernumber']).agg(
+    lambda x: x.value_counts().index[0]).reset_index()
+unique_mode_days_cus['days_diff'] = unique_mode_days_cus['days_diff'].apply(lambda x: float(x))
+twice_a_week_cus = unique_mode_days_cus.loc[unique_mode_days_cus['days_diff'] < 7]
+
+# print(twice_a_week_cus['customernumber'].unique())
+print("\n#############--Customer Type Analysis--##############")
+
+print("\ntotal customer list: " + str(len(unique_mode_days_cus)))
+
+print("\ntotal twice a week customer list: " + str(len(twice_a_week_cus)))
+
+print("\npercentage of twice a week customer: " + str(len(twice_a_week_cus) / len(unique_mode_days_cus)))
+
+print("\n########################################################")
+
+##################################################
+# insert zeros for missing products and remove mismatch delivery dates between orders
+##################################################
+if insert_zeros == True:
+    # insert zeros for missing order dates for all products
+    order_comp_with_zeros = insert_missing_dates(data=order_comp_select_cust)
+    # print(order_comp_with_zeros.head())
+    # print(order_comp_with_zeros.info())
+
+    order_comp_with_zeros_cleaned = filter_mismatch_dates(data=order_comp_with_zeros)
+    # print(order_comp_with_zeros_cleaned.head())
+    # print(order_comp_with_zeros_cleaned.info())
+
+else:
+    order_comp_with_zeros_cleaned = filter_mismatch_dates(data=order_comp_select_cust)
+    # print(order_comp_with_zeros_cleaned.head())
+    # print(order_comp_with_zeros_cleaned.info())
+
+##################################################
+print("\nprinting oder date data length: " + str(len(order_comp_select_cust)))
+
+if insert_zeros == True:
+    print("\nprinting order dates with zeros length: " + str(len(order_comp_with_zeros)))
+
+print("\nprinting cleaned order dates with zeros length: " + str(len(order_comp_with_zeros_cleaned)))
+
+##################################################
+# assigning category to materials
+final_order_comp_dt = pd.merge(left=order_comp_with_zeros_cleaned, right=cv_result, how="left",
                                   left_on=["customernumber", 'mat_no'], right_on=["customernumber", 'mat_no'])
+
 ################################################
 # order date basis comparison
-for dataset in ['HFP', 'LFP']:
-
+print("\n#####################--Frequency wise Prediction Results--#################")
+for dataset in ['HFP', 'MFP', 'LFP']:
     # file save directory
     path = image_dir + dataset + "_result\\"
     if not os.path.isdir(path):
         os.makedirs(path)
 
     if dataset == "HFP":
-        order_comp_HFP = order_comp_select_cust.loc[order_comp_select_cust['cat'].isin(['I', 'II', 'III', 'VII'])]
+        order_comp_HFP = final_order_comp_dt.loc[final_order_comp_dt['cat'].isin(['I', 'II', 'III', 'VII'])]
         od_order_comp = order_comp_HFP.copy()
-        print('selected high frequency customer order compare data:\n')
-        print(od_order_comp.head())
+        print('\nselected high frequency customer order compare data:')
+        # print(od_order_comp.head())
 
+    elif dataset == "MFP":
+        order_comp_MFP = final_order_comp_dt.loc[final_order_comp_dt['cat'].isin(['IV', 'V', 'VI', 'VIII', 'IX'])]
+        od_order_comp = order_comp_MFP.copy()
+        print('\nselected medium frequency customer order compare data:')
+        # print(od_order_comp.head())
+        # print(od_order_comp.info())
     elif dataset == "LFP":
-        order_comp_LFP = order_comp_select_cust.loc[order_comp_select_cust['cat'].isin(['IV', 'V', 'VI', 'VIII','IX'])]
+        order_comp_LFP = final_order_comp_dt.loc[final_order_comp_dt['cat'].isin(['X'])]
         od_order_comp = order_comp_LFP.copy()
-        print('selected low frequency customer order compare data:\n')
-        print(od_order_comp.head())
-        print(od_order_comp.info())
+        print('\nselected low frequency customer order compare data:')
+        # print(od_order_comp.head())
+        # print(od_order_comp.info())
 
+
+    # error metric calculation
+    #################################################
+    od_order_comp[['order_date']] = od_order_comp[['order_date']].apply(lambda x: x.astype(str).apply(parser.parse))
 
     od_order_comp['q_diff_abs'] = abs(od_order_comp['actual_q'] - od_order_comp['pred_q'])
     od_order_comp['perc_diff_abs'] = abs(od_order_comp['actual_q'] - od_order_comp['pred_q']) / \
                                      od_order_comp['actual_q'] * 100
     od_order_comp['q_diff'] = od_order_comp['pred_q'] - od_order_comp['actual_q']
-    od_order_comp['perc_diff'] = od_order_comp.apply(lambda x: (x['q_diff']*100) if x['actual_q'] == 0 else
-    ((x['pred_q'] - x['actual_q']) / x['actual_q'] * 100), axis = 1)
+    od_order_comp['perc_diff'] = od_order_comp.apply(lambda x: (x['q_diff'] * 100) if x['actual_q'] == 0 else
+    ((x['pred_q'] - x['actual_q']) / x['actual_q'] * 100), axis=1)
 
     od_order_comp['perc_diff_bucket'] = od_order_comp['perc_diff'].apply(lambda x: perc_diff_bucket(x))
 
     od_order_comp.drop(['dd_actual', 'dd_pred', 'month'], axis=1, inplace=True)
-    print('final order date compare data:\n')
-    print(od_order_comp.head(50))
+    # print('final order date compare data:\n')
+    # print(od_order_comp.head())
+    # print(od_order_comp.info())
 
+    # week difference
+    ####################################
+    week_diff_dt = od_order_comp.sort_values(['customernumber', 'mat_no', 'order_date']).copy()
+    od_comp_week_diff_act_order = week_diff_dt.loc[week_diff_dt['actual_q'] > 0].\
+        reset_index(drop = True).groupby(['customernumber', 'mat_no', 'order_date']).apply(lambda x:np.min(np.absolute(
+        (x['order_date'].values[0] - week_diff_dt.loc[(week_diff_dt['customernumber'] == x['customernumber'].values[0]) &
+                                           (week_diff_dt['mat_no'] == x['mat_no'].values[0]) &
+                                           (week_diff_dt['order_date'] != x['order_date'].values[0]) &
+                                           (week_diff_dt['pred_q'] > 0), 'order_date']))).days).rename("day_diff").\
+        reset_index()
+    od_comp_week_diff_act_order = od_comp_week_diff_act_order[od_comp_week_diff_act_order['day_diff'].notnull()]
+
+    ###############################################
+    # Error plots
     ################################################
-    # insert zeros for missing order dates for all products
-    od_order_comp_with_zeros = insert_missing_dates(data=od_order_comp)
-
-    od_order_comp_with_zeros_cleaned = filter_mismatch_dates(data=od_order_comp_with_zeros)
-
-    # print(od_order_comp_with_zeros_cleaned.head(10))
-
-    print("printing oder date data length:\n")
-    print(len(od_order_comp))
-
-    print("printing order dates with zeros length:\n")
-    print(len(od_order_comp_with_zeros))
-
-    print("printing cleaned order dates with zeros length:\n")
-    print(len(od_order_comp_with_zeros_cleaned))
-
-    ################################################
-    # plot_count_hist(data=od_order_comp, field= 'q_diff_abs', title='Histogram of Error Quantity on Order Date Basis',
-    #                 num_bar=10, image_dir=image_dir)
-
-    plot_count_hist(data=od_order_comp_with_zeros_cleaned, field='q_diff_abs',
-                    title='Histogram of Abs Error Quantity on Order Date Basis with zeros', x_label='Error Quantity(cs)',
+    plot_count_hist(data=od_order_comp, field='q_diff_abs',
+                    title='Histogram of Abs Error Quantity on Order Date Basis with zeros',
+                    x_label='Error Quantity(cs)',
                     num_bar=10, x_lim=10.5, image_dir=path)
 
-    plot_count_hist(data=od_order_comp_with_zeros_cleaned.loc[(od_order_comp_with_zeros_cleaned['q_diff'] >= -5) &
-                                                              (od_order_comp_with_zeros_cleaned['q_diff'] <= 5)],
+    plot_count_hist(data=od_order_comp.loc[(od_order_comp['q_diff'] >= -5) &
+                                                              (od_order_comp['q_diff'] <= 5)],
                     field='q_diff',
                     title='Histogram of Error Quantity on Order Date Basis with zeros(pred-actual)',
                     x_label='Error Quantity(cs)',
                     num_bar=11, x_lim=10.5, image_dir=path)
 
+    plot_count_hist(data=od_order_comp, field='perc_diff_bucket',
+                    title='Histogram of % Error Quantity on Order Date Basis with zeros', x_label='% Error',
+                    num_bar=9, x_lim=9.5, image_dir=path)
+
     for i in range(-4, 5):
-        bar_count = (len(list(od_order_comp_with_zeros_cleaned.loc[(od_order_comp_with_zeros_cleaned['q_diff'] == i)]['actual_q'].unique())))
-        plot_count_hist(data=od_order_comp_with_zeros_cleaned.loc[(od_order_comp_with_zeros_cleaned['q_diff'] == i)],
+        bar_count = (len(list(od_order_comp.loc[(od_order_comp['q_diff'] == i)][
+                                  'actual_q'].unique())))
+        plot_count_hist(data=od_order_comp.loc[(od_order_comp['q_diff'] == i)],
                         field='actual_q',
-                        title='Histogram actual quantity for error ' + str(i) + "(pred-actual)",
+                        title='Histogram actual quantity for error' + str(i) + "(pred-actual)",
                         x_label='Actual Order(cs)',
-                        num_bar=bar_count, x_lim=bar_count+0.5, image_dir=path)
+                        num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
+
+    if dataset == "LFP": bar_count = 30
+    else: bar_count = 20
+
+    plot_count_hist(data=od_comp_week_diff_act_order, field='day_diff',
+                    title='Histogram of days Difference for all the actual orders', x_label='day difference',
+                    num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
+
+    print("\n####################################################")
 
 ################################################
 # customer aggregate

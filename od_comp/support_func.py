@@ -14,6 +14,7 @@ def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir):
     :return: none
     """
     fig = plt.figure()
+    # print(data[field].value_counts().sort_index())
     ax =data[field].value_counts().sort_index().plot(kind = 'bar',grid=True, color='#607c8e')
     plt.title(title)
     plt.xlabel(x_label)
@@ -31,7 +32,7 @@ def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir):
 
     for i in ax.patches[:(num_bar + 1)]:
         # get_x pulls left or right; get_height pushes up or down
-        ax.text(i.get_x()-.03, i.get_height()+ 0.1, \
+        ax.text(i.get_x(), i.get_height()+ 0.1, \
                 str(round((i.get_height()/total)*100, 2))+'%', fontsize=13,
                     color='dimgrey')
     ax.set_xlim(left=None, right= x_lim)
@@ -70,6 +71,8 @@ def filter_mismatch_dates(data):
 
     od_order_comp_with_zeros = data.copy()
 
+    od_order_comp_with_zeros['order_date'] = od_order_comp_with_zeros['order_date'].astype(str)
+
     cus_od_agg = od_order_comp_with_zeros.groupby(['customernumber', 'order_date'])[['actual_q', 'pred_q']]. \
         sum().reset_index()
     cus_od_agg = cus_od_agg.loc[(cus_od_agg['actual_q'] != 0.0) & (cus_od_agg['pred_q'] != 0.0)]
@@ -93,23 +96,23 @@ def filter_mismatch_dates(data):
 def perc_diff_bucket(num):
 
     if num < -100:
-        diff_bucket = "Below[-100]"
+        diff_bucket = "[a]Below[-100]"
     elif num < -50:
-        diff_bucket = "[-100,-50)"
+        diff_bucket = "[b][-100,-50)"
     elif num < -25:
-        diff_bucket = "[-50,-25)"
+        diff_bucket = "[c][-50,-25)"
     elif num < 0:
-        diff_bucket = "[-25,0)"
+        diff_bucket = "[d][-25,0)"
     elif num == 0:
-        diff_bucket = "[0]"
+        diff_bucket = "[e][0]"
     elif num <= 25:
-        diff_bucket = "(0,25]"
+        diff_bucket = "[f](0,25]"
     elif num <= 50:
-        diff_bucket = "(25,50]"
+        diff_bucket = "[g](25,50]"
     elif num <= 100:
-        diff_bucket = "(50,100]"
+        diff_bucket = "[h](50,100]"
     else:
-        diff_bucket = "Above[100]"
+        diff_bucket = "[i]Above[100]"
 
     return  diff_bucket
 
