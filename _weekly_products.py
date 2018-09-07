@@ -17,6 +17,11 @@ import properties as p
 def build_prediction_weekly(sc, sqlContext, **kwargs):
     from data_fetch.data_query import get_data_weekly
 
+    if 'backlog_run' in kwargs.keys() and kwargs.get('backlog_run'):
+        backlog = True
+    else:
+        backlog = False
+
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
     else:
@@ -47,79 +52,146 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     # # Caching Data for current run
     test_data_weekly_models.cache()
 
-    #####################################________________ARIMA__________#######################################
+    if backlog:
+        print("Backlog Running true. Running MA for all categories")
+        # ############################________________MOVING AVERAGE__________#####################################
 
-    # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
-    print("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
-    print("\t--Running distributed ARIMA")
-    arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                            MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+        print("\t**************\n**************")
 
-    arima_results = arima_results_to_disk \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
-        .withColumn('load_timestamp', current_timestamp())
+        print("Running MOVING AVERAGE on products")
+        print("\t--Running distributed Moving Average")
+        ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                          MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE,
+                                                          backlog_run=True)
 
-    print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
-    arima_results \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_pdt_cat_123_location)
+        ma_weekly_results_df_final = ma_weekly_results_df \
+            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+            .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+            .withColumn('load_timestamp', current_timestamp()) \
+            .withColumn("category_flag",
+                        udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
 
-    #############################________________MOVING AVERAGE__________#####################################
+        print("\t--Writing the MA data into HDFS\n")
 
-    print("\t**************\n**************")
-    
-    print("Running MOVING AVERAGE on products")
-    print("\t--Running distributed Moving Average")
-    ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                                      MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+        ma_weekly_results_df_final.cache()
 
-    ma_weekly_results_df_final = ma_weekly_results_df \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
-        .withColumn('load_timestamp', current_timestamp()) \
-        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['I', 'II', 'III'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_123_location)
 
-    print("\t--Writing the MA data into HDFS\n")
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_456_location)
 
-    ma_weekly_results_df_final.cache()
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VII'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_7_location)
 
-    ma_weekly_results_df_final \
-        .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
-        .drop(col('category_flag')) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_456_location)
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_8910_location)
 
-    ma_weekly_results_df_final \
-        .filter(col('category_flag').isin(['VII'])) \
-        .drop(col('category_flag')) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_pdt_cat_7_location)
+        # ###################################################################################################################
+        # Clearing cache before the next run
+        # sqlContext.clearCache()
+        test_data_weekly_models.unpersist()
 
-    ma_weekly_results_df_final \
-        .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
-        .drop(col('category_flag')) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_8910_location)
+        print("************************************************************************************")
+    else:
+        # #####################################________________ARIMA__________#######################################
 
-    ####################################################################################################################
-    # Clearing cache before the next run
-    # sqlContext.clearCache()
-    test_data_weekly_models.unpersist()
+        # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
+        print("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
+        print("\t--Running distributed ARIMA")
+        arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-    print("************************************************************************************")
+        arima_results = arima_results_to_disk \
+            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+            .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+            .withColumn('load_timestamp', current_timestamp())
+
+        print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
+        arima_results \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_123_location)
+
+        # ############################________________MOVING AVERAGE__________#####################################
+
+        print("\t**************\n**************")
+
+        print("Running MOVING AVERAGE on products")
+        print("\t--Running distributed Moving Average")
+        ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                          MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+        ma_weekly_results_df_final = ma_weekly_results_df \
+            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+            .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+            .withColumn('load_timestamp', current_timestamp()) \
+            .withColumn("category_flag",
+                        udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
+
+        print("\t--Writing the MA data into HDFS\n")
+
+        ma_weekly_results_df_final.cache()
+
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_456_location)
+
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VII'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_7_location)
+
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_8910_location)
+
+        # ###################################################################################################################
+        # Clearing cache before the next run
+        # sqlContext.clearCache()
+        test_data_weekly_models.unpersist()
+
+        print("************************************************************************************")
 
 
 if __name__ == "__main__":

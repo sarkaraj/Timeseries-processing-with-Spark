@@ -67,7 +67,7 @@ if __name__ == "__main__":
 
         for sunday in all_previous_sundays:
             print("**********************************" + sunday + "************************************\n")
-            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday)
+            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday, backlog=True)
             print("************************************************************************************\n")
 
         sqlContext.catalog.dropTempView("customerdata")
