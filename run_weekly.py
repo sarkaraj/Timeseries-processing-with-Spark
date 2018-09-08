@@ -8,7 +8,8 @@ import properties as p
 import time
 
 
-def run_weekly(sc, sqlContext, _model_bld_date_string, **kwargs):
+def run_weekly(sc, sqlContext, _model_bld_date_string, _bottlers, **kwargs):
+    # # _bottlers is a broadcast variable
     print("************************************************************************************")
     print(_model_bld_date_string)
     print("************************************************************************************\n")
@@ -17,9 +18,10 @@ def run_weekly(sc, sqlContext, _model_bld_date_string, **kwargs):
     if 'backlog' in kwargs.keys() and kwargs.get('backlog'):
         print("run_weekly() - Backlog -- Running MA")
         build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-                                backlog_run=True)
+                                backlog_run=True, _bottlers=_bottlers)
     else:
-        build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+        build_prediction_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+                                _bottlers=_bottlers)
     print("Time taken for running WEEKLY MODELS:\t\t--- %s seconds ---" % (time.time() - start_time))
 
 

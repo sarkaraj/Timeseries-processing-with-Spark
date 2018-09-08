@@ -1,4 +1,4 @@
-_query = """
+_query_subpart_1 = """
 select d.customernumber customernumber, d.matnr matnr, d.bill_date bill_date, IF(d.units != 'CS', d.quantity * (f.umrez / f.umren), d.quantity) quantity, ((quantity * quantity) / d.price) q_indep_prc
 from
 (
@@ -7,6 +7,9 @@ from
 (
 select a.kunag customernumber, a.matnr matnr, a.fkdat bill_date ,a.fklmg quantity, a.meins units, a.netwr price
 from skuopt.invoices a
+where a.bottler in ("""
+
+_query_subpart_2 = """)
 ) b
 join
 (
@@ -29,4 +32,4 @@ _latest_product_criteria_days = 92
 _minimum_invoices = 5  # Point in inclusive
 
 if __name__ == "__main__":
-    print(_query)
+    print(_query_subpart_1)

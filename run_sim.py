@@ -54,7 +54,7 @@ if __name__ == "__main__":
                                                            module="consolidated",
                                                            simulation=True)
 
-    if new_cust_check:
+    if len(new_cust_check) == 2 and new_cust_check[0] is True:
         print("Backlog Run")
         # New customers are present
         # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
@@ -68,9 +68,12 @@ if __name__ == "__main__":
 
         all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string, previous_weeks=8)  # this is an array
 
+        _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
+
         for sunday in all_previous_sundays:
             print("**********************************" + sunday + "************************************\n")
-            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday, backlog=True)
+            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday, backlog=True,
+                       _bottlers=_bottler_broadcaster_1)
             print("************************************************************************************\n")
 
         sqlContext.catalog.dropTempView("customerdata")
@@ -83,11 +86,14 @@ if __name__ == "__main__":
         ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
 
-    get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-                             comments=comments,
-                             module="weekly",
-                             simulation=True)
-    run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    _bottler_broadcaster_2 = get_sample_customer_list(sc=sc,
+                                                      sqlContext=sqlContext,
+                                                      _model_bld_date_string=_model_bld_date_string,
+                                                      comments=comments,
+                                                      module="weekly",
+                                                      simulation=True)
+    run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+               _bottlers=_bottler_broadcaster_2)
     print("************************************************************************************\n")
 
     # if if_first_sunday_of_month:

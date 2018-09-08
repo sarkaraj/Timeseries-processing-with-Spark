@@ -14,7 +14,8 @@ from support_func import get_current_date, get_sample_customer_list, raw_data_to
 import properties as p
 
 
-def build_prediction_weekly(sc, sqlContext, **kwargs):
+def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
+    # # _bottlers is a broadcast variable
     from data_fetch.data_query import get_data_weekly
 
     if 'backlog_run' in kwargs.keys() and kwargs.get('backlog_run'):
@@ -40,7 +41,8 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     #############################________________DATA_ACQUISITION__________#####################################
 
     print("Querying of Hive Table - Obtaining Product Data for Weekly Models")
-    test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
+    test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date,
+                                              _bottlers=_bottlers) \
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
