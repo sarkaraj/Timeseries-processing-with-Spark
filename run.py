@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
         sqlContext.catalog.dropTempView("customerdata")
 
-    # Running normal weekly runs
+    # # Running normal weekly runs
     print("Weekly Run")
     print("Importing Sample Customer List")
 
