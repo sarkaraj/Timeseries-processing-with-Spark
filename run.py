@@ -40,18 +40,19 @@ if __name__ == "__main__":
     _model_bld_date_string, if_first_sunday_of_month = date_check(_model_bld_date_string_stg)
 
     # ###############################################################################################
-    # Check for new customers and generate predictions for previous 13 weeks
-    # 13 weeks is hard-coded for now
+    # Check for new customers and generate predictions for previous 12 weeks
+
     comments = " ".join(
         ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
 
-    new_cust_check = get_sample_customer_list_new_addition(sc=sc, sqlContext=sqlContext,
+    new_cust_check = get_sample_customer_list_new_addition(sc=sc,
+                                                           sqlContext=sqlContext,
                                                            _model_bld_date_string=_model_bld_date_string,
                                                            comments=comments,
                                                            module="consolidated")
 
-    if new_cust_check:
+    if len(new_cust_check) == 2 and new_cust_check[0] is True:  # # When len(new_cust_check) is 1 --> False
         print("Backlog Run")
         # New customers are present
         # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
@@ -65,9 +66,15 @@ if __name__ == "__main__":
 
         all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
 
+        _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
+
         for sunday in all_previous_sundays:
             print("**********************************" + sunday + "************************************\n")
-            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday, backlog=True)
+            run_weekly(sc=sc,
+                       sqlContext=sqlContext,
+                       _model_bld_date_string=sunday,
+                       backlog=True,
+                       _bottlers=_bottler_broadcaster_1)
             print("************************************************************************************\n")
 
         sqlContext.catalog.dropTempView("customerdata")
@@ -80,10 +87,16 @@ if __name__ == "__main__":
         ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
 
-    get_sample_customer_list(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
-                             comments=comments,
-                             module="weekly")
-    run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string)
+    _bottler_broadcaster_2 = get_sample_customer_list(sc=sc,
+                                                      sqlContext=sqlContext,
+                                                      _model_bld_date_string=_model_bld_date_string,
+                                                      comments=comments,
+                                                      module="weekly")
+
+    run_weekly(sc=sc,
+               sqlContext=sqlContext,
+               _model_bld_date_string=_model_bld_date_string,
+               _bottlers=_bottler_broadcaster_2)
     print("************************************************************************************\n")
 
     # if if_first_sunday_of_month:

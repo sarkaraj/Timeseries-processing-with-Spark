@@ -307,6 +307,22 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             .select(col("USERID").alias("sales_rep_id"),
                     col("KUNNR").alias("customernumber"))
 
+        _bottlers_stg = sqlContext.sql(
+            """select userid, vkorg from cso_test_env.tbl_visit_list_history_complete""") \
+            .select(col("userid").alias('sales_rep_id'),
+                    col("vkorg").alias('bottler')) \
+            .distinct()
+
+        _bottlers_df = _bottlers_stg.join(broadcast(_delivery_routes),
+                                          on=[_delivery_routes.sales_rep_id == _bottlers_stg.sales_rep_id],
+                                          how='inner') \
+            .drop(_delivery_routes.sales_rep_id) \
+            .select(col("bottler")) \
+            .distinct()
+
+        _bottlers_list = [str(elem.bottler) for elem in
+                          _bottlers_df.collect()]  # # is a array of string containing bottler id
+
         query_to_select_all_convenience_stores = """
         select kunnr
         from mdm.customer
@@ -341,6 +357,8 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         # else:
         customer_list = customer_sample.select(col("customernumber"))
 
+        _bottler_broadcaster = sc.broadcast(_bottlers_list)
+
         customer_list.createOrReplaceTempView("customerdata")
 
         customer_sample.coalesce(1) \
@@ -348,7 +366,12 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             .format('orc') \
             .option("header", "false") \
             .save(customer_data_location + append_to_folder_name)
+
+        return _bottler_broadcaster
+
     else:
+        print(" Running Production get_sample_customer_list")
+
         if "_model_bld_date_string" in kwargs.keys():
             _model_bld_date_string = kwargs.get("_model_bld_date_string")
         else:
@@ -387,6 +410,25 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             .select(col("USERID").alias("sales_rep_id"),
                     col("KUNNR").alias("customernumber"))
 
+        _bottlers_stg = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", ",") \
+            .option("header", "true") \
+            .load(p.VISIT_LIST_LOCATION) \
+            .select(col("USERID").alias('sales_rep_id'),
+                    col("VKORG").alias('bottler')) \
+            .distinct()
+
+        _bottlers_df = _bottlers_stg.join(broadcast(_delivery_routes),
+                                          on=[_delivery_routes.sales_rep_id == _bottlers_stg.sales_rep_id],
+                                          how='inner') \
+            .drop(_delivery_routes.sales_rep_id) \
+            .select(col("bottler")) \
+            .distinct()
+
+        _bottlers_list = [str(elem.bottler) for elem in
+                          _bottlers_df.collect()]  # # is a array of string containing bottler id
+
         query_to_select_all_convenience_stores = """
         select kunnr
         from mdm.customer
@@ -412,14 +454,18 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
             .withColumn("Comments", lit(comments))
 
-        if p.CUSTOMER_SAMPLING:
-            if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
-                customer_list = customer_sample.select(col("customernumber"))
-            else:
-                customer_list = customer_sample.select(col("customernumber")).sample(False,
-                                                                                     p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
-        else:
-            customer_list = customer_sample.select(col("customernumber"))
+        # if p.CUSTOMER_SAMPLING:
+        #     if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+        #         customer_list = customer_sample.select(col("customernumber"))
+        #     else:
+        #         customer_list = customer_sample.select(col("customernumber")).sample(False,
+        #                                                                              p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
+        # else:
+        #     customer_list = customer_sample.select(col("customernumber"))
+
+        _bottler_broadcaster = sc.broadcast(_bottlers_list)
+
+        customer_list = customer_sample.select(col("customernumber"))
 
         customer_list.createOrReplaceTempView("customerdata")
 
@@ -428,6 +474,8 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             .format('orc') \
             .option("header", "false") \
             .save(customer_data_location + append_to_folder_name)
+
+        return _bottler_broadcaster
 
 
 def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
@@ -569,6 +617,8 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
             return True, _bottler_broadcaster
     else:
+        print("Production get_sample_customer_list_new_addition()")
+
         if "_model_bld_date_string" in kwargs.keys():
             _model_bld_date_string = kwargs.get("_model_bld_date_string")
         else:

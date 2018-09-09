@@ -39,6 +39,7 @@ def generate_weekly_query(date, _bottlers, **kwargs):
         return _result
     else:
         print("SyntaxError: No bottler id has been provided. Please check if bottler value is being provided.")
+        print("------------ Acceptable types: Iterable (List, Set, Tuple)")
         raise SyntaxError
 
 

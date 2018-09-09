@@ -48,7 +48,8 @@ if __name__ == "__main__":
         ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
 
-    new_cust_check = get_sample_customer_list_new_addition(sc=sc, sqlContext=sqlContext,
+    new_cust_check = get_sample_customer_list_new_addition(sc=sc,
+                                                           sqlContext=sqlContext,
                                                            _model_bld_date_string=_model_bld_date_string,
                                                            comments=comments,
                                                            module="consolidated",
@@ -72,7 +73,10 @@ if __name__ == "__main__":
 
         for sunday in all_previous_sundays:
             print("**********************************" + sunday + "************************************\n")
-            run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=sunday, backlog=True,
+            run_weekly(sc=sc,
+                       sqlContext=sqlContext,
+                       _model_bld_date_string=sunday,
+                       backlog=True,
                        _bottlers=_bottler_broadcaster_1)
             print("************************************************************************************\n")
 
@@ -92,7 +96,10 @@ if __name__ == "__main__":
                                                       comments=comments,
                                                       module="weekly",
                                                       simulation=True)
-    run_weekly(sc=sc, sqlContext=sqlContext, _model_bld_date_string=_model_bld_date_string,
+
+    run_weekly(sc=sc,
+               sqlContext=sqlContext,
+               _model_bld_date_string=_model_bld_date_string,
                _bottlers=_bottler_broadcaster_2)
     print("************************************************************************************\n")
 

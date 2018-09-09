@@ -55,10 +55,10 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
     test_data_weekly_models.cache()
 
     if backlog:
-        print("Backlog Running true. Running MA for all categories")
+        print("Backlog Running set to True. Running MA for all categories")
         # ############################________________MOVING AVERAGE__________#####################################
 
-        print("\t**************\n**************")
+        print("*************************************************************\n")
 
         print("Running MOVING AVERAGE on products")
         print("\t--Running distributed Moving Average")
@@ -86,6 +86,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .option("header", "false") \
             .save(weekly_pdt_cat_123_location)
 
+        print("\t-- 1, 2, 3 -- Completed\n")
+
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
             .drop(col('category_flag')) \
@@ -94,6 +96,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .format('orc') \
             .option("header", "false") \
             .save(monthly_pdt_cat_456_location)
+
+        print("\t-- 4, 5, 6 -- Completed\n")
 
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VII'])) \
@@ -104,6 +108,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .option("header", "false") \
             .save(weekly_pdt_cat_7_location)
 
+        print("\t-- 7 -- Completed\n")
+
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
             .drop(col('category_flag')) \
@@ -112,6 +118,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .format('orc') \
             .option("header", "false") \
             .save(monthly_pdt_cat_8910_location)
+
+        print("\t-- 8, 9, 10 -- Completed\n")
 
         # ###################################################################################################################
         # Clearing cache before the next run
@@ -124,6 +132,7 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
 
         # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
         print("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
+        print("*************************************************************\n")
         print("\t--Running distributed ARIMA")
         arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                                 MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -141,11 +150,12 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .option("header", "false") \
             .save(weekly_pdt_cat_123_location)
 
+        print("\t-- 1, 2, 3 -- Completed\n")
+
         # ############################________________MOVING AVERAGE__________#####################################
 
-        print("\t**************\n**************")
-
         print("Running MOVING AVERAGE on products")
+        print("*************************************************************\n")
         print("\t--Running distributed Moving Average")
         ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
@@ -170,6 +180,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .option("header", "false") \
             .save(monthly_pdt_cat_456_location)
 
+        print("\t-- 4, 5, 6 -- Completed\n")
+
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VII'])) \
             .drop(col('category_flag')) \
@@ -179,6 +191,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .option("header", "false") \
             .save(weekly_pdt_cat_7_location)
 
+        print("\t-- 7 -- Completed\n")
+
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
             .drop(col('category_flag')) \
@@ -187,6 +201,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .format('orc') \
             .option("header", "false") \
             .save(monthly_pdt_cat_8910_location)
+
+        print("\t-- 8, 9, 10 -- Completed\n")
 
         # ###################################################################################################################
         # Clearing cache before the next run
