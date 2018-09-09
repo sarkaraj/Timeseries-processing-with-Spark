@@ -429,6 +429,9 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         _bottlers_list = [str(elem.bottler) for elem in
                           _bottlers_df.collect()]  # # is a array of string containing bottler id
 
+        # # Todo: Delete this
+        print(_bottlers_list)
+
         query_to_select_all_convenience_stores = """
         select kunnr
         from mdm.customer
@@ -677,6 +680,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
         _bottlers_list = [str(elem.bottler) for elem in
                           _bottlers_df.collect()]  # # is a array of string containing bottler id
+
+        # # Todo: Uncomment this
+        print(_bottlers_list)
 
         query_to_select_all_convenience_stores = """
         select kunnr

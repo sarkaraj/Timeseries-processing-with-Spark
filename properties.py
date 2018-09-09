@@ -36,8 +36,8 @@ REPARTITION_STAGE_2 = 45
 ###################################################################################################
 # ___________________________________STORAGE LOCATION______________________________________________
 ###################################################################################################
-container = "csotestenv"
-# container = "csoproduction"  # TODO: Uncomment when merging with production branch
+# container = "csotestenv"
+container = "csoproduction"  # TODO: Uncomment when merging with production branch
 
 if container == "csoproduction":
     WRITE_MODE = "append"
