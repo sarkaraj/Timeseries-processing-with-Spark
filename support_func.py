@@ -268,192 +268,96 @@ def _get_last_day_of_previous_month(_date):
 def get_sample_customer_list(sc, sqlContext, **kwargs):
     customer_data_location = p.customer_data_location
 
-    if "_model_bld_date_string" in kwargs.keys():
-        _model_bld_date_string = kwargs.get("_model_bld_date_string")
-    else:
-        print("ValueError: No model date has been provided")
-        raise ValueError
+    if "simulation" in kwargs.keys() and kwargs.get("simulation"):
+        print(" Running Simulation get_sample_customer_list")
 
-    if "comments" in kwargs.keys():
-        comments = kwargs.get("comments")
-    else:
-        comments = p.comments
-
-    if "module" in kwargs.keys():
-        module = kwargs.get("module")
-        append_to_folder_name = "".join(["/", "module", "=", module])
-    else:
-        print("ValueError: No module date has been provided")
-        raise ValueError
-
-    # ###########################################
-    # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
-    # ###########################################
-
-    _delivery_routes = sqlContext.read \
-        .format("csv") \
-        .option("delimiter", "\t") \
-        .option("header", "false") \
-        .load(p.test_delivery_routes) \
-        .withColumnRenamed("_c0", "sales_rep_id") \
-        .select(col("sales_rep_id"))
-
-    _complete_customer_list_from_VL_df = sqlContext.read \
-        .format("csv") \
-        .option("delimiter", ",") \
-        .option("header", "true") \
-        .load(p.VISIT_LIST_LOCATION) \
-        .select(col("USERID").alias("sales_rep_id"),
-                col("KUNNR").alias("customernumber"))
-
-    query_to_select_all_convenience_stores = """
-    select kunnr
-    from mdm.customer
-    where katr6 = '3'
-    """
-
-    convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
-        .withColumnRenamed("kunnr", "customernumber")
-
-    _custom_customer_list_df = convenience_store_df \
-        .join(broadcast(_complete_customer_list_from_VL_df),
-              on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
-              how="inner") \
-        .drop(convenience_store_df.customernumber) \
-        .join(broadcast(_delivery_routes),
-              on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
-              how="inner") \
-        .drop(_delivery_routes.sales_rep_id) \
-        .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
-        .distinct()
-
-    customer_sample = _custom_customer_list_df \
-        .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
-        .withColumn("Comments", lit(comments))
-
-    if p.CUSTOMER_SAMPLING:
-        if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
-            customer_list = customer_sample.select(col("customernumber"))
+        if "_model_bld_date_string" in kwargs.keys():
+            _model_bld_date_string = kwargs.get("_model_bld_date_string")
         else:
-            customer_list = customer_sample.select(col("customernumber")).sample(False, p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
-    else:
-        customer_list = customer_sample.select(col("customernumber"))
+            print("ValueError: No model date has been provided")
+            raise ValueError
 
-    customer_list.createOrReplaceTempView("customerdata")
+        if "comments" in kwargs.keys():
+            comments = kwargs.get("comments")
+        else:
+            comments = p.comments
 
-    customer_sample.coalesce(1) \
-        .write.mode('append') \
-        .format('orc') \
-        .option("header", "false") \
-        .save(customer_data_location + append_to_folder_name)
+        if "module" in kwargs.keys():
+            module = kwargs.get("module")
+            append_to_folder_name = "".join(["/", "simulation", "/", "module", "=", module])
+        else:
+            print("ValueError: No module date has been provided")
+            raise ValueError
 
+        # ###########################################
+        # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
+        # ###########################################
 
-def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
-    customer_data_location = p.customer_data_location
+        _delivery_routes = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", "\t") \
+            .option("header", "false") \
+            .load(
+            "wasb://csotestenv@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes") \
+            .withColumnRenamed("_c0", "sales_rep_id") \
+            .select(col("sales_rep_id"))
 
-    if "_model_bld_date_string" in kwargs.keys():
-        _model_bld_date_string = kwargs.get("_model_bld_date_string")
-    else:
-        print("ValueError: No model date has been provided")
-        raise ValueError
+        _complete_customer_list_from_VL_df = sqlContext.sql(
+            """select * from cso_test_env.tbl_visit_list_history_complete""") \
+            .select(col("USERID").alias("sales_rep_id"),
+                    col("KUNNR").alias("customernumber"))
 
-    if "comments" in kwargs.keys():
-        comments = kwargs.get("comments")
-    else:
-        comments = p.comments
+        _bottlers_stg = sqlContext.sql(
+            """select userid, vkorg from cso_test_env.tbl_visit_list_history_complete""") \
+            .select(col("userid").alias('sales_rep_id'),
+                    col("vkorg").alias('bottler')) \
+            .distinct()
 
-    if "module" in kwargs.keys():
-        module = kwargs.get("module")
-        append_to_folder_name = "".join(["/", "module", "=", module])
-    else:
-        print("ValueError: No module date has been provided")
-        raise ValueError
+        _bottlers_df = _bottlers_stg.join(broadcast(_delivery_routes),
+                                          on=[_delivery_routes.sales_rep_id == _bottlers_stg.sales_rep_id],
+                                          how='inner') \
+            .drop(_delivery_routes.sales_rep_id) \
+            .select(col("bottler")) \
+            .distinct()
 
-    # ###########################################
-    # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
-    # ###########################################
+        _bottlers_list = [str(elem.bottler) for elem in
+                          _bottlers_df.collect()]  # # is a array of string containing bottler id
 
-    _delivery_routes = sqlContext.read \
-        .format("csv") \
-        .option("delimiter", "\t") \
-        .option("header", "false") \
-        .load(p.test_delivery_routes) \
-        .withColumnRenamed("_c0", "sales_rep_id") \
-        .select(col("sales_rep_id"))
+        query_to_select_all_convenience_stores = """
+        select kunnr
+        from mdm.customer
+        where katr6 = '3'
+        """
 
-    print(_delivery_routes.count())
+        convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
+            .withColumnRenamed("kunnr", "customernumber")
 
-    _complete_customer_list_from_VL_df = sqlContext.read \
-        .format("csv") \
-        .option("delimiter", ",") \
-        .option("header", "true") \
-        .load(p.VISIT_LIST_LOCATION) \
-        .select(col("USERID").alias("sales_rep_id"),
-                col("KUNNR").alias("customernumber"))
+        _custom_customer_list_df = convenience_store_df \
+            .join(broadcast(_complete_customer_list_from_VL_df),
+                  on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
+                  how="inner") \
+            .drop(convenience_store_df.customernumber) \
+            .join(broadcast(_delivery_routes),
+                  on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
+                  how="inner") \
+            .drop(_delivery_routes.sales_rep_id) \
+            .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
+            .distinct()
 
-    query_to_select_all_convenience_stores = """
-    select kunnr
-    from mdm.customer
-    where katr6 = '3'
-    """
-
-    convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
-        .withColumnRenamed("kunnr", "customernumber")
-
-    query_to_select_all_customers_from_last_mdl_bld_dt = """
-    select customer_tbl.customernumber customernumber
-    from
-    (select customernumber, mdl_bld_dt
-    from cso_production.view_consolidated_pred_complete_CCBCC
-    group by customernumber, mdl_bld_dt) customer_tbl
-    join
-    (select max(mdl_bld_dt) mdl_bld_dt
-    from cso_production.view_consolidated_pred_complete_CCBCC) max_date
-    on customer_tbl.mdl_bld_dt = max_date.mdl_bld_dt
-    """
-
-    customers_present_on_previous_run = sqlContext.sql(query_to_select_all_customers_from_last_mdl_bld_dt)
-
-    _custom_customer_list_df_stg = convenience_store_df \
-        .join(broadcast(_complete_customer_list_from_VL_df),
-              on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
-              how="inner") \
-        .drop(convenience_store_df.customernumber) \
-        .join(broadcast(_delivery_routes),
-              on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
-              how="inner") \
-        .drop(_delivery_routes.sales_rep_id) \
-        .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
-        .distinct()
-
-    _custom_customer_list_df = _custom_customer_list_df_stg \
-        .join(broadcast(customers_present_on_previous_run),
-              on=[customers_present_on_previous_run.customernumber == _custom_customer_list_df_stg.customernumber],
-              how="left") \
-        .filter(isnull(customers_present_on_previous_run.customernumber)) \
-        .drop(customers_present_on_previous_run.customernumber)
-
-    _custom_customer_list_df.cache()
-
-    if _custom_customer_list_df.count() == 0:
-        # Implying there exists no new customers that has been added to the routes
-        # sqlContext.clearCache()
-        return False
-    else:
-        # Implying there exists customers that had not been present in the previous run
         customer_sample = _custom_customer_list_df \
             .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
             .withColumn("Comments", lit(comments))
 
-        if p.CUSTOMER_SAMPLING:
-            if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
-                customer_list = customer_sample.select(col("customernumber"))
-            else:
-                customer_list = customer_sample.select(col("customernumber")).sample(False,
-                                                                                     p.CUSTOMER_SAMPLING_PERCENTAGE,
-                                                                                     42)
-        else:
-            customer_list = customer_sample.select(col("customernumber"))
+        # if p.CUSTOMER_SAMPLING:
+        #     if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+        #         customer_list = customer_sample.select(col("customernumber"))
+        #     else:
+        #         customer_list = customer_sample.select(col("customernumber")).sample(False,
+        #                                                                              p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
+        # else:
+        customer_list = customer_sample.select(col("customernumber"))
+
+        _bottler_broadcaster = sc.broadcast(_bottlers_list)
 
         customer_list.createOrReplaceTempView("customerdata")
 
@@ -463,7 +367,394 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .option("header", "false") \
             .save(customer_data_location + append_to_folder_name)
 
-        return True
+        return _bottler_broadcaster
+
+    else:
+        print(" Running Production get_sample_customer_list")
+
+        if "_model_bld_date_string" in kwargs.keys():
+            _model_bld_date_string = kwargs.get("_model_bld_date_string")
+        else:
+            print("ValueError: No model date has been provided")
+            raise ValueError
+
+        if "comments" in kwargs.keys():
+            comments = kwargs.get("comments")
+        else:
+            comments = p.comments
+
+        if "module" in kwargs.keys():
+            module = kwargs.get("module")
+            append_to_folder_name = "".join(["/", "module", "=", module])
+        else:
+            print("ValueError: No module date has been provided")
+            raise ValueError
+
+        # ###########################################
+        # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
+        # ###########################################
+
+        _delivery_routes = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", "\t") \
+            .option("header", "false") \
+            .load(p.test_delivery_routes) \
+            .withColumnRenamed("_c0", "sales_rep_id") \
+            .select(col("sales_rep_id"))
+
+        _complete_customer_list_from_VL_df = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", ",") \
+            .option("header", "true") \
+            .load(p.VISIT_LIST_LOCATION) \
+            .select(col("USERID").alias("sales_rep_id"),
+                    col("KUNNR").alias("customernumber"))
+
+        _bottlers_stg = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", ",") \
+            .option("header", "true") \
+            .load(p.VISIT_LIST_LOCATION) \
+            .select(col("USERID").alias('sales_rep_id'),
+                    col("VKORG").alias('bottler')) \
+            .distinct()
+
+        _bottlers_df = _bottlers_stg.join(broadcast(_delivery_routes),
+                                          on=[_delivery_routes.sales_rep_id == _bottlers_stg.sales_rep_id],
+                                          how='inner') \
+            .drop(_delivery_routes.sales_rep_id) \
+            .select(col("bottler")) \
+            .distinct()
+
+        _bottlers_list = [str(elem.bottler) for elem in
+                          _bottlers_df.collect()]  # # is a array of string containing bottler id
+
+        query_to_select_all_convenience_stores = """
+        select kunnr
+        from mdm.customer
+        where katr6 = '3'
+        """
+
+        convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
+            .withColumnRenamed("kunnr", "customernumber")
+
+        _custom_customer_list_df = convenience_store_df \
+            .join(broadcast(_complete_customer_list_from_VL_df),
+                  on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
+                  how="inner") \
+            .drop(convenience_store_df.customernumber) \
+            .join(broadcast(_delivery_routes),
+                  on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
+                  how="inner") \
+            .drop(_delivery_routes.sales_rep_id) \
+            .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
+            .distinct()
+
+        customer_sample = _custom_customer_list_df \
+            .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
+            .withColumn("Comments", lit(comments))
+
+        # if p.CUSTOMER_SAMPLING:
+        #     if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+        #         customer_list = customer_sample.select(col("customernumber"))
+        #     else:
+        #         customer_list = customer_sample.select(col("customernumber")).sample(False,
+        #                                                                              p.CUSTOMER_SAMPLING_PERCENTAGE, 42)
+        # else:
+        #     customer_list = customer_sample.select(col("customernumber"))
+
+        _bottler_broadcaster = sc.broadcast(_bottlers_list)
+
+        customer_list = customer_sample.select(col("customernumber"))
+
+        customer_list.createOrReplaceTempView("customerdata")
+
+        customer_sample.coalesce(1) \
+            .write.mode('append') \
+            .format('orc') \
+            .option("header", "false") \
+            .save(customer_data_location + append_to_folder_name)
+
+        return _bottler_broadcaster
+
+
+def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
+    customer_data_location = p.customer_data_location
+
+    if "simulation" in kwargs.keys() and kwargs.get("simulation"):
+        print("Running Simulation get_sample_customer_list_new_addition()")
+
+        if "_model_bld_date_string" in kwargs.keys():
+            _model_bld_date_string = kwargs.get("_model_bld_date_string")
+        else:
+            print("ValueError: No model date has been provided")
+            raise ValueError
+
+        if "comments" in kwargs.keys():
+            comments = kwargs.get("comments")
+        else:
+            comments = p.comments
+
+        if "module" in kwargs.keys():
+            module = kwargs.get("module")
+            append_to_folder_name = "".join(
+                ["/", "simulation", "/", "module", "=", module])  # # Adding folder for simulation for logging
+        else:
+            print("ValueError: No module date has been provided")
+            raise ValueError
+
+        # ###########################################
+        # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
+        # ###########################################
+
+        _delivery_routes = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", "\t") \
+            .option("header", "false") \
+            .load(
+            "wasb://csotestenv@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes") \
+            .withColumnRenamed("_c0", "sales_rep_id") \
+            .select(col("sales_rep_id"))
+
+        print("_delivery_routes_count")
+        print(_delivery_routes.count())
+
+        _complete_customer_list_from_VL_df = sqlContext.sql(
+            """select * from cso_test_env.tbl_visit_list_history_complete""") \
+            .select(col("USERID").alias("sales_rep_id"),
+                    col("KUNNR").alias("customernumber"))
+
+        _bottlers_stg = sqlContext.sql(
+            """select userid, vkorg from cso_test_env.tbl_visit_list_history_complete""") \
+            .select(col("userid").alias('sales_rep_id'),
+                    col("vkorg").alias('bottler')) \
+            .distinct()
+
+        _bottlers_df = _bottlers_stg.join(broadcast(_delivery_routes),
+                                          on=[_delivery_routes.sales_rep_id == _bottlers_stg.sales_rep_id],
+                                          how='inner') \
+            .drop(_delivery_routes.sales_rep_id) \
+            .select(col("bottler")) \
+            .distinct()
+
+        _bottlers_list = [str(elem.bottler) for elem in
+                          _bottlers_df.collect()]  # # is a array of string containing bottler id
+
+        query_to_select_all_convenience_stores = """
+        select kunnr
+        from mdm.customer
+        where katr6 = '3'
+        """
+
+        convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
+            .withColumnRenamed("kunnr", "customernumber")
+
+        query_to_select_all_customers_from_last_mdl_bld_dt = """
+        select customer_tbl.customernumber customernumber
+        from
+        (select customernumber, mdl_bld_dt
+        from cso_test_env.view_consolidated_pred_complete_CCBCC
+        group by customernumber, mdl_bld_dt) customer_tbl
+        join
+        (select max(mdl_bld_dt) mdl_bld_dt
+        from cso_test_env.view_consolidated_pred_complete_CCBCC) max_date
+        on customer_tbl.mdl_bld_dt = max_date.mdl_bld_dt
+        """
+
+        customers_present_on_previous_run = sqlContext.sql(query_to_select_all_customers_from_last_mdl_bld_dt)
+
+        _custom_customer_list_df_stg = convenience_store_df \
+            .join(broadcast(_complete_customer_list_from_VL_df),
+                  on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
+                  how="inner") \
+            .drop(convenience_store_df.customernumber) \
+            .join(broadcast(_delivery_routes),
+                  on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
+                  how="inner") \
+            .drop(_delivery_routes.sales_rep_id) \
+            .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
+            .distinct()
+
+        _custom_customer_list_df = _custom_customer_list_df_stg \
+            .join(broadcast(customers_present_on_previous_run),
+                  on=[customers_present_on_previous_run.customernumber == _custom_customer_list_df_stg.customernumber],
+                  how="left") \
+            .filter(isnull(customers_present_on_previous_run.customernumber)) \
+            .drop(customers_present_on_previous_run.customernumber)
+
+        _custom_customer_list_df.cache()
+
+        if _custom_customer_list_df.count() == 0:
+            # Implying there exists no new customers that has been added to the routes
+            # sqlContext.clearCache()
+            return False
+        else:
+            # Implying there exists customers that had not been present in the previous run
+            customer_sample = _custom_customer_list_df \
+                .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
+                .withColumn("Comments", lit(comments))
+
+            # if p.CUSTOMER_SAMPLING:
+            #     if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+            #         customer_list = customer_sample.select(col("customernumber"))
+            #     else:
+            #         customer_list = customer_sample.select(col("customernumber")).sample(False,
+            #                                                                              p.CUSTOMER_SAMPLING_PERCENTAGE,
+            #                                                                              42)
+            # else:
+
+            _bottler_broadcaster = sc.broadcast(_bottlers_list)
+
+            customer_list = customer_sample.select(col("customernumber"))
+
+            customer_list.createOrReplaceTempView("customerdata")
+
+            customer_sample.coalesce(1) \
+                .write.mode('append') \
+                .format('orc') \
+                .option("header", "false") \
+                .save(customer_data_location + append_to_folder_name)
+
+            return True, _bottler_broadcaster
+    else:
+        print("Production get_sample_customer_list_new_addition()")
+
+        if "_model_bld_date_string" in kwargs.keys():
+            _model_bld_date_string = kwargs.get("_model_bld_date_string")
+        else:
+            print("ValueError: No model date has been provided")
+            raise ValueError
+
+        if "comments" in kwargs.keys():
+            comments = kwargs.get("comments")
+        else:
+            comments = p.comments
+
+        if "module" in kwargs.keys():
+            module = kwargs.get("module")
+            append_to_folder_name = "".join(["/", "module", "=", module])
+        else:
+            print("ValueError: No module date has been provided")
+            raise ValueError
+
+        # ###########################################
+        # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
+        # ###########################################
+
+        _delivery_routes = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", "\t") \
+            .option("header", "false") \
+            .load(p.test_delivery_routes) \
+            .withColumnRenamed("_c0", "sales_rep_id") \
+            .select(col("sales_rep_id"))
+
+        print(_delivery_routes.count())
+
+        _complete_customer_list_from_VL_df = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", ",") \
+            .option("header", "true") \
+            .load(p.VISIT_LIST_LOCATION) \
+            .select(col("USERID").alias("sales_rep_id"),
+                    col("KUNNR").alias("customernumber"))
+
+        _bottlers_stg = sqlContext.read \
+            .format("csv") \
+            .option("delimiter", ",") \
+            .option("header", "true") \
+            .load(p.VISIT_LIST_LOCATION) \
+            .select(col("USERID").alias('sales_rep_id'),
+                    col("VKORG").alias('bottler')) \
+            .distinct()
+
+        _bottlers_df = _bottlers_stg.join(broadcast(_delivery_routes),
+                                          on=[_delivery_routes.sales_rep_id == _bottlers_stg.sales_rep_id],
+                                          how='inner') \
+            .drop(_delivery_routes.sales_rep_id) \
+            .select(col("bottler")) \
+            .distinct()
+
+        _bottlers_list = [str(elem.bottler) for elem in
+                          _bottlers_df.collect()]  # # is a array of string containing bottler id
+
+        query_to_select_all_convenience_stores = """
+        select kunnr
+        from mdm.customer
+        where katr6 = '3'
+        """
+
+        convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
+            .withColumnRenamed("kunnr", "customernumber")
+
+        query_to_select_all_customers_from_last_mdl_bld_dt = """
+        select customer_tbl.customernumber customernumber
+        from
+        (select customernumber, mdl_bld_dt
+        from cso_production.view_consolidated_pred_complete_CCBCC
+        group by customernumber, mdl_bld_dt) customer_tbl
+        join
+        (select max(mdl_bld_dt) mdl_bld_dt
+        from cso_production.view_consolidated_pred_complete_CCBCC) max_date
+        on customer_tbl.mdl_bld_dt = max_date.mdl_bld_dt
+        """
+
+        customers_present_on_previous_run = sqlContext.sql(query_to_select_all_customers_from_last_mdl_bld_dt)
+
+        _custom_customer_list_df_stg = convenience_store_df \
+            .join(broadcast(_complete_customer_list_from_VL_df),
+                  on=[_complete_customer_list_from_VL_df.customernumber == convenience_store_df.customernumber],
+                  how="inner") \
+            .drop(convenience_store_df.customernumber) \
+            .join(broadcast(_delivery_routes),
+                  on=[_complete_customer_list_from_VL_df.sales_rep_id == _delivery_routes.sales_rep_id],
+                  how="inner") \
+            .drop(_delivery_routes.sales_rep_id) \
+            .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
+            .distinct()
+
+        _custom_customer_list_df = _custom_customer_list_df_stg \
+            .join(broadcast(customers_present_on_previous_run),
+                  on=[customers_present_on_previous_run.customernumber == _custom_customer_list_df_stg.customernumber],
+                  how="left") \
+            .filter(isnull(customers_present_on_previous_run.customernumber)) \
+            .drop(customers_present_on_previous_run.customernumber)
+
+        _custom_customer_list_df.cache()
+
+        if _custom_customer_list_df.count() == 0:
+            # Implying there exists no new customers that has been added to the routes
+            # sqlContext.clearCache()
+            return False
+        else:
+            # Implying there exists customers that had not been present in the previous run
+            customer_sample = _custom_customer_list_df \
+                .withColumn("mdl_bld_dt", lit(_model_bld_date_string)) \
+                .withColumn("Comments", lit(comments))
+
+            # if p.CUSTOMER_SAMPLING:
+            #     if int(p.CUSTOMER_SAMPLING_PERCENTAGE) == 1:
+            #         customer_list = customer_sample.select(col("customernumber"))
+            #     else:
+            #         customer_list = customer_sample.select(col("customernumber")).sample(False,
+            #                                                                              p.CUSTOMER_SAMPLING_PERCENTAGE,
+            #                                                                              42)
+            # else:
+            #     customer_list = customer_sample.select(col("customernumber"))
+
+            _bottler_broadcaster = sc.broadcast(_bottlers_list)
+
+            customer_list = customer_sample.select(col("customernumber"))
+
+            customer_list.createOrReplaceTempView("customerdata")
+
+            customer_sample.coalesce(1) \
+                .write.mode('append') \
+                .format('orc') \
+                .option("header", "false") \
+                .save(customer_data_location + append_to_folder_name)
+
+            return True, _bottler_broadcaster
 
 
 def obtain_mdl_bld_dt():

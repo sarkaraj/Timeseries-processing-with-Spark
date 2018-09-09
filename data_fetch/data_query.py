@@ -5,10 +5,11 @@ from pyspark.sql.types import *
 from pyspark.sql.window import Window
 
 
-def get_data_weekly(sqlContext, **kwargs):
+def get_data_weekly(sqlContext, _bottlers, **kwargs):
+    # # _bottlers is a broadcast variable
     if 'week_cutoff_date' in kwargs.keys():
         week_cutoff_date = kwargs.get('week_cutoff_date')
-        test_query = generate_weekly_query(week_cutoff_date)
+        test_query = generate_weekly_query(week_cutoff_date, _bottlers)
     else:
         raise ValueError
 
