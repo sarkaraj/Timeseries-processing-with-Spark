@@ -15,10 +15,10 @@ rcParams['figure.figsize'] = 15, 6
 ############################
 route_id_list = ['CC002189']  #CC019018 #CC002189
 
-start_date = '2018-07-04'
-end_date = '2018-09-04'
+start_date = '2016-07-04'
+end_date = '2019-09-04'
 
-od_comp_file = "order_comparison_05-09-2018.tsv"
+od_comp_file = "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"
 cv_result_file = "cvResult_05-09-2018.tsv"
 sub_file_name = "_result_new\\"
 
@@ -40,7 +40,7 @@ image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\"
 order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep="\t",
                             header=None,
                             names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
-                                   "dd_pred", "month"])
+                                   "dd_pred", "month", "pred_dec", "cap", "prod_desc", "fridge"])
 
 print("##########--Order compare data--##############\n")
 print(order_compare.head())
@@ -191,6 +191,60 @@ for dataset in ['HFP', 'MFP', 'LFP']:
     # print(od_order_comp.head())
     # print(od_order_comp.info())
 
+    # persistence
+    ###########################################
+    persist_dt = od_order_comp.copy().sort_values(['customernumber', 'mat_no', 'order_date'])
+    persist_dt['pred_dec'] = pd.to_numeric(persist_dt['pred_dec'], errors='coerce')
+    persist_dt_cleaned = persist_dt.loc[~persist_dt['pred_dec'].isnull()]
+
+    def persist_count(data):
+        cus_mat_persist = pd.DataFrame(columns=['customernumber', 'mat_no', 'counter', 'persist_length',
+                                                'persist_duration', 'start_date', 'end_date'])
+        for cus in data['customernumber'].unique():
+            cus_dt = data.loc[data['customernumber'] == cus]
+            for mat in cus_dt['mat_no'].unique():
+                cus_mat_dt = cus_dt.loc[cus_dt['mat_no'] == mat].reset_index(drop=True)
+                i = 0
+                counter = 0
+                while i < (len(cus_mat_dt)-1):
+                    length = 0
+                    j = i
+                    beg_index = i
+                    while j < len(cus_mat_dt)-1:
+                        if ((cus_mat_dt['actual_q'][j] <=0) & (cus_mat_dt['pred_q'][j] >0) &
+                                (cus_mat_dt['pred_dec'][j+1] > cus_mat_dt['pred_dec'][j])):
+                            if (cus_mat_dt['actual_q'][j+1] > 0):
+                                length += 2
+                                j += 1
+                                break
+                            else:
+                                length += 1
+                                j += 1
+                        else:
+                            break
+                    end_index = j
+                    i = j
+                    if (end_index - beg_index) >0:
+                        counter += 1
+                        persist_duration = (cus_mat_dt['order_date'][end_index] - cus_mat_dt['order_date'][beg_index]).days
+                        persist = pd.DataFrame({'customernumber' : [cus], 'mat_no' : [mat], 'counter' : [counter],
+                                                'persist_length' : [length], 'persist_duration' : [persist_duration],
+                                                'start_date': [cus_mat_dt['order_date'][beg_index]],
+                                                'end_date': [cus_mat_dt['order_date'][end_index]]})
+                        cus_mat_persist = pd.concat([cus_mat_persist, persist], axis= 0)
+                    else:
+                        i += 1
+        return cus_mat_persist
+
+    persist_desc = persist_count(persist_dt_cleaned)
+    # persist_desc = pd.DataFrame(persist_desc.astype(np.int))
+    persist_desc['cus_mat'] = persist_desc['customernumber'].map(str) + "_" + persist_desc['mat_no'].map(str)
+    persist_desc.to_csv(path + "persist_count.csv", index=False)
+    print("\n persistence count data:")
+    print(persist_desc.head())
+    print(persist_desc.dtypes)
+    print(persist_desc.describe())
+
     # week difference
     ###########################################
     week_diff_dt = od_order_comp.copy().sort_values(['customernumber', 'mat_no', 'order_date'])
@@ -203,7 +257,7 @@ for dataset in ['HFP', 'MFP', 'LFP']:
         reset_index()
     od_comp_week_diff_act_order = od_comp_week_diff_act_order.loc[od_comp_week_diff_act_order['day_diff'].notnull()]
 
-    ###############################################
+    ################################################
     # Error plots
     ################################################
     path = image_dir + dataset + sub_file_name + "OD\\"
@@ -312,34 +366,4 @@ final_order_comp_dt[['customernumber', 'mat_no', 'order_date', 'actual_q', 'pred
 od_customer_agg['diff'] = od_customer_agg['pred_q'] - od_customer_agg['actual_q']
 od_customer_agg['perc_diff'] = (od_customer_agg['pred_q'] - od_customer_agg['actual_q'])/od_customer_agg['actual_q']*100
 od_customer_agg['abs_perc_diff'] = abs(od_customer_agg['perc_diff'])
-#
-# od_customer_agg_op = od_customer_agg.loc[od_customer_agg['perc_diff'] >= 50.0]
-
-###################################################################################################################
-# weekly aggregate basis comparison
-###################################################################################################################
-# w_agg_order_comp = od_order_comp.groupby(['customernumber', 'mat_no',
-#                                           pd.Grouper(key='order_date', freq='W-MON', closed = 'left',
-#                                                      label = 'left')])[['actual_q', 'pred_q']].sum()\
-#     .reset_index().sort_values('order_date')
-#
-# w_agg_order_comp['q_diff_abs'] = abs(w_agg_order_comp['actual_q']- w_agg_order_comp['pred_q'])
-# print('weekly agg compare data length:\n')
-# print(len(w_agg_order_comp))
-#
-# w_agg_order_comp_with_zeros = insert_missing_dates(data= w_agg_order_comp)
-# print('weekly agg compare data with zeros length:\n')
-# print(len(w_agg_order_comp_with_zeros))
-#
-# w_agg_order_comp_with_zeros_cleaned = filter_mismatch_dates(data= w_agg_order_comp_with_zeros)
-# print('weekly agg compare cleaned data length:\n')
-# print(len(w_agg_order_comp_with_zeros_cleaned))
-#
-# # plot_count_hist(data=od_order_comp, field= 'q_diff_abs', title='Histogram of Error Quantity on Order Date Basis',
-# #                 num_bar=10, image_dir=image_dir)
-#
-# plot_count_hist(data=w_agg_order_comp_with_zeros_cleaned, field= 'q_diff_abs',
-#                 title='Histogram of Error Quantity on weekly Basis with zeros', x_label= 'Error Quantity(cs)',
-#                 num_bar=10, x_lim=10.5, image_dir=image_dir)
-
-#################################################
+#####################################################

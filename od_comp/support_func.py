@@ -32,7 +32,7 @@ def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir):
 
     for i in ax.patches[:(num_bar + 1)]:
         # get_x pulls left or right; get_height pushes up or down
-        ax.text(i.get_x(), i.get_height()+ 0.1, \
+        ax.text(i.get_x(), i.get_height()+ 0.1,\
                 str(round((i.get_height()/total)*100, 2))+'%', fontsize=13,
                     color='dimgrey')
     ax.set_xlim(left=None, right= x_lim)
