@@ -93,6 +93,71 @@ def filter_mismatch_dates(data):
 
     return od_order_comp_with_zeros_cleaned_final
 
+def persist_count(data):
+    import pandas as pd
+    import numpy as np
+
+    cus_mat_persist = pd.DataFrame(columns=['customernumber', 'mat_no', 'counter', 'persist_length',
+                                            'persist_duration', 'start_date', 'end_date'])
+    for cus in data['customernumber'].unique():
+        cus_dt = data.loc[data['customernumber'] == cus]
+        for mat in cus_dt['mat_no'].unique():
+            cus_mat_dt = cus_dt.loc[cus_dt['mat_no'] == mat].reset_index(drop=True)
+            i = 0
+            counter = 0
+            while i < (len(cus_mat_dt)):
+                length = 0
+                j = i
+                beg_index = i
+                while j < len(cus_mat_dt):
+                    if j == len(cus_mat_dt) - 1:
+                        if (cus_mat_dt['actual_q'][j] <=0) & (cus_mat_dt['pred_q'][j] >0):
+                            length += 1
+                            j += 1
+                        else:
+                            break
+                    else:
+                        if ((cus_mat_dt['actual_q'][j] <=0) & (cus_mat_dt['pred_q'][j] >0) &
+                                (cus_mat_dt['pred_dec'][j+1] > cus_mat_dt['pred_dec'][j])):
+                            if (cus_mat_dt['actual_q'][j+1] > 0) & (cus_mat_dt['pred_q'][j+1] >0):
+                                length += 1
+                                j += 1
+                                break
+                            elif (cus_mat_dt['pred_q'][j+1] <= 0):
+                                length += 1
+                                j += 1
+                                break
+                            else:
+                                length += 1
+                                j += 1
+                        elif (cus_mat_dt['actual_q'][j] <=0) & (cus_mat_dt['pred_q'][j] >0) & \
+                                (cus_mat_dt['pred_dec'][j+1] < cus_mat_dt['pred_dec'][j]):
+                            length += 1
+                            j += 1
+                            break
+                        else:
+                            break
+
+                end_index = j
+                i = j
+                if (end_index - beg_index) >0:
+                    counter += 1
+                    if end_index >= len(cus_mat_dt):
+                        end_date = None
+                        persist_duration = None
+                    else:
+                        end_date = [cus_mat_dt['order_date'][end_index]]
+                        persist_duration = (cus_mat_dt['order_date'][end_index] - cus_mat_dt['order_date'][beg_index]).days
+
+                    persist = pd.DataFrame({'customernumber' : [cus], 'mat_no' : [mat], 'counter' : [counter],
+                                            'persist_length' : [length+1], 'persist_duration' : [persist_duration],
+                                            'start_date': [cus_mat_dt['order_date'][beg_index]],
+                                            'end_date': end_date})
+                    cus_mat_persist = pd.concat([cus_mat_persist, persist], axis= 0)
+                else:
+                    i += 1
+    return cus_mat_persist
+
 def perc_diff_bucket(num):
 
     if num < -100:

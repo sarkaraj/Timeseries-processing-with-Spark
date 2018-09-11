@@ -1,7 +1,7 @@
 from transform_data.data_transform import *
 from model.ma_outlier import *
 from distributed_grid_search._sarimax import *
-from od_comp.support_func import plot_count_hist, insert_missing_dates, filter_mismatch_dates, perc_diff_bucket
+from od_comp.support_func import plot_count_hist, insert_missing_dates, filter_mismatch_dates, perc_diff_bucket, persist_count
 from distributed_grid_search._sarimax_monthly import *
 import pandas as pd
 from dateutil import parser
@@ -13,14 +13,17 @@ import shutil
 rcParams['figure.figsize'] = 15, 6
 
 ############################
-route_id_list = ['CC002189']  #CC019018 #CC002189
+route_id_list = ['CC002189', 'CC019018']  #CC019018 #CC002189
 
 start_date = '2016-07-04'
 end_date = '2019-09-04'
 
-od_comp_file = "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"
+od_comp_file = "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"  # "order_comparison_04-07-2018_to_05-09-2018_withzeros.tsv" #"order_comparison_production_04-07-2018_to_05-09-2018_withzeros_15pack.csv"#"order_comparison_with_decimals_and_capacities_05-09-2018.tsv"
+sep = "\t"
 cv_result_file = "cvResult_05-09-2018.tsv"
 sub_file_name = "_result_new\\"
+
+logic_new = True
 
 insert_zeros = False
 ############################
@@ -37,10 +40,16 @@ vl_dir = "C:\\CONA_CSO\\thadeus_route\\vl\\"
 # image save folder
 image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\"
 
-order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep="\t",
-                            header=None,
-                            names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
-                                   "dd_pred", "month", "pred_dec", "cap", "prod_desc", "fridge"])
+if logic_new == True:
+    order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep=sep,
+                                header=None,
+                                names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
+                                       "dd_pred", "month", "pred_dec", "cap", "prod_desc", "fridge"])
+else:
+    order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep=sep,
+                                header=1,
+                                names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
+                                       "dd_pred", "month"])
 
 print("##########--Order compare data--##############\n")
 print(order_compare.head())
@@ -75,6 +84,7 @@ customer_list = list(set(vl_select_route['KUNNR'].values))
 order_comp_select_cust = order_compare.loc[(order_compare['customernumber'].isin(customer_list)) &
                                            ((order_compare['order_date'] >= start_date) &
                                             (order_compare['order_date'] <= end_date))]
+
 # print("raw order date compare data:\n")
 # print(order_comp_select_cust.head())
 
@@ -170,6 +180,32 @@ for dataset in ['HFP', 'MFP', 'LFP']:
         # print(order_comp_cat.head())
         # print(order_comp_cat.info())
 
+    ##############################
+    # per order quantity
+    ##############################
+    # if len(order_comp_cat) == 0:
+    #     continue
+    #
+    # per_order_quantity = order_comp_cat.groupby(['customernumber', 'mat_no'])['actual_q'].\
+    #     apply(lambda x: sum(x)/len(x)).rename("per_od_q").reset_index()
+    #
+    # per_order_quantity['cus_mat'] = per_order_quantity['customernumber'].map(str) + "_" + per_order_quantity['mat_no'].map(str)
+    # print("\n per order quantity distribution")
+    # print(per_order_quantity.describe())
+    #
+    # # print(len(order_comp_cat))
+    # order_comp_cat['cus_mat'] = order_comp_cat['customernumber'].map(str) + "_" + order_comp_cat[
+    #     'mat_no'].map(str)
+    # # order_comp_cat = order_comp_cat.groupby(['customernumber', 'mat_no']).filter(lambda x: (x['customernumber'].map(str) + "_" + x['mat_no'].map(str)).isin(list(per_order_quantity.loc[per_order_quantity['per_od_q']>3,'cus_mat'].unique())))
+    # order_comp_cat = order_comp_cat.loc[order_comp_cat['cus_mat'].
+    #     isin(list(per_order_quantity.loc[per_order_quantity['per_od_q']>1,'cus_mat'].unique()))].reset_index(drop=True)
+    # order_comp_cat.drop("cus_mat", axis = 1, inplace = True)
+    # # del order_comp_cat['cus_mat']
+    # # print((order_comp_cat))
+
+    if len(order_comp_cat) == 0:
+        continue
+
     #################################################
     # OD basis result analysis
     #################################################
@@ -181,8 +217,11 @@ for dataset in ['HFP', 'MFP', 'LFP']:
     od_order_comp['perc_diff_abs'] = abs(od_order_comp['actual_q'] - od_order_comp['pred_q']) / \
                                      od_order_comp['actual_q'] * 100
     od_order_comp['q_diff'] = od_order_comp['pred_q'] - od_order_comp['actual_q']
-    od_order_comp['perc_diff'] = od_order_comp.apply(lambda x: (x['q_diff'] * 100) if x['actual_q'] == 0 else
-    ((x['pred_q'] - x['actual_q']) / x['actual_q'] * 100), axis=1)
+    # od_order_comp['perc_diff'] = 0
+    # order_comp_cat= order_comp_cat.reset_index(drop=True)
+    # print('\n ########################')
+    # print(od_order_comp)
+    od_order_comp['perc_diff'] = od_order_comp.apply(lambda x: (x['q_diff'] * 100) if x['actual_q'] == 0 else ((x['pred_q'] - x['actual_q']) / x['actual_q'] * 100), axis=1)
 
     od_order_comp['perc_diff_bucket'] = od_order_comp['perc_diff'].apply(lambda x: perc_diff_bucket(x))
 
@@ -193,57 +232,48 @@ for dataset in ['HFP', 'MFP', 'LFP']:
 
     # persistence
     ###########################################
-    persist_dt = od_order_comp.copy().sort_values(['customernumber', 'mat_no', 'order_date'])
-    persist_dt['pred_dec'] = pd.to_numeric(persist_dt['pred_dec'], errors='coerce')
-    persist_dt_cleaned = persist_dt.loc[~persist_dt['pred_dec'].isnull()]
+    if logic_new == True:
+        od_order_comp['pred_dec'] = pd.to_numeric(od_order_comp['pred_dec'], errors='coerce')
+        od_order_comp= od_order_comp.loc[~od_order_comp['pred_dec'].isnull()]
+        persist_dt_cleaned = od_order_comp.copy().sort_values(['customernumber', 'mat_no', 'order_date'])
+        # persist_dt['pred_dec'] = pd.to_numeric(persist_dt['pred_dec'], errors='coerce')
+        # persist_dt_cleaned = persist_dt.loc[~persist_dt['pred_dec'].isnull()]
 
-    def persist_count(data):
-        cus_mat_persist = pd.DataFrame(columns=['customernumber', 'mat_no', 'counter', 'persist_length',
-                                                'persist_duration', 'start_date', 'end_date'])
-        for cus in data['customernumber'].unique():
-            cus_dt = data.loc[data['customernumber'] == cus]
-            for mat in cus_dt['mat_no'].unique():
-                cus_mat_dt = cus_dt.loc[cus_dt['mat_no'] == mat].reset_index(drop=True)
-                i = 0
-                counter = 0
-                while i < (len(cus_mat_dt)-1):
-                    length = 0
-                    j = i
-                    beg_index = i
-                    while j < len(cus_mat_dt)-1:
-                        if ((cus_mat_dt['actual_q'][j] <=0) & (cus_mat_dt['pred_q'][j] >0) &
-                                (cus_mat_dt['pred_dec'][j+1] > cus_mat_dt['pred_dec'][j])):
-                            if (cus_mat_dt['actual_q'][j+1] > 0):
-                                length += 2
-                                j += 1
-                                break
-                            else:
-                                length += 1
-                                j += 1
-                        else:
-                            break
-                    end_index = j
-                    i = j
-                    if (end_index - beg_index) >0:
-                        counter += 1
-                        persist_duration = (cus_mat_dt['order_date'][end_index] - cus_mat_dt['order_date'][beg_index]).days
-                        persist = pd.DataFrame({'customernumber' : [cus], 'mat_no' : [mat], 'counter' : [counter],
-                                                'persist_length' : [length], 'persist_duration' : [persist_duration],
-                                                'start_date': [cus_mat_dt['order_date'][beg_index]],
-                                                'end_date': [cus_mat_dt['order_date'][end_index]]})
-                        cus_mat_persist = pd.concat([cus_mat_persist, persist], axis= 0)
-                    else:
-                        i += 1
-        return cus_mat_persist
+        persist_desc = persist_count(persist_dt_cleaned)
+        # persist_desc = pd.DataFrame(persist_desc.astype(np.int))
+        persist_desc['cus_mat'] = persist_desc['customernumber'].map(str) + "_" + persist_desc['mat_no'].map(str)
+        persist_desc.to_csv(path + "persist_count.csv", index=False)
+        print("\n persistence count data:")
+        print(persist_desc.head())
+        print(persist_desc.dtypes)
+        print(persist_desc.describe())
 
-    persist_desc = persist_count(persist_dt_cleaned)
-    # persist_desc = pd.DataFrame(persist_desc.astype(np.int))
-    persist_desc['cus_mat'] = persist_desc['customernumber'].map(str) + "_" + persist_desc['mat_no'].map(str)
-    persist_desc.to_csv(path + "persist_count.csv", index=False)
-    print("\n persistence count data:")
-    print(persist_desc.head())
-    print(persist_desc.dtypes)
-    print(persist_desc.describe())
+        persistence_count = (sum(persist_desc['persist_length']) - len(persist_desc))
+
+        dec_reset_count = len(
+            od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_dec'] < 1)])
+
+        perfect_match_count = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])
+
+        hit_mismatch_count = len(od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (
+                    od_order_comp['actual_q'] != od_order_comp['pred_q'])])
+
+        persist_perc = (sum(persist_desc['persist_length']) - len(persist_desc))/len(od_order_comp)
+
+        dec_reset_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >=1) & (od_order_comp['pred_dec'] < 1)])/len(od_order_comp)
+
+        perfect_match_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])/len(od_order_comp)
+
+        hit_mismatch_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (od_order_comp['actual_q'] != od_order_comp['pred_q'])])/len(od_order_comp)
+
+        predict_type_desc = pd.DataFrame({'persist_perc' : [persist_perc], 'dec_reset_perc' : [dec_reset_perc],
+                                          'perfect_match_perc' : [perfect_match_perc], 'hit_mismatch_perc' : [hit_mismatch_perc],
+                                          'persist_count': [persistence_count], 'dec_reset_count': [dec_reset_count],
+                                          'perfect_match_count': [perfect_match_count],
+                                          'hit_mismatch_count': [hit_mismatch_count]})
+        print(predict_type_desc)
+
+        predict_type_desc.to_csv(path + "predict_type_desc.csv", index=False)
 
     # week difference
     ###########################################
@@ -281,13 +311,15 @@ for dataset in ['HFP', 'MFP', 'LFP']:
                     num_bar=9, x_lim=9.5, image_dir=path)
 
     for i in range(-4, 5):
-        bar_count = (len(list(od_order_comp.loc[(od_order_comp['q_diff'] == i)][
-                                  'actual_q'].unique())))
-        plot_count_hist(data=od_order_comp.loc[(od_order_comp['q_diff'] == i)],
-                        field='actual_q',
-                        title='Histogram actual quantity for error=' + str(i) + " (pred-actual)",
-                        x_label='Actual Order(cs)',
-                        num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
+
+        if i in od_order_comp.loc[(od_order_comp['q_diff'] == i)]['q_diff'].unique():
+            bar_count = (len(list(od_order_comp.loc[(od_order_comp['q_diff'] == i)][
+                                      'actual_q'].unique())))
+            plot_count_hist(data=od_order_comp.loc[(od_order_comp['q_diff'] == i)],
+                            field='actual_q',
+                            title='Histogram actual quantity for error=' + str(i) + " (pred-actual)",
+                            x_label='Actual Order(cs)',
+                            num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
 
     if dataset == "LFP": bar_count = 30
     else: bar_count = 20
@@ -298,62 +330,62 @@ for dataset in ['HFP', 'MFP', 'LFP']:
 
     print("\n####################################################")
 
-    ###########################################################
-    # Weekly basis analysis
-    ###########################################################
-    # weekly aggregation
-    w_agg_order_comp = order_comp_cat.groupby(['customernumber', 'mat_no',
-                                              pd.Grouper(key='order_date', freq='W-MON', closed = 'left',
-                                                         label = 'left')])[['actual_q', 'pred_q']].sum() \
-        .reset_index().sort_values(['customernumber', 'mat_no', 'order_date'])
-
-    print("\nWeekly agg data:")
-    print(w_agg_order_comp.head())
-
-    w_agg_order_comp['q_diff_abs'] = abs(w_agg_order_comp['actual_q'] - w_agg_order_comp['pred_q'])
-    w_agg_order_comp['perc_diff_abs'] = abs(w_agg_order_comp['actual_q'] - w_agg_order_comp['pred_q']) / \
-                                     w_agg_order_comp['actual_q'] * 100
-    w_agg_order_comp['q_diff'] = w_agg_order_comp['pred_q'] - w_agg_order_comp['actual_q']
-    w_agg_order_comp['perc_diff'] = w_agg_order_comp.apply(lambda x: (x['q_diff'] * 100) if x['actual_q'] == 0 else
-    ((x['pred_q'] - x['actual_q']) / x['actual_q'] * 100), axis=1)
-
-    w_agg_order_comp['perc_diff_bucket'] = w_agg_order_comp['perc_diff'].apply(lambda x: perc_diff_bucket(x))
-
-    # Error plots
-    ################################################
-    path = image_dir + dataset + sub_file_name + "Weekly\\"
-    if not os.path.isdir(path):
-        os.makedirs(path)
-
-    plot_count_hist(data=w_agg_order_comp, field='q_diff_abs',
-                    title='Histogram of Abs Error Quantity on Weekly Basis with zeros',
-                    x_label='Error Quantity(cs)',
-                    num_bar=10, x_lim=10.5, image_dir=path)
-
-    plot_count_hist(data=w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] >= -5) &
-                                                              (w_agg_order_comp['q_diff'] <= 5)],
-                    field='q_diff',
-                    title='Histogram of Error Quantity on Weekly Basis with zeros(pred-actual)',
-                    x_label='Error Quantity(cs)',
-                    num_bar=11, x_lim=10.5, image_dir=path)
-
-    plot_count_hist(data=w_agg_order_comp, field='perc_diff_bucket',
-                    title='Histogram of % Error Quantity on Weekly Basis with zeros(pred-actual)', x_label='% Error',
-                    num_bar=9, x_lim=9.5, image_dir=path)
-
-    for i in range(-4, 5):
-
-        if i in w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] == i)]['actual_q'].unique():
-
-            bar_count = (len(list(w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] == i)][
-                                      'actual_q'].unique())))
-            plot_count_hist(data=w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] == i)],
-                            field='actual_q',
-                            title='Histogram actual quantity for error=' + str(i) + " (pred-actual)",
-                            x_label='Actual Order(cs)',
-                            num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
-        else:
-            print("\nError difference not available in the list.")
+    # ###########################################################
+    # # Weekly basis analysis
+    # ###########################################################
+    # # weekly aggregation
+    # w_agg_order_comp = order_comp_cat.groupby(['customernumber', 'mat_no',
+    #                                           pd.Grouper(key='order_date', freq='W-MON', closed = 'left',
+    #                                                      label = 'left')])[['actual_q', 'pred_q']].sum() \
+    #     .reset_index().sort_values(['customernumber', 'mat_no', 'order_date'])
+    #
+    # print("\nWeekly agg data:")
+    # print(w_agg_order_comp.head())
+    #
+    # w_agg_order_comp['q_diff_abs'] = abs(w_agg_order_comp['actual_q'] - w_agg_order_comp['pred_q'])
+    # w_agg_order_comp['perc_diff_abs'] = abs(w_agg_order_comp['actual_q'] - w_agg_order_comp['pred_q']) / \
+    #                                  w_agg_order_comp['actual_q'] * 100
+    # w_agg_order_comp['q_diff'] = w_agg_order_comp['pred_q'] - w_agg_order_comp['actual_q']
+    # w_agg_order_comp['perc_diff'] = w_agg_order_comp.apply(lambda x: (x['q_diff'] * 100) if x['actual_q'] == 0 else
+    # ((x['pred_q'] - x['actual_q']) / x['actual_q'] * 100), axis=1)
+    #
+    # w_agg_order_comp['perc_diff_bucket'] = w_agg_order_comp['perc_diff'].apply(lambda x: perc_diff_bucket(x))
+    #
+    # # Error plots
+    # ################################################
+    # path = image_dir + dataset + sub_file_name + "Weekly\\"
+    # if not os.path.isdir(path):
+    #     os.makedirs(path)
+    #
+    # plot_count_hist(data=w_agg_order_comp, field='q_diff_abs',
+    #                 title='Histogram of Abs Error Quantity on Weekly Basis with zeros',
+    #                 x_label='Error Quantity(cs)',
+    #                 num_bar=10, x_lim=10.5, image_dir=path)
+    #
+    # plot_count_hist(data=w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] >= -5) &
+    #                                                           (w_agg_order_comp['q_diff'] <= 5)],
+    #                 field='q_diff',
+    #                 title='Histogram of Error Quantity on Weekly Basis with zeros(pred-actual)',
+    #                 x_label='Error Quantity(cs)',
+    #                 num_bar=11, x_lim=10.5, image_dir=path)
+    #
+    # plot_count_hist(data=w_agg_order_comp, field='perc_diff_bucket',
+    #                 title='Histogram of % Error Quantity on Weekly Basis with zeros(pred-actual)', x_label='% Error',
+    #                 num_bar=9, x_lim=9.5, image_dir=path)
+    #
+    # for i in range(-4, 5):
+    #
+    #     if i in w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] == i)]['q_diff'].unique():
+    #
+    #         bar_count = (len(list(w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] == i)][
+    #                                   'actual_q'].unique())))
+    #         plot_count_hist(data=w_agg_order_comp.loc[(w_agg_order_comp['q_diff'] == i)],
+    #                         field='actual_q',
+    #                         title='Histogram actual quantity for error=' + str(i) + " (pred-actual)",
+    #                         x_label='Actual Order(cs)',
+    #                         num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
+    #     else:
+    #         print("\nError difference not available in the list.")
 
 
 ################################################
