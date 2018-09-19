@@ -181,4 +181,39 @@ def perc_diff_bucket(num):
 
     return  diff_bucket
 
+def plot_pred_type(data, title, x_label, num_bar, x_lim, image_dir):
+    """
+    plot the histogram of count
+    :param data: df
+    :param num_bar: bar count
+    :param image_dir: dir name
+    :return: none
+    """
+    fig = plt.figure()
+    # print(data[field].value_counts().sort_index())
+    ax =data.T.sort_index().plot(kind = 'bar',grid=True, color='#607c8e')
+    plt.title(title)
+    plt.xlabel(x_label)
+    plt.ylabel('Count')
+    plt.grid(axis='y', alpha=0.75)
+    # create a list to collect the plt.patches data
+    totals = []
+
+    # find the values and append to list
+    for i in ax.patches:
+        totals.append(i.get_height())
+
+    # set individual bar lables using above list
+    total = sum(totals)
+
+    for i in ax.patches[:(num_bar + 1)]:
+        # get_x pulls left or right; get_height pushes up or down
+        ax.text(i.get_x(), i.get_height()+ 0.1,\
+                str(round((i.get_height()/total)*100, 2))+'%', fontsize=13,
+                    color='dimgrey')
+    ax.set_xlim(left=None, right= x_lim)
+    save_file = os.path.join(image_dir, title + ".png")
+    plt.savefig(save_file, bbox_inches='tight')
+    plt.close(fig)
+
 

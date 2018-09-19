@@ -1,7 +1,8 @@
 from transform_data.data_transform import *
 from model.ma_outlier import *
 from distributed_grid_search._sarimax import *
-from od_comp.support_func import plot_count_hist, insert_missing_dates, filter_mismatch_dates, perc_diff_bucket, persist_count
+from od_comp.support_func import plot_count_hist, insert_missing_dates, filter_mismatch_dates, perc_diff_bucket, \
+    persist_count, plot_pred_type
 from distributed_grid_search._sarimax_monthly import *
 import pandas as pd
 from dateutil import parser
@@ -18,10 +19,10 @@ route_id_list = ['CC002189', 'CC019018']  #CC019018 #CC002189
 start_date = '2016-07-04'
 end_date = '2019-09-04'
 
-od_comp_file = "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"  # "order_comparison_04-07-2018_to_05-09-2018_withzeros.tsv" #"order_comparison_production_04-07-2018_to_05-09-2018_withzeros_15pack.csv"#"order_comparison_with_decimals_and_capacities_05-09-2018.tsv"
+od_comp_file = "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"# "order_comparison_simulation_15pack.tsv" #"order_comparison_production_15pack.tsv" # "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"  # "order_comparison_04-07-2018_to_05-09-2018_withzeros.tsv" #"order_comparison_production_04-07-2018_to_05-09-2018_withzeros_15pack.csv"#"
 sep = "\t"
 cv_result_file = "cvResult_05-09-2018.tsv"
-sub_file_name = "_result_new\\"
+sub_file_name = "result_with_persistence\\"
 
 logic_new = True
 
@@ -38,7 +39,7 @@ order_compare_dir = "C:\\CONA_CSO\\thadeus_route\\compare\\"
 vl_dir = "C:\\CONA_CSO\\thadeus_route\\vl\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\2018-09-19\\"
 
 if logic_new == True:
     order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep=sep,
@@ -47,7 +48,7 @@ if logic_new == True:
                                        "dd_pred", "month", "pred_dec", "cap", "prod_desc", "fridge"])
 else:
     order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep=sep,
-                                header=1,
+                                header=None,
                                 names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
                                        "dd_pred", "month"])
 
@@ -91,32 +92,32 @@ order_comp_select_cust = order_compare.loc[(order_compare['customernumber'].isin
 # ################################################
 # # twice a week customer count analysis
 # ################################################
-unique_cus_od_list = order_comp_select_cust.groupby(['customernumber'])['order_date'].unique().rename(
-    'order_date').reset_index()
-s = unique_cus_od_list.apply(lambda x: pd.Series(x['order_date']), axis=1).stack().reset_index(level=1, drop=True)
-s.name = 'order_date'
-unique_cus_od_list = unique_cus_od_list.drop('order_date', axis=1).join(s).sort_values(
-    ['customernumber', 'order_date']).reset_index(drop=True)
-
-unique_days_diff_cus = unique_cus_od_list.groupby(['customernumber']).apply(
-    lambda x: (x['order_date'] - x['order_date'].shift(-1))).rename('days_diff').reset_index()
-unique_days_diff_cus['days_diff'] = abs(unique_days_diff_cus['days_diff'].apply(lambda x: x.days)).apply(str)
-
-unique_mode_days_cus = unique_days_diff_cus.drop('level_1', axis=1).groupby(['customernumber']).agg(
-    lambda x: x.value_counts().index[0]).reset_index()
-unique_mode_days_cus['days_diff'] = unique_mode_days_cus['days_diff'].apply(lambda x: float(x))
-twice_a_week_cus = unique_mode_days_cus.loc[unique_mode_days_cus['days_diff'] < 7]
-
-# print(twice_a_week_cus['customernumber'].unique())
-print("\n#############--Customer Type Analysis--##############")
-
-print("\ntotal customer list: " + str(len(unique_mode_days_cus)))
-
-print("\ntotal twice a week customer list: " + str(len(twice_a_week_cus)))
-
-print("\npercentage of twice a week customer: " + str(len(twice_a_week_cus) / len(unique_mode_days_cus)))
-
-print("\n########################################################")
+# unique_cus_od_list = order_comp_select_cust.groupby(['customernumber'])['order_date'].unique().rename(
+#     'order_date').reset_index()
+# s = unique_cus_od_list.apply(lambda x: pd.Series(x['order_date']), axis=1).stack().reset_index(level=1, drop=True)
+# s.name = 'order_date'
+# unique_cus_od_list = unique_cus_od_list.drop('order_date', axis=1).join(s).sort_values(
+#     ['customernumber', 'order_date']).reset_index(drop=True)
+#
+# unique_days_diff_cus = unique_cus_od_list.groupby(['customernumber']).apply(
+#     lambda x: (x['order_date'] - x['order_date'].shift(-1))).rename('days_diff').reset_index()
+# unique_days_diff_cus['days_diff'] = abs(unique_days_diff_cus['days_diff'].apply(lambda x: x.days)).apply(str)
+#
+# unique_mode_days_cus = unique_days_diff_cus.drop('level_1', axis=1).groupby(['customernumber']).agg(
+#     lambda x: x.value_counts().index[0]).reset_index()
+# unique_mode_days_cus['days_diff'] = unique_mode_days_cus['days_diff'].apply(lambda x: float(x))
+# twice_a_week_cus = unique_mode_days_cus.loc[unique_mode_days_cus['days_diff'] < 7]
+#
+# # print(twice_a_week_cus['customernumber'].unique())
+# print("\n#############--Customer Type Analysis--##############")
+#
+# print("\ntotal customer list: " + str(len(unique_mode_days_cus)))
+#
+# print("\ntotal twice a week customer list: " + str(len(twice_a_week_cus)))
+#
+# print("\npercentage of twice a week customer: " + str(len(twice_a_week_cus) / len(unique_mode_days_cus)))
+#
+# print("\n########################################################")
 
 ##################################################
 # insert zeros for missing products and remove mismatch delivery dates between orders
@@ -152,17 +153,26 @@ final_order_comp_dt = pd.merge(left=order_comp_with_zeros_cleaned, right=cv_resu
 ################################################
 # order date basis comparison
 print("\n#####################--Frequency wise Prediction Results--#################")
-for dataset in ['HFP', 'MFP', 'LFP']:
+for dataset in ['Overall', 'HFP', 'MFP', 'LFP']:
     # file save directory
-    path = image_dir + dataset + sub_file_name
+    path = image_dir + sub_file_name + dataset
     if not os.path.isdir(path):
         os.makedirs(path)
     else:
         shutil.rmtree(path=path)
         os.makedirs(path)
 
-    if dataset == "HFP":
+    if dataset == "Overall":
+        order_comp_cat = final_order_comp_dt.loc[final_order_comp_dt['cat'].isin(['I', 'II', 'III', 'IV', 'V',
+                                                                                  'VI', 'VII', 'VIII', 'IX', 'X'])]
+        # order_comp_cat = final_order_comp_dt.copy()
+        # od_order_comp_cat = order_comp_HFP.copy()
+        print('\nOverall customer order compare data:')
+        # print(order_comp_cat.head())
+
+    elif dataset == "HFP":
         order_comp_cat = final_order_comp_dt.loc[final_order_comp_dt['cat'].isin(['I', 'II', 'III', 'VII'])]
+        # order_comp_cat = final_order_comp_dt.copy()
         # od_order_comp_cat = order_comp_HFP.copy()
         print('\nselected high frequency customer order compare data:')
         # print(order_comp_cat.head())
@@ -213,6 +223,16 @@ for dataset in ['HFP', 'MFP', 'LFP']:
     order_comp_cat[['order_date']] = order_comp_cat[['order_date']].apply(lambda x: x.astype(str).apply(parser.parse))
     od_order_comp = order_comp_cat.copy()
 
+    ###################################
+    # TODO: remove persistence
+    # od_order_comp = od_order_comp.loc[~((od_order_comp['actual_q'] == 0) & (od_order_comp['pred_q'] > 0))]
+    # TODO: reduce persistence
+    # cap_perc = 20
+    # od_order_comp['pred_q'] = od_order_comp.apply(lambda x: x['pred_q'] if (x['pred_q'] > (cap_perc*x["cap"]/100)) else 0, axis = 1)
+    # print("\n sum of the difference between reducded persistence:")
+    # print(sum(od_order_comp['pred_q'] - od_order_comp['pred_q_n']))
+    ###################################
+
     od_order_comp['q_diff_abs'] = abs(od_order_comp['actual_q'] - od_order_comp['pred_q'])
     od_order_comp['perc_diff_abs'] = abs(od_order_comp['actual_q'] - od_order_comp['pred_q']) / \
                                      od_order_comp['actual_q'] * 100
@@ -242,16 +262,16 @@ for dataset in ['HFP', 'MFP', 'LFP']:
         persist_desc = persist_count(persist_dt_cleaned)
         # persist_desc = pd.DataFrame(persist_desc.astype(np.int))
         persist_desc['cus_mat'] = persist_desc['customernumber'].map(str) + "_" + persist_desc['mat_no'].map(str)
-        persist_desc.to_csv(path + "persist_count.csv", index=False)
-        print("\n persistence count data:")
-        print(persist_desc.head())
-        print(persist_desc.dtypes)
-        print(persist_desc.describe())
+        persist_desc.to_csv(path + "\\persist_count.csv", index=False)
+        # print("\n persistence count data:")
+        # print(persist_desc.head())
+        # print(persist_desc.dtypes)
+        # print(persist_desc.describe())
 
         persistence_count = (sum(persist_desc['persist_length']) - len(persist_desc))
 
         dec_reset_count = len(
-            od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_dec'] < 1)])
+            od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] < 1)])
 
         perfect_match_count = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])
 
@@ -260,7 +280,7 @@ for dataset in ['HFP', 'MFP', 'LFP']:
 
         persist_perc = (sum(persist_desc['persist_length']) - len(persist_desc))/len(od_order_comp)
 
-        dec_reset_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >=1) & (od_order_comp['pred_dec'] < 1)])/len(od_order_comp)
+        dec_reset_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >=1) & (od_order_comp['pred_q'] < 1)])/len(od_order_comp)
 
         perfect_match_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])/len(od_order_comp)
 
@@ -268,29 +288,32 @@ for dataset in ['HFP', 'MFP', 'LFP']:
 
         predict_type_desc = pd.DataFrame({'persist_perc' : [persist_perc], 'dec_reset_perc' : [dec_reset_perc],
                                           'perfect_match_perc' : [perfect_match_perc], 'hit_mismatch_perc' : [hit_mismatch_perc],
-                                          'persist_count': [persistence_count], 'dec_reset_count': [dec_reset_count],
-                                          'perfect_match_count': [perfect_match_count],
-                                          'hit_mismatch_count': [hit_mismatch_count]})
-        print(predict_type_desc)
+                                          'persist': [persistence_count], 'dec_reset': [dec_reset_count],
+                                          'perfect_match': [perfect_match_count],
+                                          'hit_mismatch': [hit_mismatch_count]})
+        print(predict_type_desc.T)
 
-        predict_type_desc.to_csv(path + "predict_type_desc.csv", index=False)
+        plot_pred_type(data= predict_type_desc[['persist', 'dec_reset', 'perfect_match', 'hit_mismatch']],
+                       title = "Prediction_Types_Distribution", x_label= "Pred Type", num_bar = 4, x_lim = 4.1, image_dir = path)
+
+        predict_type_desc.to_csv(path + "\\predict_type_desc.csv", index=False)
 
     # week difference
     ###########################################
-    week_diff_dt = od_order_comp.copy().sort_values(['customernumber', 'mat_no', 'order_date'])
-    od_comp_week_diff_act_order = week_diff_dt.loc[week_diff_dt['actual_q'] > 0].\
-        reset_index(drop = True).groupby(['customernumber', 'mat_no', 'order_date']).apply(lambda x:np.min(np.absolute(
-        (x['order_date'].values[0] - week_diff_dt.loc[(week_diff_dt['customernumber'] == x['customernumber'].values[0]) &
-                                           (week_diff_dt['mat_no'] == x['mat_no'].values[0]) &
-                                           (week_diff_dt['order_date'] != x['order_date'].values[0]) &
-                                           (week_diff_dt['pred_q'] > 0), 'order_date']))).days).rename("day_diff").\
-        reset_index()
-    od_comp_week_diff_act_order = od_comp_week_diff_act_order.loc[od_comp_week_diff_act_order['day_diff'].notnull()]
+    # week_diff_dt = od_order_comp.copy().sort_values(['customernumber', 'mat_no', 'order_date'])
+    # od_comp_week_diff_act_order = week_diff_dt.loc[week_diff_dt['actual_q'] > 0].\
+    #     reset_index(drop = True).groupby(['customernumber', 'mat_no', 'order_date']).apply(lambda x:np.min(np.absolute(
+    #     (x['order_date'].values[0] - week_diff_dt.loc[(week_diff_dt['customernumber'] == x['customernumber'].values[0]) &
+    #                                        (week_diff_dt['mat_no'] == x['mat_no'].values[0]) &
+    #                                        (week_diff_dt['order_date'] != x['order_date'].values[0]) &
+    #                                        (week_diff_dt['pred_q'] > 0), 'order_date']))).days).rename("day_diff").\
+    #     reset_index()
+    # od_comp_week_diff_act_order = od_comp_week_diff_act_order.loc[od_comp_week_diff_act_order['day_diff'].notnull()]
 
     ################################################
     # Error plots
     ################################################
-    path = image_dir + dataset + sub_file_name + "OD\\"
+    path = image_dir + sub_file_name + dataset + "\\OD\\"
     if not os.path.isdir(path):
         os.makedirs(path)
 
@@ -321,12 +344,12 @@ for dataset in ['HFP', 'MFP', 'LFP']:
                             x_label='Actual Order(cs)',
                             num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
 
-    if dataset == "LFP": bar_count = 30
-    else: bar_count = 20
+    # if dataset == "LFP": bar_count = 30
+    # else: bar_count = 20
 
-    plot_count_hist(data=od_comp_week_diff_act_order, field='day_diff',
-                    title='Histogram of days Difference for all the actual orders', x_label='day difference',
-                    num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
+    # plot_count_hist(data=od_comp_week_diff_act_order, field='day_diff',
+    #                 title='Histogram of days Difference for all the actual orders', x_label='day difference',
+    #                 num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
 
     print("\n####################################################")
 
