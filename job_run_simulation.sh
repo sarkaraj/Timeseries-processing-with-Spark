@@ -20,6 +20,7 @@ spark-submit \
 --deploy-mode client \
 --num-executors 35 \
 --driver-memory 15G \
+--queue tsmdl \
 --executor-memory 10G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
