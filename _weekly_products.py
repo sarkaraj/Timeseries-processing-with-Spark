@@ -48,8 +48,9 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         .filter(lambda x: x != "NOT_CONSIDERED") \
         .map(lambda x: raw_data_to_weekly_aggregate(row_object_cat=x, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)) \
         .map(lambda x: remove_outlier(x)) \
-        .map(lambda x: filter_white_noise(x)) \
         .filter(lambda x: x[3].category in ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X'))
+
+    # .map(lambda x: filter_white_noise(x)) \
 
     # # Caching Data for current run
     test_data_weekly_models.cache()
