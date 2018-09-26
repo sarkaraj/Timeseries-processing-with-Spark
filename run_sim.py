@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if isinstance(new_cust_check, bool):
         pass
     else:
-        if len(new_cust_check) == 2 and new_cust_check[0] is True:
+        if isinstance(new_cust_check, tuple) and len(new_cust_check) == 2 and new_cust_check[0] is True:
             print("Backlog Run")
             # New customers are present
             # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
