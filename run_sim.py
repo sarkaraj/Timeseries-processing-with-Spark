@@ -55,32 +55,39 @@ if __name__ == "__main__":
                                                            module="consolidated",
                                                            simulation=True)
 
-    if len(new_cust_check) == 2 and new_cust_check[0] is True:
-        print("Backlog Run")
-        # New customers are present
-        # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
+    if isinstance(new_cust_check, bool):
+        pass
+    else:
+        if len(new_cust_check) == 2 and new_cust_check[0] is True:
+            print("Backlog Run")
+            # New customers are present
+            # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
 
-        temp_df = sqlContext.sql("""select * from customerdata""")
+            temp_df = sqlContext.sql("""select * from customerdata""")
 
-        print("TEMP_DF count")
-        print(temp_df.count())
-        # print("TEMP_DF Sample customers")
-        # temp_df.show(10)
+            print("TEMP_DF count")
+            print(temp_df.count())
+            # print("TEMP_DF Sample customers")
+            # temp_df.show(10)
 
-        all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string, previous_weeks=8)  # this is an array
+            all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string,
+                                                        previous_weeks=8)  # this is an array
 
-        _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
+            _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
 
-        for sunday in all_previous_sundays:
-            print("**********************************" + sunday + "************************************\n")
-            run_weekly(sc=sc,
-                       sqlContext=sqlContext,
-                       _model_bld_date_string=sunday,
-                       backlog=True,
-                       _bottlers=_bottler_broadcaster_1)
-            print("************************************************************************************\n")
+            for sunday in all_previous_sundays:
+                print("**********************************" + sunday + "************************************\n")
+                run_weekly(sc=sc,
+                           sqlContext=sqlContext,
+                           _model_bld_date_string=sunday,
+                           backlog=True,
+                           _bottlers=_bottler_broadcaster_1)
+                print("************************************************************************************\n")
 
-        sqlContext.catalog.dropTempView("customerdata")
+            sqlContext.catalog.dropTempView("customerdata")
+        else:
+            print("ValueError: new_cust_check tuple is expected to have length of 2")
+            raise ValueError
 
     # Running normal weekly runs
     print("Weekly Run")
