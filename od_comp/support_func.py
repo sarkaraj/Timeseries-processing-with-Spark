@@ -1,10 +1,11 @@
 import matplotlib.pylab as plt
 from matplotlib.pylab import rcParams
 import os
+import numpy as np
 import time
 rcParams['figure.figsize'] = 15, 6
 
-def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir):
+def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir, left_x_lim = None):
     """
     plot the histogram of count
     :param data: df
@@ -14,15 +15,14 @@ def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir):
     :return: none
     """
     fig = plt.figure()
-    # print(data[field].value_counts().sort_index())
-    ax =data[field].value_counts().sort_index().plot(kind = 'bar',grid=True, color='#607c8e')
+    ax =data[field].value_counts().sort_index().plot(kind = 'bar',grid=True, color='#607c8e', align = 'edge')
     plt.title(title)
     plt.xlabel(x_label)
     plt.ylabel('Count')
     plt.grid(axis='y', alpha=0.75)
+
     # create a list to collect the plt.patches data
     totals = []
-
     # find the values and append to list
     for i in ax.patches:
         totals.append(i.get_height())
@@ -35,7 +35,9 @@ def plot_count_hist(data, field, title, x_label, num_bar, x_lim, image_dir):
         ax.text(i.get_x(), i.get_height()+ 0.1,\
                 str(round((i.get_height()/total)*100, 2))+'%', fontsize=13,
                     color='dimgrey')
+
     ax.set_xlim(left=None, right= x_lim)
+
     save_file = os.path.join(image_dir, title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
@@ -215,5 +217,37 @@ def plot_pred_type(data, title, x_label, num_bar, x_lim, image_dir):
     save_file = os.path.join(image_dir, title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
+
+
+def over_pred_perc(input_data):
+
+    data = input_data.copy()
+    data['cus_mat'] = data['customernumber'].astype(str) + "_" + data['mat_no'].astype(str)
+    data['over_pred'] = False
+    for cm in data['cus_mat'].unique():
+        test = data.loc[data['cus_mat'] == cm][['actual_q', 'pred_q']]
+        test['pred_q'] = test.pred_q.replace(r'\\N', 0, regex=True).astype(float)
+        actual_orders_list = list(test.actual_q.nonzero()[0])
+        actual_orders_list.insert(0, -1)
+        persist_index = [i for i, j in enumerate([t - s for s, t in
+                                                  zip(actual_orders_list, actual_orders_list[1:])]) if j > 1]
+        if 0 in persist_index:
+            persistence_op = test.pred_q[0: test.actual_q.nonzero()[0][0] + 1]
+            per_op_ind_list = list(persistence_op.loc[persistence_op >=
+                                                      test.actual_q.iloc[test.actual_q.nonzero()[0][0]] + 1].index)
+            if per_op_ind_list:
+                data.loc[per_op_ind_list[0]: per_op_ind_list[-1], 'over_pred'] = True
+            persist_index = persist_index[1:]
+        for p in persist_index:
+            persistence_op = test.pred_q[test.actual_q.nonzero()[0][p - 1] + 1: test.actual_q.nonzero()[0][p] + 1]
+            per_op_ind_list = list(persistence_op.loc[persistence_op >=
+                                                      test.actual_q.iloc[test.actual_q.nonzero()[0][p]] + 1].index)
+            if per_op_ind_list:
+                data.loc[per_op_ind_list[0]: per_op_ind_list[-1], 'over_pred'] = True
+        del test
+
+    data.loc[(data['q_diff'] > 0) & (data['actual_q'] > 0), 'over_pred'] = True
+
+    return ((np.sum(data['over_pred']))/len(data)*100)
 
 

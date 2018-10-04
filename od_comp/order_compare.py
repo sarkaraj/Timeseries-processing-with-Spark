@@ -2,7 +2,7 @@ from transform_data.data_transform import *
 from model.ma_outlier import *
 from distributed_grid_search._sarimax import *
 from od_comp.support_func import plot_count_hist, insert_missing_dates, filter_mismatch_dates, perc_diff_bucket, \
-    persist_count, plot_pred_type
+    persist_count, plot_pred_type, over_pred_perc
 from distributed_grid_search._sarimax_monthly import *
 import pandas as pd
 from dateutil import parser
@@ -14,17 +14,28 @@ import shutil
 rcParams['figure.figsize'] = 15, 6
 
 ############################
-route_id_list = ['CC002189', 'CC019018']  #CC019018 #CC002189
+route_id_list = ['CC002189', 'CC019018'] # 'CC002119', 'CC002103', 'CC002191', 'CC0025676']  #CC019018 #CC002189 James(Wes) Hill-CC002119
+# Chris Frady-CC002103
+# Chris Sneed-CC002191
+# Chris Casssada-CC0025676
 
-start_date = '2016-07-04'
-end_date = '2019-09-04'
+start_date = '2018-09-10'
+end_date = '2018-09-21'
 
-od_comp_file = "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"# "order_comparison_simulation_15pack.tsv" #"order_comparison_production_15pack.tsv" # "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"  # "order_comparison_04-07-2018_to_05-09-2018_withzeros.tsv" #"order_comparison_production_04-07-2018_to_05-09-2018_withzeros_15pack.csv"#"
+od_comp_file = "order_compare_2018-09-27_latest.tsv"# "order_comparison_simulation_15pack.tsv" #"order_comparison_production_15pack.tsv" # "order_comparison_with_decimals_and_capacities_05-09-2018.tsv"  # "order_comparison_04-07-2018_to_05-09-2018_withzeros.tsv" #"order_comparison_production_04-07-2018_to_05-09-2018_withzeros_15pack.csv"#"
 sep = "\t"
-cv_result_file = "cvResult_05-09-2018.tsv"
-sub_file_name = "result_with_persistence\\"
+cv_result_file = 'cv_result_2018-09-20.tsv' #"cvResult_05-09-2018.tsv"
+sub_file_name = "result_simulation_out_fridge_non_15pk\\"
 
 logic_new = True
+
+pk_15 = False
+
+out_fridge = False
+
+out_fridge_non_15pk = True
+
+in_fridge = False
 
 insert_zeros = False
 ############################
@@ -39,7 +50,7 @@ order_compare_dir = "C:\\CONA_CSO\\thadeus_route\\compare\\"
 vl_dir = "C:\\CONA_CSO\\thadeus_route\\vl\\"
 
 # image save folder
-image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\2018-09-19\\"
+image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\order_compare\\2018-09-28\\"
 
 if logic_new == True:
     order_compare = pd.read_csv(order_compare_dir + od_comp_file, sep=sep,
@@ -52,12 +63,14 @@ else:
                                 names=["customernumber", "mat_no", "order_date", "actual_q", "pred_q", "dd_actual",
                                        "dd_pred", "month"])
 
+
 print("##########--Order compare data--##############\n")
 print(order_compare.head())
 print("\n############################################")
 
 
 order_compare[['order_date']] = order_compare[['order_date']].apply(lambda x: x.astype(str).apply(parser.parse))
+order_compare = order_compare.loc[order_compare['dd_pred'] != 'INVALID']
 
 ###############################################
 cv_result = pd.read_csv(cv_result_dir + cv_result_file,
@@ -137,6 +150,24 @@ else:
     # print(order_comp_with_zeros_cleaned.head())
     # print(order_comp_with_zeros_cleaned.info())
 
+mat_15pack = [133116, 153190, 153347, 134275, 152221, 152222, 156071, 133115, 134608, 153215, 155070]
+
+if pk_15 == True:
+    order_comp_with_zeros_cleaned = order_comp_with_zeros_cleaned.loc[order_comp_with_zeros_cleaned['mat_no'].isin(mat_15pack)].reset_index()
+
+if in_fridge == True:
+    order_comp_with_zeros_cleaned = order_comp_with_zeros_cleaned.loc[
+        order_comp_with_zeros_cleaned['fridge'] == 'IN_FRIDGE'].reset_index()
+
+if out_fridge == True:
+    order_comp_with_zeros_cleaned = order_comp_with_zeros_cleaned.loc[
+        order_comp_with_zeros_cleaned['fridge'] == 'OUT_FRIDGE'].reset_index()
+
+if out_fridge_non_15pk == True:
+    order_comp_with_zeros_cleaned = order_comp_with_zeros_cleaned.loc[
+        (order_comp_with_zeros_cleaned['fridge'] == 'OUT_FRIDGE') &
+        (~order_comp_with_zeros_cleaned['mat_no'].isin(mat_15pack))].reset_index()
+
 ##################################################
 print("\nprinting oder date data length: " + str(len(order_comp_select_cust)))
 
@@ -158,13 +189,14 @@ for dataset in ['Overall', 'HFP', 'MFP', 'LFP']:
     path = image_dir + sub_file_name + dataset
     if not os.path.isdir(path):
         os.makedirs(path)
-    else:
-        shutil.rmtree(path=path)
-        os.makedirs(path)
+    # else:
+    #     shutil.rmtree(path=path)
+    #     os.makedirs(path)
 
     if dataset == "Overall":
         order_comp_cat = final_order_comp_dt.loc[final_order_comp_dt['cat'].isin(['I', 'II', 'III', 'IV', 'V',
                                                                                   'VI', 'VII', 'VIII', 'IX', 'X'])]
+        order_comp_cat.to_csv(path + "cleaned_compare_dt.csv", index = False)
         # order_comp_cat = final_order_comp_dt.copy()
         # od_order_comp_cat = order_comp_HFP.copy()
         print('\nOverall customer order compare data:')
@@ -268,35 +300,69 @@ for dataset in ['Overall', 'HFP', 'MFP', 'LFP']:
         # print(persist_desc.dtypes)
         # print(persist_desc.describe())
 
-        persistence_count = (sum(persist_desc['persist_length']) - len(persist_desc))
+        # persistence_count = (sum(persist_desc['persist_length']) - len(persist_desc))
 
         dec_reset_count = len(
             od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] < 1)])
 
-        perfect_match_count = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])
+        perfect_match_zero_count = len(od_order_comp.loc[(od_order_comp['actual_q'] ==0) & (od_order_comp['pred_q'] == 0)])
 
-        hit_mismatch_count = len(od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (
-                    od_order_comp['actual_q'] != od_order_comp['pred_q'])])
+        perfect_match_other_count = len(od_order_comp.loc[(od_order_comp['actual_q'] !=0) & (od_order_comp['pred_q'] != 0) & (od_order_comp['actual_q'] == od_order_comp['pred_q'])])
 
-        persist_perc = (sum(persist_desc['persist_length']) - len(persist_desc))/len(od_order_comp)
+        hit_mismatch_op_count = len(od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (
+                    od_order_comp['actual_q'] < od_order_comp['pred_q'])])
+
+        hit_mismatch_up_count = len(
+            od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (
+                    od_order_comp['actual_q'] > od_order_comp['pred_q'])])
+
+        persistence_count = len(od_order_comp) - dec_reset_count - perfect_match_zero_count - perfect_match_other_count - hit_mismatch_op_count - hit_mismatch_up_count
+
+        # persist_perc = (sum(persist_desc['persist_length']) - len(persist_desc))/len(od_order_comp)
 
         dec_reset_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >=1) & (od_order_comp['pred_q'] < 1)])/len(od_order_comp)
 
-        perfect_match_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])/len(od_order_comp)
+        # perfect_match_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] == od_order_comp['pred_q'])])/len(od_order_comp)
 
-        hit_mismatch_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (od_order_comp['actual_q'] != od_order_comp['pred_q'])])/len(od_order_comp)
+        perfect_match_zero_perc = perfect_match_zero_count/len(od_order_comp)
+
+        perfect_match_other_perc = perfect_match_other_count/len(od_order_comp)
+
+        hit_mismatch_op_perc = len(od_order_comp.loc[(od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (od_order_comp['actual_q'] < od_order_comp['pred_q'])])/len(od_order_comp)
+
+        hit_mismatch_up_perc = len(od_order_comp.loc[
+                                       (od_order_comp['actual_q'] >= 1) & (od_order_comp['pred_q'] >= 1) & (
+                                                   od_order_comp['actual_q'] > od_order_comp['pred_q'])]) / len(
+            od_order_comp)
+        persist_perc = (len(od_order_comp) - dec_reset_count - perfect_match_zero_count - perfect_match_other_count - hit_mismatch_op_count - hit_mismatch_up_count)/len(od_order_comp)
+
+        print("\nPercentage over prediction:")
+        op_perc = over_pred_perc(od_order_comp)
+        op_count = op_perc * len(od_order_comp)/100
+        print(op_perc)
 
         predict_type_desc = pd.DataFrame({'persist_perc' : [persist_perc], 'dec_reset_perc' : [dec_reset_perc],
-                                          'perfect_match_perc' : [perfect_match_perc], 'hit_mismatch_perc' : [hit_mismatch_perc],
+                                          'perfect_match_zero_perc' : [perfect_match_zero_perc],
+                                          'perfect_match_other_perc': [perfect_match_other_perc],
+                                          'hit_mismatch_op_perc' : [hit_mismatch_op_perc],
+                                          'hit_mismatch_up_perc': [hit_mismatch_up_perc],
                                           'persist': [persistence_count], 'dec_reset': [dec_reset_count],
-                                          'perfect_match': [perfect_match_count],
-                                          'hit_mismatch': [hit_mismatch_count]})
+                                          'perfect_match_zero': [perfect_match_zero_count],
+                                          'perfect_match_other': [perfect_match_other_count],
+                                          'hit_mismatch_op': [hit_mismatch_op_count],
+                                          'hit_mismatch_up': [hit_mismatch_up_count],
+                                          'op_perc' : [op_perc],
+                                          'op_count' : [op_count]})
         print(predict_type_desc.T)
 
-        plot_pred_type(data= predict_type_desc[['persist', 'dec_reset', 'perfect_match', 'hit_mismatch']],
-                       title = "Prediction_Types_Distribution", x_label= "Pred Type", num_bar = 4, x_lim = 4.1, image_dir = path)
+        plot_pred_type(data= predict_type_desc[['persist', 'dec_reset', 'perfect_match_zero', 'perfect_match_other',
+                                                'hit_mismatch_op', 'hit_mismatch_up']],
+                       title = "Prediction_Types_Distribution", x_label= "Pred Type", num_bar = 6,
+                       x_lim = 6.1, image_dir = path)
 
         predict_type_desc.to_csv(path + "\\predict_type_desc.csv", index=False)
+
+
 
     # week difference
     ###########################################
@@ -322,12 +388,11 @@ for dataset in ['Overall', 'HFP', 'MFP', 'LFP']:
                     x_label='Error Quantity(cs)',
                     num_bar=10, x_lim=10.5, image_dir=path)
 
-    plot_count_hist(data=od_order_comp.loc[(od_order_comp['q_diff'] >= -5) &
-                                                              (od_order_comp['q_diff'] <= 5)],
+    plot_count_hist(data=od_order_comp.loc[(od_order_comp['q_diff'] >=-20) & (od_order_comp['q_diff'] <= 20)],
                     field='q_diff',
                     title='Histogram of Error Quantity on Order Date Basis with zeros(pred-actual)',
                     x_label='Error Quantity(cs)',
-                    num_bar=11, x_lim=10.5, image_dir=path)
+                    num_bar=41, x_lim=41.5, left_x_lim = None, image_dir=path)
 
     plot_count_hist(data=od_order_comp, field='perc_diff_bucket',
                     title='Histogram of % Error Quantity on Order Date Basis with zeros(pred-actual)', x_label='% Error',
@@ -352,6 +417,10 @@ for dataset in ['Overall', 'HFP', 'MFP', 'LFP']:
     #                 num_bar=bar_count, x_lim=bar_count + 0.5, image_dir=path)
 
     print("\n####################################################")
+
+
+
+
 
     # ###########################################################
     # # Weekly basis analysis

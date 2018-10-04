@@ -167,14 +167,14 @@ def remove_outlier(x):
     '''
     removes the outlier based on moving average method. Before that changes the names of selected columns:
     dt_week to ds and quantity to y
-    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj)
-    :return: (customernumber, matnr, data_pd_df_cleaned_week_aggregated, category_obj)
+    :param x: tuple (customernumber, matnr, data_pd_df_week_aggregated, category_obj, post_outlier_period_flag)
+    :return: (customernumber, matnr, data_pd_df_cleaned_week_aggregated, category_obj, post_outlier_period_flag)
     '''
     from dateutil import parser
 
     customernumber = x[0]
     matnr = x[1]
-    aggregated_data = x[2]  # could be monthly / weekly aggregate base on product category
+    aggregated_data = x[2]  # weekly aggregate
     category_obj = x[3]
 
     aggregated_data = aggregated_data[['dt_week', 'quantity']]
@@ -186,34 +186,39 @@ def remove_outlier(x):
     aggregated_data = aggregated_data.reset_index(drop=True)
     # prod = prod.drop(prod.index[[0, len(prod.y) - 1]]).reset_index(drop=True)
 
+    # default post outlier period flag set as false
+    post_outlier_period_flag = False
+
     # Remove outlier
     # weekly category
     if category_obj.category in ("I", "II", "III"):
-        cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                     window_size=12, sigma=4.0)
-        return customernumber, matnr, cleaned_weekly_agg_data, category_obj
+        cleaned_weekly_agg_data, post_outlier_period_flag = ma_replace_outlier(data=aggregated_data, n_pass=3,
+                                                                               aggressive=True, window_size=12,
+                                                                               sigma=4.0)
+        return customernumber, matnr, cleaned_weekly_agg_data, category_obj, post_outlier_period_flag
     # Monthly category
-    elif category_obj.category in ("IV", "V", "VI"):
-        cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                  window_size=18, sigma=5.0)
-        return customernumber, matnr, cleaned_monthly_agg_data, category_obj
+    elif category_obj.category in ("IV", "V", "VI", "VIII"):
+        cleaned_monthly_agg_data, post_outlier_period_flag = ma_replace_outlier(data=aggregated_data, n_pass=3,
+                                                                                aggressive=True, window_size=12,
+                                                                                sigma=5.0)
+        return customernumber, matnr, cleaned_monthly_agg_data, category_obj, post_outlier_period_flag
     # Outlier removal for moving average categories
     elif category_obj.category in ("VII"):
         if len(aggregated_data) >= 26:
-            cleaned_weekly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                         window_size=12, sigma=4.0)
-            return customernumber, matnr, cleaned_weekly_agg_data, category_obj
+            cleaned_weekly_agg_data, post_outlier_period_flag = ma_replace_outlier(data=aggregated_data, n_pass=3,
+                                                                                   aggressive=True, window_size=12,
+                                                                                   sigma=4.0)
+            return customernumber, matnr, cleaned_weekly_agg_data, category_obj, post_outlier_period_flag
         else:
-            return customernumber, matnr, aggregated_data, category_obj
-    elif category_obj.category in ("VIII", "IX", "X"):
+            return customernumber, matnr, aggregated_data, category_obj, post_outlier_period_flag
+    elif category_obj.category in ("IX", "X"):
         if len(aggregated_data) >= 26 and category_obj.category not in ('X'):
-            cleaned_monthly_agg_data = ma_replace_outlier(data=aggregated_data, n_pass=3, aggressive=True,
-                                                          window_size=18, sigma=5.0)
-            return customernumber, matnr, cleaned_monthly_agg_data, category_obj
+            cleaned_monthly_agg_data, post_outlier_period_flag = ma_replace_outlier(data=aggregated_data, n_pass=3,
+                                                                                    aggressive=True, window_size=24,
+                                                                                    sigma=5.0)
+            return customernumber, matnr, cleaned_monthly_agg_data, category_obj, post_outlier_period_flag
         else:
-            return customernumber, matnr, aggregated_data, category_obj
-
-
+            return customernumber, matnr, aggregated_data, category_obj, post_outlier_period_flag
 
 
 def filter_white_noise(x):

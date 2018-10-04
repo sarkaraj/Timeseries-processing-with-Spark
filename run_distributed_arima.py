@@ -90,7 +90,8 @@ def _run_dist_arima(test_data, sqlContext, **kwargs):
     arima_results_rdd = test_data_parallel \
         .repartition(REPARTITION_STAGE_1) \
         .map(lambda x: sarimax(cus_no=x[0], mat_no=x[1], pdq=x[2], seasonal_pdq=x[3], prod=x[4],
-                               min_train_days=x[5].min_train_days, pdt_cat=x[5].get_product_prop())) \
+                               min_train_days=x[5].min_train_days, pdt_cat=x[5].get_product_prop(),
+                               post_outlier_period_flag = x[6])) \
         .filter(lambda x: x != "MODEL_NOT_VALID")
     # .repartition(REPARTITION_STAGE_1)
 

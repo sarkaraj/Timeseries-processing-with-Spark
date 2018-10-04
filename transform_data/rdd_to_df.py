@@ -67,8 +67,10 @@ def arima_output_schema():
 
     _opt_param_arima = StructField("arima_params", MapType(StringType(), ArrayType(IntegerType())), nullable=True)
     _pdt_category = StructField("pdt_cat_arima", MapType(StringType(), StringType()), nullable=True)
+    post_outlier_period_flag = StructField("post_outlier_period_flag", BooleanType(), nullable=True)
 
-    schema = StructType([customernumber, mat_no, _error_arima, _pred_arima, _opt_param_arima, _pdt_category])
+    schema = StructType([customernumber, mat_no, _error_arima, _pred_arima, _opt_param_arima, _pdt_category,
+                         post_outlier_period_flag])
 
     return schema
 
@@ -89,8 +91,9 @@ def map_for_output_arima_weekly(line):
     seasonal_pdq = line[1][1][4]
     _pdt_cat = line[1][1][5]
     _opt_param_arima = {'pdq': pdq, 'seasonal_pdq': seasonal_pdq}
+    post_outlier_period_flag = line[1][1][6]
 
-    _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat
+    _result = customernumber, mat_no, _req_error_arima_param, _pred_arima, _opt_param_arima, _pdt_cat, post_outlier_period_flag
 
     return _result
 
@@ -133,8 +136,9 @@ def MA_output_schema():
 
     _params = StructField("params", MapType(StringType(), ArrayType(StringType())), nullable=True)
     _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
+    post_outlier_period_flag = StructField("pdt_cat", BooleanType(), nullable=False)
 
-    schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_category])
+    schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_category, post_outlier_period_flag])
 
     return schema
 
@@ -164,6 +168,7 @@ def map_for_output_MA_weekly(line):
                 _pred_ma_temp.keys()}
     _params = None  # Adding an extra tuple component to maintain consistency among table structures
     _pdt_cat = line[4]
+    post_outlier_period_flag = line[5]
 
-    _result = customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_cat
+    _result = customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_cat, post_outlier_period_flag
     return _result
