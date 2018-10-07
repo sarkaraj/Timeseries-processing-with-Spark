@@ -652,6 +652,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .withColumnRenamed("_c0", "sales_rep_id") \
             .select(col("sales_rep_id"))
 
+        print("delivery list count")
         print(_delivery_routes.count())
 
         _complete_customer_list_from_VL_df = sqlContext.read \
@@ -681,7 +682,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         _bottlers_list = [str(elem.bottler) for elem in
                           _bottlers_df.collect()]  # # is a array of string containing bottler id
 
-        # # Todo: Uncomment this
+        print("bottler(s)")
         print(_bottlers_list)
 
         query_to_select_all_convenience_stores = """

@@ -52,22 +52,24 @@ if __name__ == "__main__":
                                                            comments=comments,
                                                            module="consolidated")
     if isinstance(new_cust_check, bool):
+        print("INFO: No new customers have been added to any of the routes.")
         pass
     else:
         if isinstance(new_cust_check, tuple) and len(new_cust_check) == 2 and new_cust_check[
             0] is True:  # # When len(new_cust_check) is 1 --> False
-            print("Backlog Run")
+            print("INFO: New customers have been added to existing routes.")
+            print("Starting Backlog Run")
             # New customers are present
             # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
 
             temp_df = sqlContext.sql("""select * from customerdata""")
 
-            print("TEMP_DF count")
+            print("new customers count")
             print(temp_df.count())
-            # print("TEMP_DF Sample customers")
-            # temp_df.show(10)
 
             all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
+
+            print("Running backlog for the past %d week(s)." % len(all_previous_sundays))
 
             _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
 
