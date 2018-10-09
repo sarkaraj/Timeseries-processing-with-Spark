@@ -136,7 +136,7 @@ def MA_output_schema():
 
     _params = StructField("params", MapType(StringType(), ArrayType(StringType())), nullable=True)
     _pdt_category = StructField("pdt_cat", MapType(StringType(), StringType()), nullable=False)
-    post_outlier_period_flag = StructField("pdt_cat", BooleanType(), nullable=False)
+    post_outlier_period_flag = StructField("post_outlier_period_flag", BooleanType(), nullable=False)
 
     schema = StructType([customernumber, mat_no, _error_ma, _pred_ma, _params, _pdt_category, post_outlier_period_flag])
 
