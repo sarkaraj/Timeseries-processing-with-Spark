@@ -16,9 +16,11 @@ if __name__ == "__main__":
     from run_monthly import run_monthly
 
     ####################################################################################################################
+    mdl_bld_date_string = ["".join(sys.argv[1])]
+    _model_bld_date_string_stg = mdl_bld_date_string[0]
 
     # Getting Current Date Time for AppName
-    appName = "_".join([MODEL_BUILDING, get_current_date()])
+    appName = "_".join([MODEL_BUILDING, "SIMULATION_RUN::Dated::", _model_bld_date_string_stg, get_current_date()])
     ####################################################################################################################
 
     # conf = SparkConf()
@@ -35,13 +37,13 @@ if __name__ == "__main__":
     print("Setting LOG LEVEL as ERROR")
     sc.setLogLevel("ERROR")
 
-    mdl_bld_date_string = ["".join(sys.argv[1])]
-    _model_bld_date_string_stg = mdl_bld_date_string[0]
+    # mdl_bld_date_string = ["".join(sys.argv[1])]
+    # _model_bld_date_string_stg = mdl_bld_date_string[0]
     _model_bld_date_string, if_first_sunday_of_month = date_check(_model_bld_date_string_stg)
 
     # ###############################################################################################
-    # Check for new customers and generate predictions for previous 12 weeks
-
+    # Check for new customers and generate predictions for previous 13 weeks
+    # 13 weeks is hard-coded for now
     comments = " ".join(
         ["Backlog Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
     )
@@ -50,12 +52,13 @@ if __name__ == "__main__":
                                                            sqlContext=sqlContext,
                                                            _model_bld_date_string=_model_bld_date_string,
                                                            comments=comments,
-                                                           module="consolidated")
+                                                           module="consolidated",
+                                                           simulation=True)
+
     if isinstance(new_cust_check, bool):
         pass
     else:
-        if isinstance(new_cust_check, tuple) and len(new_cust_check) == 2 and new_cust_check[
-            0] is True:  # # When len(new_cust_check) is 1 --> False
+        if isinstance(new_cust_check, tuple) and len(new_cust_check) == 2 and new_cust_check[0] is True:
             print("Backlog Run")
             # New customers are present
             # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
@@ -67,7 +70,8 @@ if __name__ == "__main__":
             # print("TEMP_DF Sample customers")
             # temp_df.show(10)
 
-            all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
+            all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string,
+                                                        previous_weeks=8)  # this is an array
 
             _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
 
@@ -81,8 +85,11 @@ if __name__ == "__main__":
                 print("************************************************************************************\n")
 
             sqlContext.catalog.dropTempView("customerdata")
+        else:
+            print("ValueError: new_cust_check tuple is expected to have length of 2")
+            raise ValueError
 
-    # # Running normal weekly runs
+    # Running normal weekly runs
     print("Weekly Run")
     print("Importing Sample Customer List")
 
@@ -94,7 +101,8 @@ if __name__ == "__main__":
                                                       sqlContext=sqlContext,
                                                       _model_bld_date_string=_model_bld_date_string,
                                                       comments=comments,
-                                                      module="weekly")
+                                                      module="weekly",
+                                                      simulation=True)
 
     run_weekly(sc=sc,
                sqlContext=sqlContext,

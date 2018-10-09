@@ -14,8 +14,14 @@ from support_func import get_current_date, get_sample_customer_list, raw_data_to
 import properties as p
 
 
-def build_prediction_weekly(sc, sqlContext, **kwargs):
+def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
+    # # _bottlers is a broadcast variable
     from data_fetch.data_query import get_data_weekly
+
+    if 'backlog_run' in kwargs.keys() and kwargs.get('backlog_run'):
+        backlog = True
+    else:
+        backlog = False
 
     if '_model_bld_date_string' in kwargs.keys():
         _model_bld_date_string = kwargs.get('_model_bld_date_string')
@@ -35,7 +41,8 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     #############################________________DATA_ACQUISITION__________#####################################
 
     print("Querying of Hive Table - Obtaining Product Data for Weekly Models")
-    test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date) \
+    test_data_weekly_models = get_data_weekly(sqlContext=sqlContext, week_cutoff_date=week_cutoff_date,
+                                              _bottlers=_bottlers) \
         .rdd \
         .map(lambda x: assign_category(x)) \
         .filter(lambda x: x != "NOT_CONSIDERED") \
@@ -48,97 +55,206 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
     # # Caching Data for current run
     test_data_weekly_models.cache()
 
-    #####################################________________ARIMA__________#######################################
+    if backlog:
+        print("Backlog Running set to True. Running MA for all categories")
+        # ############################________________MOVING AVERAGE__________#####################################
 
-    # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
-    print("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
-    print("\t--Running distributed ARIMA")
-    arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                            MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+        print("*************************************************************\n")
 
-    arima_results = arima_results_to_disk \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
-        .withColumn('load_timestamp', current_timestamp())
-    #################################
-    post_outlier_period_flag_df = arima_results.select(arima_results.customernumber_arima, arima_results.mat_no_arima,            arima_results.mdl_bld_dt,arima_results.post_outlier_period_flag)
-    post_outlier_period_flag_df \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_flag_location)
-    #################################
+        print("Running MOVING AVERAGE on products")
+        print("\t--Running distributed Moving Average")
+        ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                          MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE,
+                                                          backlog_run=True)
 
-    print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
-    arima_results.select(arima_results.customernumber_arima,arima_results.mat_no_arima,arima_results.error_arima,arima_results.pred_arima,arima_results.arima_params,arima_results.pdt_cat_arima,arima_results.mdl_bld_dt,arima_results.week_cutoff_date,arima_results.load_timestamp) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_pdt_cat_123_location)
+        ma_weekly_results_df_final = ma_weekly_results_df \
+            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+            .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+            .withColumn('load_timestamp', current_timestamp()) \
+            .withColumn("category_flag",
+                        udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
 
-    #############################________________MOVING AVERAGE__________#####################################
+        print("\t--Writing the MA data into HDFS\n")
 
-    print("\t**************\n**************")
-    
-    print("Running MOVING AVERAGE on products")
-    print("\t--Running distributed Moving Average")
-    ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
-                                                      MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+        ma_weekly_results_df_final.cache()
+        
+        post_outlier_period_flag_df = ma_weekly_results_df_final \
+            .select(["customernumber","mat_no","mdl_bld_dt","post_outlier_period_flag"])
 
-    ma_weekly_results_df_final = ma_weekly_results_df \
-        .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
-        .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
-        .withColumn('load_timestamp', current_timestamp()) \
-        .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
-    #################################
-    post_outlier_period_flag_df = ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber, ma_weekly_results_df_final.mat_no, ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.post_outlier_period_flag)
-    post_outlier_period_flag_df \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_flag_location)
-    #################################
-    print("\t--Writing the MA data into HDFS\n")
+        post_outlier_period_flag_df \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_flag_location)
+            
+        ma_weekly_results_df_final.drop(col("post_outlier_period_flag"))
 
-    ma_weekly_results_df_final.cache()
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['I', 'II', 'III'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_123_location)
 
-    ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber,ma_weekly_results_df_final.mat_no,ma_weekly_results_df_final.error_MA,ma_weekly_results_df_final.pred_ma,ma_weekly_results_df_final.params,ma_weekly_results_df_final.pdt_cat,ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.week_cutoff_date,ma_weekly_results_df_final.load_timestamp)\
-        .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
-        .drop(col('category_flag')) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_456_location)
+        print("\t-- 1, 2, 3 -- Completed\n")
 
-    ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber,ma_weekly_results_df_final.mat_no,ma_weekly_results_df_final.error_MA,ma_weekly_results_df_final.pred_ma,ma_weekly_results_df_final.params,ma_weekly_results_df_final.pdt_cat,ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.week_cutoff_date,ma_weekly_results_df_final.load_timestamp)\
-        .filter(col('category_flag').isin(['VII'])) \
-        .drop(col('category_flag')) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(weekly_pdt_cat_7_location)
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_456_location)
 
-    ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber,ma_weekly_results_df_final.mat_no,ma_weekly_results_df_final.error_MA,ma_weekly_results_df_final.pred_ma,ma_weekly_results_df_final.params,ma_weekly_results_df_final.pdt_cat,ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.week_cutoff_date,ma_weekly_results_df_final.load_timestamp)\
-        .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
-        .drop(col('category_flag')) \
-        .coalesce(1) \
-        .write.mode(p.WRITE_MODE) \
-        .format('orc') \
-        .option("header", "false") \
-        .save(monthly_pdt_cat_8910_location)
+        print("\t-- 4, 5, 6 -- Completed\n")
 
-    ####################################################################################################################
-    # Clearing cache before the next run
-    # sqlContext.clearCache()
-    test_data_weekly_models.unpersist()
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VII'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_7_location)
 
-    print("************************************************************************************")
+        print("\t-- 7 -- Completed\n")
 
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_8910_location)
+
+        print("\t-- 8, 9, 10 -- Completed\n")
+
+        # ###################################################################################################################
+        # Clearing cache before the next run
+        # sqlContext.clearCache()
+        test_data_weekly_models.unpersist()
+
+        print("************************************************************************************")
+    else:
+        # #####################################________________ARIMA__________#######################################
+
+        # Running WEEKLY_MODELS (ARIMA + PROPHET) on products with FREQ > 60
+        print("Running WEEKLY_MODELS SARIMAX on products with FREQ >= " + str(p.annual_freq_cut_1))
+        print("*************************************************************\n")
+        print("\t--Running distributed ARIMA")
+        arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+        arima_results = arima_results_to_disk \
+            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+            .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+            .withColumn('load_timestamp', current_timestamp())
+        
+        arima_results.cache()
+        
+        post_outlier_period_flag_df = arima_results \
+            .select(["customernumber_arima","mat_no_arima","mdl_bld_dt","post_outlier_period_flag"])
+
+        post_outlier_period_flag_df \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_flag_location)
+        
+        
+        arima_results.drop(col("post_outlier_period_flag"))
+        
+        print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
+        arima_results \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_123_location)
+
+        print("\t-- 1, 2, 3 -- Completed\n")
+        
+        arima_results.unpersist()
+
+        # ############################________________MOVING AVERAGE__________#####################################
+
+        print("Running MOVING AVERAGE on products")
+        print("*************************************************************\n")
+        print("\t--Running distributed Moving Average")
+        ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
+                                                          MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
+
+        ma_weekly_results_df_final = ma_weekly_results_df \
+            .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
+            .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
+            .withColumn('load_timestamp', current_timestamp()) \
+            .withColumn("category_flag",
+                        udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
+
+        print("\t--Writing the MA data into HDFS\n")
+
+        ma_weekly_results_df_final.cache()
+        
+        post_outlier_period_flag_df = ma_weekly_results_df_final \
+            .select(["customernumber","mat_no","mdl_bld_dt","post_outlier_period_flag"])
+
+        post_outlier_period_flag_df \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_flag_location)
+            
+        ma_weekly_results_df_final.drop(col("post_outlier_period_flag"))
+
+
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_456_location)
+
+        print("\t-- 4, 5, 6 -- Completed\n")
+
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VII'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_pdt_cat_7_location)
+
+        print("\t-- 7 -- Completed\n")
+
+        ma_weekly_results_df_final \
+            .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
+            .drop(col('category_flag')) \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(monthly_pdt_cat_8910_location)
+
+        print("\t-- 8, 9, 10 -- Completed\n")
+        
+        ma_weekly_results_df_final.unpersist()
+
+        # ###################################################################################################################
+        # Clearing cache before the next run
+        # sqlContext.clearCache()
+        test_data_weekly_models.unpersist()
+
+        print("************************************************************************************")
 
 if __name__ == "__main__":
     # from pyspark import SparkContext, SparkConf

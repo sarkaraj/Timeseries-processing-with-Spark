@@ -39,9 +39,14 @@ def _moving_average_row_to_rdd_map(line, **kwargs):
 def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
-    test_data_input = test_data \
-        .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X')) \
-        .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
+    if 'backlog_run' in kwargs.keys() and kwargs.get('backlog_run'):
+        test_data_input = test_data \
+            .filter(lambda x: x[3].category in ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X')) \
+            .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
+    else:
+        test_data_input = test_data \
+            .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X')) \
+            .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
         .repartition(REPARTITION_STAGE_1) \
