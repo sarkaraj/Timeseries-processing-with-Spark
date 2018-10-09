@@ -5,7 +5,7 @@ from run_moving_average import _run_moving_average_weekly
 from support_func import assign_category, get_current_date
 # from transform_data.spark_dataframe_func import final_select_dataset
 from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, monthly_pdt_cat_456_location, \
-    weekly_pdt_cat_7_location, monthly_pdt_cat_8910_location
+    weekly_pdt_cat_7_location, monthly_pdt_cat_8910_location,weekly_flag_location
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from transform_data.data_transform import string_to_gregorian
@@ -60,9 +60,18 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
         .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
         .withColumn('load_timestamp', current_timestamp())
+    #################################
+    post_outlier_period_flag_df = arima_results.select(arima_results.customernumber_arima, arima_results.mat_no_arima,            arima_results.mdl_bld_dt,arima_results.post_outlier_period_flag)
+    post_outlier_period_flag_df \
+        .coalesce(1) \
+        .write.mode(p.WRITE_MODE) \
+        .format('orc') \
+        .option("header", "false") \
+        .save(weekly_flag_location)
+    #################################
 
     print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
-    arima_results \
+    arima_results.select(arima_results.customernumber_arima,arima_results.mat_no_arima,arima_results.error_arima,arima_results.pred_arima,arima_results.arima_params,arima_results.pdt_cat_arima,arima_results.mdl_bld_dt,arima_results.week_cutoff_date,arima_results.load_timestamp) \
         .coalesce(1) \
         .write.mode(p.WRITE_MODE) \
         .format('orc') \
@@ -83,12 +92,20 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
         .withColumn('load_timestamp', current_timestamp()) \
         .withColumn("category_flag", udf(lambda x: x.get("category"), StringType())(col("pdt_cat")).cast(StringType()))
-
+    #################################
+    post_outlier_period_flag_df = ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber, ma_weekly_results_df_final.mat_no, ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.post_outlier_period_flag)
+    post_outlier_period_flag_df \
+        .coalesce(1) \
+        .write.mode(p.WRITE_MODE) \
+        .format('orc') \
+        .option("header", "false") \
+        .save(weekly_flag_location)
+    #################################
     print("\t--Writing the MA data into HDFS\n")
 
     ma_weekly_results_df_final.cache()
 
-    ma_weekly_results_df_final \
+    ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber,ma_weekly_results_df_final.mat_no,ma_weekly_results_df_final.error_MA,ma_weekly_results_df_final.pred_ma,ma_weekly_results_df_final.params,ma_weekly_results_df_final.pdt_cat,ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.week_cutoff_date,ma_weekly_results_df_final.load_timestamp)\
         .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
         .drop(col('category_flag')) \
         .coalesce(1) \
@@ -97,7 +114,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .option("header", "false") \
         .save(monthly_pdt_cat_456_location)
 
-    ma_weekly_results_df_final \
+    ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber,ma_weekly_results_df_final.mat_no,ma_weekly_results_df_final.error_MA,ma_weekly_results_df_final.pred_ma,ma_weekly_results_df_final.params,ma_weekly_results_df_final.pdt_cat,ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.week_cutoff_date,ma_weekly_results_df_final.load_timestamp)\
         .filter(col('category_flag').isin(['VII'])) \
         .drop(col('category_flag')) \
         .coalesce(1) \
@@ -106,7 +123,7 @@ def build_prediction_weekly(sc, sqlContext, **kwargs):
         .option("header", "false") \
         .save(weekly_pdt_cat_7_location)
 
-    ma_weekly_results_df_final \
+    ma_weekly_results_df_final.select(ma_weekly_results_df_final.customernumber,ma_weekly_results_df_final.mat_no,ma_weekly_results_df_final.error_MA,ma_weekly_results_df_final.pred_ma,ma_weekly_results_df_final.params,ma_weekly_results_df_final.pdt_cat,ma_weekly_results_df_final.mdl_bld_dt,ma_weekly_results_df_final.week_cutoff_date,ma_weekly_results_df_final.load_timestamp)\
         .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
         .drop(col('category_flag')) \
         .coalesce(1) \
