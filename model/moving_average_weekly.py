@@ -25,7 +25,7 @@ def _get_pred_dict_MA_w(prediction):
     return _final
 
 
-def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
+def moving_average_model_weekly(prod, cus_no, mat_no, post_outlier_period_flag, baseline=False, **kwargs):
     # always define min_train_days when used for baseline
 
     import pandas as pd
@@ -131,7 +131,7 @@ def moving_average_model_weekly(prod, cus_no, mat_no, baseline=False, **kwargs):
     _pdt_cat = kwargs.get('pdt_cat')
 
     # return cus_no, mat_no, output_error_dict, pred, _pdt_cat
-    return cus_no, mat_no, output_error_dict, final_pred, _pdt_cat
+    return cus_no, mat_no, output_error_dict, final_pred, _pdt_cat, post_outlier_period_flag
 
 
 if __name__ == "__main__":

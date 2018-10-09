@@ -18,7 +18,7 @@ def _get_pred_dict_sarimax(prediction_series):
     return _final
 
 
-def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwargs):
+def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, post_outlier_period_flag, run_locally = False, **kwargs):
     '''
     function fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
@@ -231,7 +231,8 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
         _criteria = output_error_dict.get(SARIMAX_W_MODEL_SELECTION_CRITERIA)
         pdt_category = kwargs.get('pdt_cat')
         _result = (
-            (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
+            (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category,
+                               post_outlier_period_flag))
         ##############################################################################
 
         return _result

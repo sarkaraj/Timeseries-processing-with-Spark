@@ -76,8 +76,9 @@ def generate_models_sarimax(x, **kwargs):
     matnr = x[1]
     data_pd_df_week_aggregated = x[2]
     revised_cat_object = x[3]
+    post_outlier_period_flag = x[4]
 
-    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, revised_cat_object) for pdq, seasonal_pqd
+    return [(customernumber, matnr, pdq, seasonal_pqd, data_pd_df_week_aggregated, revised_cat_object, post_outlier_period_flag) for pdq, seasonal_pqd
             in generate_all_param_combo_sarimax(category=revised_cat_object.category)]
 
 
