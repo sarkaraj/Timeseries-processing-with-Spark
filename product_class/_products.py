@@ -1,8 +1,6 @@
 from product_class.properties import *
 
 # # CATEGORY 1
-
-
 class product_cat_1(object):
     def __init__(self):
         self.pdt_freq_annual_lower = annual_freq_cut_1

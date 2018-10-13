@@ -5,7 +5,7 @@ from run_moving_average import _run_moving_average_weekly
 from support_func import assign_category, get_current_date
 # from transform_data.spark_dataframe_func import final_select_dataset
 from properties import MODEL_BUILDING, weekly_pdt_cat_123_location, monthly_pdt_cat_456_location, \
-    weekly_pdt_cat_7_location, monthly_pdt_cat_8910_location
+    weekly_pdt_cat_7_location, monthly_pdt_cat_8910_location,weekly_flag_location
 from pyspark.sql.functions import *
 from pyspark.sql.types import *
 from transform_data.data_transform import string_to_gregorian
@@ -67,7 +67,7 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
                                                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE,
                                                           backlog_run=True)
 
-        ma_weekly_results_df_final = ma_weekly_results_df \
+        ma_weekly_results_df_pre_final = ma_weekly_results_df \
             .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
             .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
             .withColumn('load_timestamp', current_timestamp()) \
@@ -76,7 +76,20 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
 
         print("\t--Writing the MA data into HDFS\n")
 
-        ma_weekly_results_df_final.cache()
+        ma_weekly_results_df_pre_final.cache()
+
+        post_outlier_period_flag_df = ma_weekly_results_df_pre_final \
+            .select(["customernumber","mat_no","mdl_bld_dt","post_outlier_period_flag"])
+
+        post_outlier_period_flag_df \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_flag_location)
+
+        ma_weekly_results_df_final = ma_weekly_results_df_pre_final \
+            .drop(col("post_outlier_period_flag"))
 
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['I', 'II', 'III'])) \
@@ -125,6 +138,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         # ###################################################################################################################
         # Clearing cache before the next run
         # sqlContext.clearCache()
+
+        ma_weekly_results_df_pre_final.unpersist()
         test_data_weekly_models.unpersist()
 
         print("************************************************************************************")
@@ -138,11 +153,26 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         arima_results_to_disk = _run_dist_arima(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                                 MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-        arima_results = arima_results_to_disk \
+        arima_results_pre_final = arima_results_to_disk \
             .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
             .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
             .withColumn('load_timestamp', current_timestamp())
 
+        arima_results_pre_final.cache()
+
+        post_outlier_period_flag_df = arima_results_pre_final \
+            .select(["customernumber_arima", "mat_no_arima", "mdl_bld_dt", "post_outlier_period_flag"])
+
+        post_outlier_period_flag_df \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_flag_location)
+
+        arima_results = arima_results_pre_final \
+            .drop(col("post_outlier_period_flag"))
+        
         print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
         arima_results \
             .coalesce(1) \
@@ -153,6 +183,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
 
         print("\t-- 1, 2, 3 -- Completed\n")
 
+        arima_results_pre_final.unpersist()
+
         # ############################________________MOVING AVERAGE__________#####################################
 
         print("Running MOVING AVERAGE on products")
@@ -161,7 +193,7 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df = _run_moving_average_weekly(test_data=test_data_weekly_models, sqlContext=sqlContext,
                                                           MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE)
 
-        ma_weekly_results_df_final = ma_weekly_results_df \
+        ma_weekly_results_df_pre_final = ma_weekly_results_df \
             .withColumn('mdl_bld_dt', lit(_model_bld_date_string)) \
             .withColumn('week_cutoff_date', lit(week_cutoff_date)) \
             .withColumn('load_timestamp', current_timestamp()) \
@@ -170,7 +202,19 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
 
         print("\t--Writing the MA data into HDFS\n")
 
-        ma_weekly_results_df_final.cache()
+        ma_weekly_results_df_pre_final.cache()
+
+        post_outlier_period_flag_df = ma_weekly_results_df_pre_final \
+            .select(["customernumber","mat_no","mdl_bld_dt","post_outlier_period_flag"])
+
+        post_outlier_period_flag_df \
+            .coalesce(1) \
+            .write.mode(p.WRITE_MODE) \
+            .format('orc') \
+            .option("header", "false") \
+            .save(weekly_flag_location)
+
+        ma_weekly_results_df_final = ma_weekly_results_df_pre_final.drop(col("post_outlier_period_flag"))
 
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
@@ -204,6 +248,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .save(monthly_pdt_cat_8910_location)
 
         print("\t-- 8, 9, 10 -- Completed\n")
+
+        ma_weekly_results_df_pre_final.unpersist()
 
         # ###################################################################################################################
         # Clearing cache before the next run
