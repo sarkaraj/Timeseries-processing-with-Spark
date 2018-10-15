@@ -79,7 +79,7 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_pre_final.cache()
 
         post_outlier_period_flag_df = ma_weekly_results_df_pre_final \
-            .select(["customernumber","mat_no","mdl_bld_dt","post_outlier_period_flag"])
+            .select(["customernumber", "mat_no", "mdl_bld_dt", "post_outlier_period_flag", "load_timestamp"])
 
         post_outlier_period_flag_df \
             .coalesce(1) \
@@ -161,7 +161,8 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         arima_results_pre_final.cache()
 
         post_outlier_period_flag_df = arima_results_pre_final \
-            .select(["customernumber_arima", "mat_no_arima", "mdl_bld_dt", "post_outlier_period_flag"])
+            .select(
+            ["customernumber_arima", "mat_no_arima", "mdl_bld_dt", "post_outlier_period_flag", "load_timestamp"])
 
         post_outlier_period_flag_df \
             .coalesce(1) \
@@ -204,10 +205,10 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
 
         ma_weekly_results_df_pre_final.cache()
 
-        post_outlier_period_flag_df = ma_weekly_results_df_pre_final \
-            .select(["customernumber","mat_no","mdl_bld_dt","post_outlier_period_flag"])
+        post_outlier_period_flag_df1 = ma_weekly_results_df_pre_final \
+            .select(["customernumber", "mat_no", "mdl_bld_dt", "post_outlier_period_flag", "load_timestamp"])
 
-        post_outlier_period_flag_df \
+        post_outlier_period_flag_df1 \
             .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
