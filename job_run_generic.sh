@@ -4,13 +4,15 @@ model_bld_date=$(date +'%Y-%m-%d')
 
 # echo $model_bld_date
 
+# model_bld_date='2018-07-29'
+
 spark-submit \
 --verbose \
 --master yarn \
 --deploy-mode client \
---num-executors 30 \
---driver-memory 5G \
---executor-memory 4G \
+--num-executors 35 \
+--driver-memory 7G \
+--executor-memory 10G \
 --executor-cores 2 \
 --conf spark.dynamicAllocation.enabled=false \
 --conf spark.speculation=true \

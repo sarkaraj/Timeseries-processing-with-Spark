@@ -39,18 +39,23 @@ def _moving_average_row_to_rdd_map(line, **kwargs):
 def _run_moving_average_weekly(test_data, sqlContext, **kwargs):
     MODEL_BLD_CURRENT_DATE = kwargs.get('MODEL_BLD_CURRENT_DATE')
 
-    test_data_input = test_data \
-        .filter(lambda x: x[3].category == 'VII') \
-        .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
+    if 'backlog_run' in kwargs.keys() and kwargs.get('backlog_run'):
+        test_data_input = test_data \
+            .filter(lambda x: x[3].category in ('I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X')) \
+            .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
+    else:
+        test_data_input = test_data \
+            .filter(lambda x: x[3].category in ('IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X')) \
+            .map(lambda line: _moving_average_row_to_rdd_map(line=line, MODEL_BLD_CURRENT_DATE=MODEL_BLD_CURRENT_DATE))
 
     ma_weekly_results_rdd = test_data_input \
         .repartition(REPARTITION_STAGE_1) \
         .map(lambda x: moving_average_model_weekly(cus_no=x[0], mat_no=x[1], prod=x[2], pdt_cat=x[3].get_product_prop(),
-                                                   weekly_window=x[3].get_window()))
+                                                   weekly_window=x[3].get_window(), post_outlier_period_flag = x[4]))
 
     opt_ma_weekly_results_mapped = ma_weekly_results_rdd.map(lambda line: map_for_output_MA_weekly(line))
 
-    opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema=MA_output_schema())
+    opt_ma_weekly_results_df = sqlContext.createDataFrame(opt_ma_weekly_results_mapped, schema = MA_output_schema())
 
     return opt_ma_weekly_results_df
 

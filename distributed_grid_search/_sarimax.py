@@ -18,7 +18,7 @@ def _get_pred_dict_sarimax(prediction_series):
     return _final
 
 
-def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwargs):
+def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, post_outlier_period_flag, run_locally = False, **kwargs):
     '''
     function fits sarimax model on the weekly data(cat I, II and III) for the given parameter set,
     performs CV, calculates CV error and makes future prediction.
@@ -179,6 +179,7 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
 
         output_error = pd.DataFrame(data=[[cus_no, mat_no, rmse_calculator(output_result.y_ARIMA, output_result.y),
                                            mape_calculator(output_result.y_ARIMA, output_result.y),
+                                           mae_calculator(output_result.y_ARIMA, output_result.y),
                                            np.nanmedian(
                                                np.absolute(np.array(output_result.rolling_6week_percent_error_arima))),
                                            np.nanmax(
@@ -195,12 +196,30 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
                                                np.absolute(np.array(output_result.rolling_12week_percent_error_arima))),
                                            np.nanmean(
                                                np.absolute(np.array(output_result.rolling_12week_quantity))),
+                                           np.nanmedian(
+                                               np.absolute(np.array(output_result.rolling_24week_percent_error_arima))),
+                                           np.nanmax(
+                                               np.absolute(np.array(output_result.rolling_24week_percent_error_arima))),
+                                           np.nanmean(
+                                               np.absolute(np.array(output_result.rolling_24week_percent_error_arima))),
+                                           np.nanmean(
+                                               np.absolute(np.array(output_result.rolling_24week_quantity))),
+                                           np.nanmedian(
+                                               np.absolute(np.array(output_result.rolling_48week_percent_error_arima))),
+                                           np.nanmax(
+                                               np.absolute(np.array(output_result.rolling_48week_percent_error_arima))),
+                                           np.nanmean(
+                                               np.absolute(np.array(output_result.rolling_48week_percent_error_arima))),
+                                           np.nanmean(
+                                               np.absolute(np.array(output_result.rolling_48week_quantity))),
                                            output_result['Error_Cumsum_arima'].iloc[-1],
                                            output_result['cumsum_quantity'].iloc[-1],
                                            ((np.amax(output_result.ds) - np.amin(output_result.ds)).days + 7)]],
-                                    columns=['cus_no', 'mat_no', 'rmse', 'mape',
+                                    columns=['cus_no', 'mat_no', 'rmse', 'mape', 'mae',
                                              'wre_med_6', 'wre_max_6', 'wre_mean_6', 'quantity_mean_6',
                                              'wre_med_12', 'wre_max_12', 'wre_mean_12', 'quantity_mean_12',
+                                             'wre_med_24', 'wre_max_24', 'wre_mean_24', 'quantity_mean_24',
+                                             'wre_med_48', 'wre_max_48', 'wre_mean_48', 'quantity_mean_48',
                                              'cum_error', 'cum_quantity',
                                              'period_days'])
         ##############################################################################
@@ -212,7 +231,8 @@ def sarimax(cus_no, mat_no, pdq, seasonal_pdq, prod, run_locally = False, **kwar
         _criteria = output_error_dict.get(SARIMAX_W_MODEL_SELECTION_CRITERIA)
         pdt_category = kwargs.get('pdt_cat')
         _result = (
-            (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category))
+            (cus_no, mat_no), (_criteria, output_error_dict, _output_pred, list(pdq), list(seasonal_pdq), pdt_category,
+                               post_outlier_period_flag))
         ##############################################################################
 
         return _result

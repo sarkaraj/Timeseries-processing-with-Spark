@@ -105,6 +105,13 @@ def rmse_calculator(y_forecasted,y_truth):
 
     return (round(rmse, 2))
 
+def mae_calculator(y_forecasted,y_truth):
+
+    import numpy as np
+    mae = (np.abs(y_forecasted - y_truth)).mean()
+
+    return (round(mae, 2))
+
 def mape_calculator(y_forecasted,y_truth):
 
     import numpy as np
@@ -154,11 +161,25 @@ def weekly_moving_average_error_calc(data, weekly_window, baseline = False, min_
         'rolling_12week_y'] * 100
     data_pred['rolling_12week_quantity'] = pd.rolling_sum(data_pred['y'], window=12, min_periods=12)
 
+    data_pred['rolling_24week_error'] = pd.rolling_sum(data_pred['Error'], window=24, min_periods=24)
+    data_pred['rolling_24week_y'] = pd.rolling_sum(data_pred['y'], window=24, min_periods=24)
+    data_pred['rolling_24week_percent_error'] = data_pred['rolling_24week_error'] / data_pred[
+        'rolling_24week_y'] * 100
+    data_pred['rolling_24week_quantity'] = pd.rolling_sum(data_pred['y'], window=24, min_periods=24)
+
+    data_pred['rolling_48week_error'] = pd.rolling_sum(data_pred['Error'], window=48, min_periods=48)
+    data_pred['rolling_48week_y'] = pd.rolling_sum(data_pred['y'], window=48, min_periods=48)
+    data_pred['rolling_48week_percent_error'] = data_pred['rolling_48week_error'] / data_pred[
+        'rolling_48week_y'] * 100
+    data_pred['rolling_48week_quantity'] = pd.rolling_sum(data_pred['y'], window=48, min_periods=48)
+
     rmse = rmse_calculator(y_forecasted= data_pred.rolling_mean,y_truth= data_pred.y)
 
     mape = mape_calculator(y_forecasted= data_pred.rolling_mean, y_truth=data_pred.y)
 
-    return(data_pred, rmse, mape)
+    mae= mae_calculator(y_forecasted=data_pred.rolling_mean, y_truth=data_pred.y)
+
+    return(data_pred, rmse, mape, mae)
 
 def monthly_moving_average_error_calc(data, monthly_window, baseline = False, min_train_days = 365):
 
@@ -211,3 +232,17 @@ def monthly_moving_average_error_calc(data, monthly_window, baseline = False, mi
     mape = mape_calculator(y_forecasted= data_pred.rolling_mean, y_truth=data_pred.y)
 
     return(data_pred, rmse, mape)
+
+
+if __name__ == "__main__":
+
+    import pandas as pd
+    import numpy as np
+
+    df = pd.DataFrame({'actual': [1, 2, 5], 'predicted': [2, 3, 0]})
+
+    print(df)
+
+    print(mae_calculator(df['actual'], df['predicted']))
+
+    print(np.mean([1, 1, 5]))

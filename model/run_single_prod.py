@@ -15,29 +15,30 @@ file_dir = "C:\\CONA_CSO\\thadeus_route\\raw_data\\"
 # image save folder
 image_dir = "C:\\CONA_CSO\\thadeus_route\\model_fit_plots\\temp\\"
 
-raw_data = pd.read_csv(file_dir + "raw_invoices_2018-06-28.tsv",
+raw_data = pd.read_csv(file_dir + "raw_invoices_2018-07-06.tsv",
                        sep="\t", header=None, names=['customernumber', 'matnr', 'date', 'quantity', 'q_indep_p'])
 
 print("Raw Data Head:\n")
 print(raw_data.head())
 # User Input
 ###########################################################
-cus_no = 500075185
+cus_no = 500075236
 
  #500057580 #500072487 #500068490(m)
-mat_no = 126073
+mat_no = 132221
+
  #119826 #132218 #144484(m)
 
 # compare w: wre_12: 500096578 100285 (5,0,1), 500067084 119826 (5,2,2),
 # compare m: rmse: 500057578 100287 (2,0,0), 500068482 132540 (2,0,0)
 # example to show seasonal effect 500269279 135573(m)
 ## for weekly it has to be sunday, monthly last dte of month
-mdl_cutoff_date = parser.parse("2018-05-31") #"2018-06-03"
-weekly_model = False
+mdl_cutoff_date = parser.parse("2018-06-30") #"2018-06-03"
+weekly_model = True
 monthly_model = True
 
 pdq = (0,1,1)
-pdq_seasonal = (0,0,0,12) # period is 52 and 12 for monthly and weekly respectively
+pdq_seasonal = (0,0,0,52) # period is 52 and 12 for monthly and weekly respectively
 trend = [0,0,0] # only applicable for monthly model
 ############################################################
 
@@ -118,10 +119,11 @@ elif monthly_model == True:
                       xlable="Date", ylable="Quantity",
                       title="Raw_vs_Cleaned_Data", cus_no=cus_no, mat_no=mat_no, dir_name=image_dir)
 
-    # sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally=False, **kwargs)
-    output = sarimax_monthly(cus_no= cus_no, mat_no= mat_no, pdq= pdq, seasonal_pdq= pdq_seasonal, trend= trend,
-                             prod= data_m_agg_cleaned,run_locally= True, image_dir= image_dir)
 
-    print("Output sarimax monthly model:")
-    print(output)
-    print("\n#####################################################")
+    # # sarimax_monthly(cus_no, mat_no, pdq, seasonal_pdq, trend, prod, run_locally=False, **kwargs)
+    # output = sarimax_monthly(cus_no= cus_no, mat_no= mat_no, pdq= pdq, seasonal_pdq= pdq_seasonal, trend= trend,
+    #                          prod= data_m_agg_cleaned,run_locally= True, image_dir= image_dir)
+    #
+    # print("Output sarimax monthly model:")
+    # print(output)
+    # print("\n#####################################################")

@@ -213,3 +213,36 @@ def promotions_and_holidays_save_plots(x, y,
     save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
     plt.savefig(save_file, bbox_inches='tight')
     plt.close(fig)
+
+def holidays_save_plots(x, y,
+                       xlable, ylable,
+                       holidays_count, holiday_start_day_list, holidays_end_day_list, holiday_name,
+                       title, dir_name, cus_no, mat_no):
+    fig = plt.figure()
+    plt.plot(x, y, marker="*", markerfacecolor="red", markeredgecolor="red", markersize=3.0)
+    plt.title(title)
+    plt.xlabel(xlable)
+    plt.ylabel(ylable)
+
+    holiday_col = {'New Year Day': '#E6194B', 'Memorial Day': '#3CB44B', 'Independence Day': '#FFE119',
+                   'Labor Day': '#0082C8', 'Thanksgiving Day': '#F58231', 'Christmas Day': '#911EB4'}
+
+    ax = plt.subplot()
+    all_patch = []
+
+
+    holiday_type = []
+    for j in range(holidays_count):
+        ax.axvspan(holiday_start_day_list.iloc[j], holidays_end_day_list.iloc[j], alpha=0.1,
+                   color=holiday_col.get(holiday_name[j]))
+
+        if holiday_name[j] not in holiday_type:
+            holiday_type = holiday_type + [holiday_name[j]]
+            patch = mpatches.Patch(color=holiday_col.get(holiday_name[j]), label=holiday_name[j])
+            all_patch = all_patch + [patch]
+
+    plt.legend(handles=all_patch)
+
+    save_file = os.path.join(dir_name, str(cus_no) + "_" + str(mat_no) + "_" + title + ".png")
+    plt.savefig(save_file, bbox_inches='tight')
+    plt.close(fig)
