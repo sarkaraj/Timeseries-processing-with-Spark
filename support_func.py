@@ -593,7 +593,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         group by customernumber, mdl_bld_dt) customer_tbl
         join
         (select max(mdl_bld_dt) mdl_bld_dt
-        from cso_test_env.view_consolidated_pred_complete_CCBCC) max_date
+        from cso_test_env.view_consolidated_pred_complete_CCBCC where mdl_bld_dt < """ + _model_bld_date_string + """) max_date
         on customer_tbl.mdl_bld_dt = max_date.mdl_bld_dt
         """
 
@@ -697,7 +697,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
         print("delivery list count")
         print(_delivery_routes.count())
-        _delivery_routes.show(10)
+        # _delivery_routes.show(10)
 
         _complete_customer_list_from_VL_df = sqlContext.read \
             .format("csv") \
@@ -706,6 +706,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .load(p.VISIT_LIST_LOCATION) \
             .select(col("USERID").alias("sales_rep_id"),
                     col("KUNNR").alias("customernumber"))
+
+        # print("_complete_customer_list_from_VL_df")
+        # _complete_customer_list_from_VL_df.show(10)
 
         _bottlers_stg = sqlContext.read \
             .format("csv") \
@@ -738,8 +741,8 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
             .withColumnRenamed("kunnr", "customernumber")
 
-        print("convenience_store_df")
-        convenience_store_df.show(10)
+        # print("convenience_store_df")
+        # convenience_store_df.show(10)
 
         query_to_select_all_customers_from_last_mdl_bld_dt = """
         select customer_tbl.customernumber customernumber
@@ -767,8 +770,8 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
             .distinct()
 
-        print("_custom_customer_list_df_stg")
-        _custom_customer_list_df_stg.show(10)
+        # print("_custom_customer_list_df_stg")
+        # _custom_customer_list_df_stg.show(10)
 
         _custom_customer_list_df = _custom_customer_list_df_stg \
             .join(broadcast(customers_present_on_previous_run),
@@ -778,8 +781,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .drop(customers_present_on_previous_run.customernumber)
 
         _custom_customer_list_df.cache()
-        print("_custom_customer_list_df")
-        _custom_customer_list_df.show(10)
+
+        # print("_custom_customer_list_df")
+        # _custom_customer_list_df.show(10)
 
         if _custom_customer_list_df.count() == 0:
             # Implying there exists no new customers that has been added to the routes
