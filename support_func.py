@@ -415,7 +415,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
 
-        print("test_delivery_routes simulation")
+        print("test_delivery_routes production")
         print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
@@ -697,6 +697,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
         print("delivery list count")
         print(_delivery_routes.count())
+        _delivery_routes.show(10)
 
         _complete_customer_list_from_VL_df = sqlContext.read \
             .format("csv") \
@@ -771,6 +772,8 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .drop(customers_present_on_previous_run.customernumber)
 
         _custom_customer_list_df.cache()
+        print("_custom_customer_list_df")
+        _custom_customer_list_df.show(10)
 
         if _custom_customer_list_df.count() == 0:
             # Implying there exists no new customers that has been added to the routes

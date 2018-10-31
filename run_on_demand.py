@@ -67,60 +67,61 @@ if __name__ == "__main__":
                                                            comments=comments,
                                                            module="consolidated",
                                                            on_demand_sales_route_location=on_demand_sales_route_location)
-    if isinstance(new_cust_check, bool):
-        pass
-    else:
-        if isinstance(new_cust_check, tuple) and len(new_cust_check) == 2 and new_cust_check[
-            0] is True:  # # When len(new_cust_check) is 1 --> False
-            print("Backlog Run")
-            # New customers are present
-            # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
 
-            temp_df = sqlContext.sql("""select * from customerdata""")
-
-            print("TEMP_DF count")
-            print(temp_df.count())
-            # print("TEMP_DF Sample customers")
-            # temp_df.show(10)
-
-            all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
-
-            _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
-
-            for sunday in all_previous_sundays:
-                print("**********************************" + sunday + "************************************\n")
-                run_weekly(sc=sc,
-                           sqlContext=sqlContext,
-                           _model_bld_date_string=sunday,
-                           backlog=True,
-                           _bottlers=_bottler_broadcaster_1)
-                print("************************************************************************************\n")
-
-            sqlContext.catalog.dropTempView("customerdata")
-
-    # # Running normal weekly runs
-    print("Weekly Run")
-    print("Importing Sample Customer List")
-
-    comments = " ".join(
-        ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
-    )
-
-    _bottler_broadcaster_2 = get_sample_customer_list(sc=sc,
-                                                      sqlContext=sqlContext,
-                                                      _model_bld_date_string=_model_bld_date_string,
-                                                      comments=comments,
-                                                      module="weekly",
-                                                      on_demand_sales_route_location=on_demand_sales_route_location)
-
-    run_weekly(sc=sc,
-               sqlContext=sqlContext,
-               _model_bld_date_string=_model_bld_date_string,
-               _bottlers=_bottler_broadcaster_2)
-    print("************************************************************************************\n")
-
-    # Cleaning Up memory
-    sqlContext.catalog.dropTempView("customerdata")
+    # if isinstance(new_cust_check, bool):
+    #     pass
+    # else:
+    #     if isinstance(new_cust_check, tuple) and len(new_cust_check) == 2 and new_cust_check[
+    #         0] is True:  # # When len(new_cust_check) is 1 --> False
+    #         print("Backlog Run")
+    #         # New customers are present
+    #         # Running predictor for generating predictions for previous weeks : CURRENTLY FOR SLOW PRODUCTS
+    #
+    #         temp_df = sqlContext.sql("""select * from customerdata""")
+    #
+    #         print("TEMP_DF count")
+    #         print(temp_df.count())
+    #         # print("TEMP_DF Sample customers")
+    #         # temp_df.show(10)
+    #
+    #         all_previous_sundays = get_previous_sundays(_date=_model_bld_date_string)  # this is an array
+    #
+    #         _bottler_broadcaster_1 = new_cust_check[1]  # # accessing the broadcaster variable for bottler id's
+    #
+    #         for sunday in all_previous_sundays:
+    #             print("**********************************" + sunday + "************************************\n")
+    #             run_weekly(sc=sc,
+    #                        sqlContext=sqlContext,
+    #                        _model_bld_date_string=sunday,
+    #                        backlog=True,
+    #                        _bottlers=_bottler_broadcaster_1)
+    #             print("************************************************************************************\n")
+    #
+    #         sqlContext.catalog.dropTempView("customerdata")
+    #
+    # # # Running normal weekly runs
+    # print("Weekly Run")
+    # print("Importing Sample Customer List")
+    #
+    # comments = " ".join(
+    #     ["Weekly Run. Dated:", str(_model_bld_date_string), "Execution-Date", get_current_date()]
+    # )
+    #
+    # _bottler_broadcaster_2 = get_sample_customer_list(sc=sc,
+    #                                                   sqlContext=sqlContext,
+    #                                                   _model_bld_date_string=_model_bld_date_string,
+    #                                                   comments=comments,
+    #                                                   module="weekly",
+    #                                                   on_demand_sales_route_location=on_demand_sales_route_location)
+    #
+    # run_weekly(sc=sc,
+    #            sqlContext=sqlContext,
+    #            _model_bld_date_string=_model_bld_date_string,
+    #            _bottlers=_bottler_broadcaster_2)
+    # print("************************************************************************************\n")
+    #
+    # # Cleaning Up memory
+    # sqlContext.catalog.dropTempView("customerdata")
 
     # Stopping SparkContext
     spark.stop()
