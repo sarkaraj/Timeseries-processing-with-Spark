@@ -375,7 +375,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
 
         customer_list.createOrReplaceTempView("customerdata")
 
-        customer_sample.coalesce(1) \
+        customer_sample \
             .write.mode('append') \
             .format('orc') \
             .option("header", "false") \
@@ -496,7 +496,7 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
 
         customer_list.createOrReplaceTempView("customerdata")
 
-        customer_sample.coalesce(1) \
+        customer_sample \
             .write.mode('append') \
             .format('orc') \
             .option("header", "false") \
@@ -645,7 +645,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
             customer_list.createOrReplaceTempView("customerdata")
 
-            customer_sample.coalesce(1) \
+            customer_sample \
                 .write.mode('append') \
                 .format('orc') \
                 .option("header", "false") \
@@ -811,7 +811,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
 
             customer_list.createOrReplaceTempView("customerdata")
 
-            customer_sample.coalesce(1) \
+            customer_sample \
                 .write.mode('append') \
                 .format('orc') \
                 .option("header", "false") \

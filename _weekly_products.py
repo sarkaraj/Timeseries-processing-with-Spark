@@ -82,7 +82,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .select(["customernumber", "mat_no", "mdl_bld_dt", "post_outlier_period_flag", "load_timestamp"])
 
         post_outlier_period_flag_df \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -94,7 +93,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['I', 'II', 'III'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -105,7 +103,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -116,7 +113,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VII'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -127,7 +123,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -165,7 +160,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             ["customernumber_arima", "mat_no_arima", "mdl_bld_dt", "post_outlier_period_flag", "load_timestamp"])
 
         post_outlier_period_flag_df \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -176,7 +170,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         
         print("\t--Writing the WEEKLY_MODELS ARIMA data into HDFS")
         arima_results \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -209,7 +202,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
             .select(["customernumber", "mat_no", "mdl_bld_dt", "post_outlier_period_flag", "load_timestamp"])
 
         post_outlier_period_flag_df1 \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -220,7 +212,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['IV', 'V', 'VI'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -231,7 +222,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VII'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
@@ -242,7 +232,6 @@ def build_prediction_weekly(sc, sqlContext, _bottlers, **kwargs):
         ma_weekly_results_df_final \
             .filter(col('category_flag').isin(['VIII', 'IX', 'X'])) \
             .drop(col('category_flag')) \
-            .coalesce(1) \
             .write.mode(p.WRITE_MODE) \
             .format('orc') \
             .option("header", "false") \
