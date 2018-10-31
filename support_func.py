@@ -338,9 +338,9 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
                           _bottlers_df.collect()]  # # is a array of string containing bottler id
 
         query_to_select_all_convenience_stores = """
-        select kunnr
-        from mdm.customer
-        where katr6 = '3'
+        select customernumber
+        from mdm.dim_customer
+        where tradechannel = '3'
         """
 
         convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
@@ -457,9 +457,9 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         print(_bottlers_list)
 
         query_to_select_all_convenience_stores = """
-        select kunnr
-        from mdm.customer
-        where katr6 = '3'
+        select customernumber
+        from mdm.dim_customer
+        where tradechannel = '3'
         """
 
         convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
@@ -577,9 +577,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
                           _bottlers_df.collect()]  # # is a array of string containing bottler id
 
         query_to_select_all_convenience_stores = """
-        select kunnr
-        from mdm.customer
-        where katr6 = '3'
+        select customernumber
+        from mdm.dim_customer
+        where tradechannel = '3'
         """
 
         convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
@@ -733,9 +733,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         print(_bottlers_list)
 
         query_to_select_all_convenience_stores = """
-        select kunnr
-        from mdm.customer
-        where katr6 = '3'
+        select customernumber
+        from mdm.dim_customer
+        where tradechannel = '3'
         """
 
         convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
