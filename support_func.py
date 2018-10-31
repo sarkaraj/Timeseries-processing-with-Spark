@@ -764,6 +764,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             .drop(_complete_customer_list_from_VL_df.sales_rep_id) \
             .distinct()
 
+        print("_custom_customer_list_df_stg")
+        _custom_customer_list_df_stg.show(10)
+
         _custom_customer_list_df = _custom_customer_list_df_stg \
             .join(broadcast(customers_present_on_previous_run),
                   on=[customers_present_on_previous_run.customernumber == _custom_customer_list_df_stg.customernumber],
