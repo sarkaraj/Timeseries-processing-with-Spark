@@ -305,6 +305,9 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
 
+        print("test_delivery_routes simulation")
+        print(test_delivery_routes)
+
         _delivery_routes = sqlContext.read \
             .format("csv") \
             .option("delimiter", "\t") \
@@ -411,6 +414,9 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes simulation")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
@@ -531,6 +537,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes simulation")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
@@ -671,6 +680,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes production")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
