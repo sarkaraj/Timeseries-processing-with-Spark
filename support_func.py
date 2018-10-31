@@ -294,16 +294,25 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             print("ValueError: No module date has been provided")
             raise ValueError
 
+        if "on_demand_sales_route_location" in kwargs.keys():
+            print("\'on_demand_sales_route_location\' is provided")
+            print("Location provided: ", kwargs.get("on_demand_sales_route_location"))
+            test_delivery_routes = kwargs.get("on_demand_sales_route_location")
+        else:
+            test_delivery_routes = "wasb://csotestenv@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
+
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes simulation")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
             .option("delimiter", "\t") \
             .option("header", "false") \
-            .load(
-            "wasb://csotestenv@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes") \
+            .load(test_delivery_routes) \
             .withColumnRenamed("_c0", "sales_rep_id") \
             .select(col("sales_rep_id"))
 
@@ -395,15 +404,25 @@ def get_sample_customer_list(sc, sqlContext, **kwargs):
             print("ValueError: No module date has been provided")
             raise ValueError
 
+        if "on_demand_sales_route_location" in kwargs.keys():
+            print("\'on_demand_sales_route_location\' is provided")
+            print("Location provided: ", kwargs.get("on_demand_sales_route_location"))
+            test_delivery_routes = kwargs.get("on_demand_sales_route_location")
+        else:
+            test_delivery_routes = p.test_delivery_routes
+
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes simulation")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
             .option("delimiter", "\t") \
             .option("header", "false") \
-            .load(p.test_delivery_routes) \
+            .load(test_delivery_routes) \
             .withColumnRenamed("_c0", "sales_rep_id") \
             .select(col("sales_rep_id"))
 
@@ -511,16 +530,25 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             print("ValueError: No module date has been provided")
             raise ValueError
 
+        if "on_demand_sales_route_location" in kwargs.keys():
+            print("\'on_demand_sales_route_location\' is provided")
+            print("Location provided: ", kwargs.get("on_demand_sales_route_location"))
+            test_delivery_routes = kwargs.get("on_demand_sales_route_location")
+        else:
+            test_delivery_routes = "wasb://csotestenv@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes"
+
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes simulation")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
             .option("delimiter", "\t") \
             .option("header", "false") \
-            .load(
-            "wasb://csotestenv@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes") \
+            .load(test_delivery_routes) \
             .withColumnRenamed("_c0", "sales_rep_id") \
             .select(col("sales_rep_id"))
 
@@ -645,15 +673,25 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
             print("ValueError: No module date has been provided")
             raise ValueError
 
+        if "on_demand_sales_route_location" in kwargs.keys():
+            print("\'on_demand_sales_route_location\' is provided")
+            print("Location provided: ", kwargs.get("on_demand_sales_route_location"))
+            test_delivery_routes = kwargs.get("on_demand_sales_route_location")
+        else:
+            test_delivery_routes = p.test_delivery_routes
+
         # ###########################################
         # OBTAIN CUSTOMER NUMBER FROM DELIVERY ROUTES
         # ###########################################
+
+        print("test_delivery_routes production")
+        print(test_delivery_routes)
 
         _delivery_routes = sqlContext.read \
             .format("csv") \
             .option("delimiter", "\t") \
             .option("header", "false") \
-            .load(p.test_delivery_routes) \
+            .load(test_delivery_routes) \
             .withColumnRenamed("_c0", "sales_rep_id") \
             .select(col("sales_rep_id"))
 
@@ -814,23 +852,23 @@ def check_if_first_sunday_of_month(_date):
     return first_sunday_of_month == _date.day
 
 
-def get_current_or_next_sunday(d, weekday=6):
+def get_current_or_previous_sunday(d, weekday=6):
     # import datetime
 
     if d.weekday() == 6:
         # Checking if current day is Sunday or not. If sunday then return date as it is
         return d
     else:
-        # If not sunday send next sunday
+        # If not sunday send previous sunday
         days_ahead = weekday - d.weekday()
         if days_ahead <= 0:
             days_ahead += 7
-        return d + datetime.timedelta(days_ahead)
+        return d + datetime.timedelta(days_ahead) + datetime.timedelta(-7)
 
 
 def date_check(date_string, **kwargs):
     _date = string_to_gregorian(dt_str=date_string)
-    _model_bld_dt = get_current_or_next_sunday(d=_date)
+    _model_bld_dt = get_current_or_previous_sunday(d=_date)
     monthly_sunday_flag = check_if_first_sunday_of_month(_model_bld_dt)
     return _model_bld_dt.strftime("%Y-%m-%d"), monthly_sunday_flag
 
