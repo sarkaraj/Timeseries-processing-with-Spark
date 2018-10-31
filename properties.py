@@ -30,8 +30,8 @@ annual_freq_cut_3 = p.annual_freq_cut_3
 MODEL_BUILDING = "CONA_TS_MODEL_BUILD"
 MODEL_TESTING = "CONA_TS_MODEL_TEST"
 
-REPARTITION_STAGE_1 = 45
-REPARTITION_STAGE_2 = 45
+REPARTITION_STAGE_1 = 105
+REPARTITION_STAGE_2 = 105
 
 ###################################################################################################
 # ___________________________________STORAGE LOCATION______________________________________________
