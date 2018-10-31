@@ -37,13 +37,13 @@ $model_bld_date \
 $on_demand_sales_loc
 
 
-PROD_ROUTE_LOCATION='wasb://csoproduction@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes'
-
-echo "Moving all contents from temp route location to Production Route Location"
-echo "Source: "$on_demand_sales_loc
-echo "Sink: "$PROD_ROUTE_LOCATION
-
-hadoop fs -mv $on_demand_sales_loc/* $PROD_ROUTE_LOCATION
-hadoop fs -rm -r $on_demand_sales_loc
+#PROD_ROUTE_LOCATION='wasb://csoproduction@conapocv2standardsa.blob.core.windows.net/CONA_CSO/CCBCC_Consolidated/test_delivery_routes'
+#
+#echo "Moving all contents from temp route location to Production Route Location"
+#echo "Source: "$on_demand_sales_loc
+#echo "Sink: "$PROD_ROUTE_LOCATION
+#
+#hadoop fs -mv $on_demand_sales_loc/* $PROD_ROUTE_LOCATION
+#hadoop fs -rm -r $on_demand_sales_loc
 
 exit 0
