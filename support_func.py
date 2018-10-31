@@ -738,6 +738,9 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         convenience_store_df = sqlContext.sql(query_to_select_all_convenience_stores) \
             .withColumnRenamed("kunnr", "customernumber")
 
+        print("convenience_store_df")
+        convenience_store_df.show(10)
+
         query_to_select_all_customers_from_last_mdl_bld_dt = """
         select customer_tbl.customernumber customernumber
         from
@@ -746,7 +749,7 @@ def get_sample_customer_list_new_addition(sc, sqlContext, **kwargs):
         group by customernumber, mdl_bld_dt) customer_tbl
         join
         (select max(mdl_bld_dt) mdl_bld_dt
-        from cso_production.view_consolidated_pred_complete_CCBCC) max_date
+        from cso_production.view_consolidated_pred_complete_CCBCC where mdl_bld_dt < """ + _model_bld_date_string + """) max_date
         on customer_tbl.mdl_bld_dt = max_date.mdl_bld_dt
         """
 
